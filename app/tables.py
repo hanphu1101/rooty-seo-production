@@ -338,7 +338,7 @@ def lark_fields(key):
         elif f["k"] == "dec":
             prop = {"formatter": "0.0"}
         elif f["k"] == "date":
-            prop = {"date_formatter": "dd/MM/yyyy"}
+            prop = {"date_formatter": "yyyy/MM/dd"}
         out.append((f["n"], _LARK_TYPE[f["k"]], prop))
     return out
 
