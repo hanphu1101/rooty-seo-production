@@ -292,6 +292,7 @@ svg.chart text{fill:var(--muted);font-size:11px}
   <span id="mode" class="mode"></span>
   <span class="sp"></span>
   <button class="btn ghost" id="btnSetup" hidden>Khởi tạo bảng Lark</button>
+  <button class="btn ghost" id="btnMigrate" hidden title="Chép toàn bộ dữ liệu đang lưu trên máy (app/demo-data.json) lên Lark — chỉ ghi vào bảng Lark còn trống">Chuyển dữ liệu máy → Lark</button>
   <button class="btn ghost" id="btnReload">↻ Tải lại</button>
 </div></header>
 
@@ -1723,6 +1724,10 @@ async function saveViec(id, body){
 
 /* ================= khởi động ================= */
 $('#btnReload').onclick = async ()=>{ Object.keys(DATA).forEach(k=>delete DATA[k]); renderNav(); render(); };
+$('#btnMigrate').onclick = async ()=>{ if(!confirm('Chép toàn bộ dữ liệu đang lưu trên máy lên Lark? Chỉ ghi vào bảng Lark còn trống, không ghi đè.')) return;
+  $('#btnMigrate').disabled=true; try{ const r=await api('POST','/api/migrate'); toast(r.message);
+    const poll=async()=>{ const s=await api('GET','/api/job/migrate'); if(s.running){ toast(s.lines.slice(-1)[0]||'Đang chuyển…'); setTimeout(poll,3000);} else { toast(s.result); $('#btnMigrate').disabled=false; Object.keys(DATA).forEach(k=>delete DATA[k]); renderNav(); render(); } }; setTimeout(poll,2000);
+  }catch(e){ toast(e.message,true); $('#btnMigrate').disabled=false; } };
 $('#btnSetup').onclick = async ()=>{ $('#btnSetup').disabled=true; try{ const r=await api('POST','/api/setup'); toast(r.message); }catch(e){ toast(e.message,true);} finally{ $('#btnSetup').disabled=false; } };
 (async ()=>{
   try{
@@ -1730,6 +1735,7 @@ $('#btnSetup').onclick = async ()=>{ $('#btnSetup').disabled=true; try{ const r=
     $('#mode').textContent = CFG.mode==='lark' ? '● Lark Base' : 'DEMO · lưu tạm trên máy';
     $('#mode').className = 'mode ' + CFG.mode;
     $('#btnSetup').hidden = CFG.mode!=='lark';
+    $('#btnMigrate').hidden = CFG.mode!=='lark';
     $('#newForm').type.innerHTML = '<option value="">—</option>' + CFG.pageTypes.map(t=>`<option>${esc(t)}</option>`).join('');
     VIEW = store.get('rooty-view2','tongquan'); if(!GUIDES[VIEW]) VIEW='tongquan';
     renderNav(); render();

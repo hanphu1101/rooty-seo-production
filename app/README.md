@@ -48,7 +48,7 @@ Các bảng nối với nhau qua **URL trang đích**: cột "Trang đích" (T�
 4. **Cho app vào Base**: mở Base → **…** → **Add Document App** → chọn app, quyền **có thể quản lý**.
 5. **Điền `.env`**: copy `.env.example` → `.env` (thư mục `rooty-seo-production`), tự điền App ID, App Secret, mã Base, `PROJECT_START`.
 6. **Chạy lại server** → bấm **Khởi tạo bảng Lark** → trang tự tạo **30 bảng** (thêm Giá & dữ kiện, Kiểm nhiều website, Cập nhật thuật toán, Tin Google Search Central, Chính sách spam Google, Sửa lỗi từng trang, Thông tin thương hiệu, Xung đột từ khoá, Nhật ký thay đổi, Lịch review, Checklist GEO, Bộ câu hỏi AI, Đo hiện diện AI): Bài viết · Việc SEO · Nhật ký · Nguồn dữ liệu khách · Khách hàng · Hành trình khách · Từ khoá gốc · Từ khoá · Trang đích · Đối thủ · Từ khoá đối thủ · Checklist audit · Audit · Thực thể · Hồ sơ thương hiệu · Liên kết · Đánh giá tháng.
-7. Bấm các nút nạp dữ liệu ở B3, B5, B1, B8 và "Nạp công đoạn" ở Kế hoạch. (Dữ liệu demo trên máy không tự chuyển lên Lark.)
+7. Đã làm ở chế độ demo trên máy? Bấm **Chuyển dữ liệu máy → Lark** (góc trên): chép mọi bảng trong `app/demo-data.json` lên Lark, chỉ ghi vào bảng Lark còn trống nên bấm lại không bị nhân đôi. Chưa có gì thì bấm các nút nạp dữ liệu ở B3, B5, B1, B8 và "Nạp công đoạn" ở Kế hoạch.
 
 Sau đó mọi thao tác trên trang ghi thẳng vào Lark. Team có thể mở Base để xem, lọc, làm dashboard, hoặc gắn automation (VD báo vào group chat khi có vấn đề 🔴 mới hoặc bài "Chờ duyệt"). Muốn nối bảng bằng trường "Liên kết hai chiều" của Lark thì thêm cột mới trong Lark — đừng đổi tên cột có sẵn.
 

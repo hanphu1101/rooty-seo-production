@@ -1934,6 +1934,39 @@ def linkplan_last():
     return json.loads(LP_LAST.read_text(encoding="utf-8")) if LP_LAST.exists() else {}
 
 
+
+# ------------------------------------------------------------------ Chuyển dữ liệu demo (máy) → Lark Base
+def migrate_to_lark():
+    if STORE.mode != "lark":
+        raise StoreError("Chưa nối Lark — điền LARK_APP_ID, LARK_APP_SECRET, LARK_BASE_TOKEN vào .env rồi chạy lại server")
+    src = APP_DIR / "demo-data.json"
+    if not src.exists():
+        raise StoreError("Không có file dữ liệu trên máy (app/demo-data.json) để chuyển")
+    data = json.loads(src.read_text(encoding="utf-8"))
+
+    def job(say):
+        STORE.setup()
+        done, skipped, total = [], [], 0
+        for name, fields in SCHEMA.items():
+            rows = data.get(name) or []
+            if not rows:
+                continue
+            if STORE.list(name):
+                skipped.append(name)      # bảng trên Lark đã có dữ liệu → không ghi đè, không nhân đôi
+                continue
+            names = {f[0] for f in fields}
+            recs = [{k: v for k, v in (r.get("fields") or {}).items() if k in names} for r in rows]
+            recs = [r for r in recs if r]
+            say(f"Chuyển «{name}»: {len(recs)} dòng…")
+            STORE.create_many(name, recs)
+            done.append(f"{name} {len(recs)}")
+            total += len(recs)
+        msg = f"Đã chuyển {total} dòng lên Lark ({len(done)} bảng)" + (f" · bỏ qua {len(skipped)} bảng đã có dữ liệu trên Lark: {', '.join(skipped)}" if skipped else "")
+        log(msg)
+        return msg
+    return run_job("migrate", job)
+
+
 # ------------------------------------------------------------------ Bước 10 · Review
 import review as RV  # noqa: E402
 
@@ -2614,6 +2647,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._guard(lambda: api_create(self._body()))
         if path == "/api/setup":
             return self._guard(STORE.setup)
+        if path == "/api/migrate":
+            return self._guard(migrate_to_lark)
         if path == "/api/viec/seed":
             return self._guard(api_viec_seed)
         if path == "/api/import/crawl":
