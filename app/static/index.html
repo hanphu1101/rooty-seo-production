@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rooty SEO Production</title>
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#fff; --surface-2:#faf9f6; --ink:#1c2628; --muted:#667174; --line:#e4e0d8;
+  --brand:#0f7a6c; --brand-ink:#fff; --brand-soft:#e3f2ef;
+  --ok:#1f8a4c; --ok-soft:#e5f5eb; --bad:#c2410c; --bad-soft:#fdeee5; --warn:#a16207; --warn-soft:#fdf5df;
+  --info:#5b4bd6; --info-soft:#eeebff; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101415; --surface:#181e20; --surface-2:#1d2427; --ink:#e6eceb; --muted:#97a3a5; --line:#2a3336;
+    --brand:#3cc3ae; --brand-ink:#08201c; --brand-soft:#173430;
+    --ok:#4ccf86; --ok-soft:#163023; --bad:#f08a5d; --bad-soft:#35201a; --warn:#e5b54a; --warn-soft:#30280f;
+    --info:#a497ff; --info-soft:#24204a; --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101415; --surface:#181e20; --surface-2:#1d2427; --ink:#e6eceb; --muted:#97a3a5; --line:#2a3336;
+  --brand:#3cc3ae; --brand-ink:#08201c; --brand-soft:#173430;
+  --ok:#4ccf86; --ok-soft:#163023; --bad:#f08a5d; --bad-soft:#35201a; --warn:#e5b54a; --warn-soft:#30280f;
+  --info:#a497ff; --info-soft:#24204a; --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--brand)}
+code{font:12.5px ui-monospace,Consolas,monospace;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;word-break:break-all}
+header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.hin{padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:8px}
+.brand i{width:28px;height:28px;border-radius:8px;background:var(--brand);display:inline-grid;place-items:center;color:var(--brand-ink);font-style:normal;font-size:14px}
+.mode{font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px}
+.mode.demo{background:var(--warn-soft);color:var(--warn)}
+.mode.lark{background:var(--ok-soft);color:var(--ok)}
+.sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 14px;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:calc(100vh - 53px)}
+nav.side{background:var(--surface);border-right:1px solid var(--line);padding:12px 10px;position:sticky;top:53px;height:calc(100vh - 53px);overflow:auto}
+nav.side .grp{font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin:14px 8px 4px}
+nav.side button{display:flex;width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:7px 10px;font-size:14px;gap:8px;align-items:center}
+nav.side button:hover{background:var(--surface-2)}
+nav.side button.on{background:var(--brand-soft);color:var(--brand);font-weight:700}
+nav.side button em{margin-left:auto;font-style:normal;font-size:11.5px;color:var(--muted);font-weight:600}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  nav.side{position:static;height:auto;display:flex;gap:4px;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid var(--line)}
+  nav.side .grp{display:none}
+  nav.side button{width:auto;white-space:nowrap;flex:0 0 auto}
+  nav.side button em{display:none}
+}
+main{padding:16px;min-width:0;max-width:1500px}
+.banner{background:var(--warn-soft);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13.5px}
+.banner b{color:var(--warn)}
+/* guide */
+details.guide{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:14px}
+details.guide summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+details.guide summary::-webkit-details-marker{display:none}
+details.guide .stp{font-size:12px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.4px}
+details.guide h1{font-size:19px;margin:0;line-height:1.3}
+details.guide .tg{margin-left:auto;font-size:12.5px;color:var(--muted)}
+details.guide[open] .tg::after{content:"Thu gọn hướng dẫn ▲"}
+details.guide:not([open]) .tg::after{content:"Xem hướng dẫn ▼"}
+.gbody{padding:0 16px 14px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px}
+@media (max-width:900px){.gbody{grid-template-columns:1fr}}
+.gbody p.goal{margin:0 0 8px;color:var(--ink)}
+.gbody ol{margin:0;padding-left:20px}
+.gbody ol li{margin:5px 0;font-size:14px}
+.gbody h4{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted)}
+.gbody ul.done{margin:0 0 12px;padding:0;list-style:none}
+.gbody ul.done li{font-size:14px;padding:3px 0 3px 22px;position:relative}
+.gbody ul.done li::before{content:"✓";position:absolute;left:2px;color:var(--ok);font-weight:800}
+.cmd{display:flex;gap:8px;align-items:center;background:var(--surface-2);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;font:13px ui-monospace,Consolas,monospace;word-break:break-all}
+.cmd span{flex:1}
+/* cards / stats */
+.cards4{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:14px}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.kcard:hover{border-color:var(--brand)}
+.kcard .stp{font-size:11.5px;font-weight:800;color:var(--brand);text-transform:uppercase}
+.kcard b.big{font-size:24px;line-height:1.1}
+.kcard .meta{font-size:13px}
+.ph{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+.bar{height:7px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand)}
+.meta{font-size:12.5px;color:var(--muted)}
+.strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.pill{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px}
+.pill b{font-size:18px;display:block;line-height:1.2}
+/* grid */
+.gwrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.gtool{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.gtool h3{margin:0;font-size:15px;margin-right:4px}
+.gtool .cnt{font-size:12.5px;color:var(--muted);margin-right:auto}
+.gtool input[type=search],.gtool select{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:13.5px;max-width:200px}
+.gtool input[type=search]{width:190px}
+.chipf{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:600}
+.chipf.on{background:var(--info-soft);color:var(--info);border-color:var(--info)}
+.tscroll{overflow-x:auto}
+table.g{width:100%;border-collapse:collapse;font-size:13.5px}
+table.g th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2);position:sticky;top:0}
+table.g td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;max-width:340px}
+table.g tr{cursor:pointer}
+table.g tbody tr:hover td{background:var(--surface-2)}
+table.g td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.g td:first-child{min-width:110px}
+table.g td:first-child .trunc{white-space:normal}
+.trunc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.u{color:var(--brand);word-break:break-all}
+#fxG .u,#gG .u{word-break:normal;white-space:nowrap}
+.empty{font-size:13.5px;color:var(--muted);padding:18px;text-align:center}
+.more{padding:10px;text-align:center;border-top:1px solid var(--line)}
+.chip{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--line);color:var(--ink);font-weight:600;white-space:nowrap;display:inline-block}
+.c-ok{background:var(--ok-soft);color:var(--ok)}
+.c-bad{background:var(--bad-soft);color:var(--bad)}
+.c-warn{background:var(--warn-soft);color:var(--warn)}
+.c-info{background:var(--info-soft);color:var(--info)}
+.c-brand{background:var(--brand-soft);color:var(--brand)}
+/* kanban (B6) */
+.stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (max-width:900px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;text-align:left}
+.stat.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.stat b{display:block;font-size:22px;line-height:1.2}
+.stat span{font-size:13px;color:var(--muted)}
+.tools{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.tools input{flex:1 1 240px;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 12px}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;min-height:160px;display:flex;flex-direction:column}
+.col h3{margin:0;font-size:13.5px;padding:10px 12px;display:flex;justify-content:space-between;border-bottom:1px solid var(--line);color:var(--muted)}
+.col h3 em{font-style:normal;background:var(--line);color:var(--ink);border-radius:999px;padding:0 8px;font-size:12px}
+.col .gate-tag{font-size:11px;color:var(--info);font-weight:600}
+.cardsk{padding:8px;display:flex;flex-direction:column;gap:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;box-shadow:var(--shadow);text-align:left;width:100%}
+.card:hover{border-color:var(--brand)}
+.card .kw{font-weight:650;line-height:1.35}
+.card .slug{font-size:12px;color:var(--muted);word-break:break-all;margin-top:2px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.st-Đang-làm{background:var(--brand-soft);color:var(--brand)}
+.st-Bị-trả-về{background:var(--bad-soft);color:var(--bad)}
+.st-Cần-người{background:var(--warn-soft);color:var(--warn)}
+.st-Chờ-duyệt{background:var(--info-soft);color:var(--info)}
+.st-Đã-đăng{background:var(--ok-soft);color:var(--ok)}
+.gp{font-size:11px;width:24px;text-align:center;padding:1px 0;border-radius:5px;background:var(--line);color:var(--muted);font-weight:700;display:inline-block}
+.gp.PASS{background:var(--ok-soft);color:var(--ok)}
+.gp.FAIL{background:var(--bad-soft);color:var(--bad)}
+.late{color:var(--bad);font-weight:600}
+section.logs{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+section.logs h2{font-size:15px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line)}
+.loglist{max-height:260px;overflow:auto;font-size:13.5px}
+.loglist div{padding:7px 14px;border-bottom:1px solid var(--line);display:flex;gap:12px}
+.loglist time{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;display:none}
+.scrim.on{display:block}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(620px,100%);background:var(--surface);z-index:21;transform:translateX(100%);transition:transform .2s;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.drawer.on{transform:none}
+.dh{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.dh h2{margin:0;font-size:18px;line-height:1.3;flex:1;word-break:break-word}
+.x{border:0;background:transparent;font-size:22px;line-height:1;color:var(--muted);padding:0 4px}
+.db{padding:16px;overflow:auto;flex:1}
+.df{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+.df .sp{flex:1}
+.stepper{display:flex;gap:4px;margin:4px 0 14px;flex-wrap:wrap}
+.stepper span{flex:1 1 60px;font-size:11px;text-align:center;padding:5px 2px;border-radius:6px;background:var(--line);color:var(--muted)}
+.stepper span.done{background:var(--brand-soft);color:var(--brand)}
+.stepper span.cur{background:var(--brand);color:var(--brand-ink);font-weight:700}
+.move{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.move .btn{flex:1 1 180px}
+.hint{font-size:12.5px;color:var(--muted);margin:-8px 0 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+label{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+label.full{grid-column:1/-1}
+.field{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:7px 10px;width:100%}
+textarea.field{min-height:80px;resize:vertical}
+.db h4{margin:20px 0 8px;font-size:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;display:flex;gap:6px;align-items:center}
+.tab.on{border-color:var(--info);background:var(--info-soft);color:var(--info)}
+.crit{display:flex;gap:10px;align-items:flex-start;padding:7px 4px;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer;flex-direction:row;color:var(--ink)}
+.crit input{margin-top:3px;accent-color:var(--brand)}
+.crit .b{font-size:10.5px;font-weight:800;color:var(--bad);border:1px solid var(--bad);border-radius:4px;padding:0 4px;margin-right:4px}
+.verdict{display:flex;justify-content:space-between;align-items:center;margin:10px 0;padding:10px 12px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);font-size:14px;gap:10px;flex-wrap:wrap}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;width:min(520px,calc(100% - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog form>div{padding:16px}
+dialog h2{margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:17px}
+dialog .df{border-top:1px solid var(--line)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:40;font-size:14px;max-width:calc(100% - 32px);display:none}
+.toast.err{background:var(--bad);color:#fff}
+/* việc SEO */
+.vhead{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:12px}
+.vhead .big{font-size:20px;font-weight:800}
+.vhead .bar{flex:1 1 200px;min-width:160px;height:8px}
+.vtools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.vtools select{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 10px}
+.vtools label{flex-direction:row;align-items:center;gap:6px;font-size:14px;color:var(--ink)}
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.phase>h3{margin:0;padding:10px 14px;font-size:14.5px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line);background:var(--surface-2);flex-wrap:wrap}
+.phase>h3 .bar{width:200px}
+.vrow{border-bottom:1px solid var(--line)}
+.vrow:last-child{border-bottom:0}
+.vmain{display:grid;grid-template-columns:44px minmax(0,1fr) 150px 70px 132px;gap:10px;align-items:center;padding:9px 14px;cursor:pointer}
+@media (max-width:760px){.vmain{grid-template-columns:40px minmax(0,1fr) 118px}.vmain .c-mang,.vmain .c-thang{display:none}}
+.vmain:hover{background:var(--surface-2)}
+.vrow.now .vmain{box-shadow:inset 3px 0 0 var(--brand)}
+.vrow.late .vmain{box-shadow:inset 3px 0 0 var(--bad)}
+.code{font:600 12.5px ui-monospace,Consolas,monospace;color:var(--muted)}
+.vname{font-size:14px;line-height:1.4}
+.vname .who{font-size:12px;color:var(--muted)}
+.gate{font-size:10.5px;font-weight:800;color:var(--info);border:1px solid var(--info);border-radius:4px;padding:0 4px;margin-right:4px}
+.latetag{font-size:10.5px;font-weight:800;color:var(--bad);margin-left:6px}
+.c-mang .chip{white-space:normal;text-align:center}
+.c-thang{font-size:13px;color:var(--muted)}
+.vs{border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--surface);font-size:13px;width:100%}
+.vs.s-Xong{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.vs.s-Đang-làm{background:var(--brand-soft);color:var(--brand);border-color:transparent}
+.vs.s-Bị-chặn{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.vdetail{display:none;padding:4px 14px 16px 68px}
+@media (max-width:760px){.vdetail{padding-left:14px}}
+.vrow.open .vdetail{display:block}
+.vdetail .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.vdetail a.btn{text-decoration:none;color:var(--ink)}
+/* cụm */
+.clusters{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:14px}
+.cl{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.cl h4{margin:0 0 4px;font-size:15px}
+.cl .pillar{font-size:12.5px;word-break:break-all}
+.cl .nums{display:flex;gap:14px;margin-top:8px;font-size:13px}
+.cl .nums b{font-size:16px}
+.journey{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
+@media (max-width:760px){.journey{grid-template-columns:1fr 1fr}}
+.jst{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.jst b{display:block;font-size:13.5px}
+.jst span{font-size:12.5px;color:var(--muted)}
+svg.chart text{fill:var(--muted);font-size:11px}
+/* B5 · 5 hạng mục */
+.areas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (max-width:1100px){.areas{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:600px){.areas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.acard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.acard:hover{border-color:var(--brand)}
+.acard.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.acard .ai{font-size:18px}
+.acard .ascore{font-size:26px;font-weight:800;line-height:1.1}
+/* B1 */
+.sec{margin:20px 0 10px}
+.sec:first-child{margin-top:0}
+.sec h2{font-size:17px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.sec h2 span{width:24px;height:24px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:inline-grid;place-items:center;font-size:13px}
+.sec p{margin:0}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:8px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:10px}
+.pcard:hover{border-color:var(--brand)}
+.pcard.padd{cursor:default;align-items:flex-start;justify-content:center;border-style:dashed;gap:8px}
+.ph1{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:8px}
+.pname{font-size:16px;font-weight:800}
+.big2{font-size:20px;color:var(--brand)}
+.pblock h5{margin:0 0 3px;font-size:12px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted)}
+.pblock p{margin:0 0 3px;font-size:13.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pblock.pain{background:var(--bad-soft);border-radius:8px;padding:8px 10px}
+.pl{display:grid;grid-template-columns:92px 1fr;gap:6px;font-size:13px;line-height:1.45}
+.pl b{color:var(--muted);font-weight:600}
+.jwrap{overflow-x:auto;border:1px solid var(--line);border-radius:0 0 12px 12px;background:var(--surface);margin-bottom:12px}
+.jgrid{display:grid;min-width:1000px}
+.jh{position:sticky;top:0;background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:13px;padding:9px 10px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);display:flex;gap:6px;align-items:center}
+.jh span{width:20px;height:20px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:inline-grid;place-items:center;font-size:11px}
+.jh:first-child{border-left:0;background:var(--surface-2)}
+.jl{font-size:12.5px;font-weight:700;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.jc{padding:6px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:5px}
+.ji{border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:5px 8px;font-size:12.5px;line-height:1.4;text-align:left;cursor:pointer}
+.ji:hover{border-color:var(--brand)}
+.ji em{display:block;font-style:normal;font-size:11px;color:var(--info);font-weight:700}
+.ji.emo{font-size:13px;background:transparent;border-style:dashed}
+</style>
+</head>
+<body>
+<header><div class="hin">
+  <div class="brand"><i>R</i>Rooty SEO Production</div>
+  <span id="mode" class="mode"></span>
+  <span class="sp"></span>
+  <button class="btn ghost" id="btnSetup" hidden>Khởi tạo bảng Lark</button>
+  <button class="btn ghost" id="btnReload">↻ Tải lại</button>
+</div></header>
+
+<div class="layout">
+  <nav class="side" id="nav" aria-label="Các bước SEO"></nav>
+  <main id="main"></main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dh"><h2 id="dTitle"></h2><button class="x" id="dClose" aria-label="Đóng">×</button></div>
+  <div class="db" id="dBody"></div>
+  <div class="df" id="dFoot"></div>
+</aside>
+
+<dialog id="newDlg">
+  <form method="dialog" id="newForm">
+    <h2>Thêm bài mới vào hàng đợi</h2>
+    <div class="grid2">
+      <label class="full">Từ khoá chính *<input class="field" name="kw" required placeholder="VD: tour 4 đảo phú quốc"></label>
+      <label>Loại trang<select class="field" name="type"></select></label>
+      <label>Người phụ trách<input class="field" name="who"></label>
+      <label>Hạn<input class="field" type="date" name="due"></label>
+      <label class="full">Ghi chú<textarea class="field" name="note"></textarea></label>
+    </div>
+    <div class="df"><button class="btn" value="cancel" formnovalidate>Huỷ</button><button class="btn primary" value="ok">Thêm</button></div>
+  </form>
+</dialog>
+<input type="file" id="csvFile" accept=".csv,text/csv" hidden>
+<datalist id="dlUrl"></datalist><datalist id="dlCum"></datalist>
+<div class="toast" id="toast"></div>
+
+<script src="guides.js"></script>
+<script>
+/* ================= tiện ích ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = ms => ms ? new Date(ms).toLocaleDateString('vi-VN') : '';
+const fmtTime = ms => ms ? new Date(ms).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+const toDateInput = ms => ms ? new Date(ms - new Date(ms).getTimezoneOffset()*60000).toISOString().slice(0,10) : '';
+const fromDateInput = v => v ? new Date(v+'T00:00:00').getTime() : null;
+const num = v => (v===null||v===undefined||v==='') ? null : Number(v);
+const pathOf = u => String(u||'').replace(/^https?:\/\/[^/]+/,'') || '/';
+const store = { get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v);}catch{return d;} }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
+function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', err?6000:2600); }
+async function api(method, url, body){
+  const r = await fetch(url, {method, headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):undefined});
+  const d = await r.json().catch(()=>({error:'Phản hồi không hợp lệ'}));
+  if(!r.ok || (d && d.error)) throw new Error((d&&d.error) || ('HTTP '+r.status));
+  return d;
+}
+function copy(text){ navigator.clipboard?.writeText(text).then(()=>toast('Đã copy: '+text.slice(0,60))).catch(()=>toast('Không copy được, hãy chọn và copy tay', true)); }
+
+let CFG = null, VIEW = 'tongquan';
+const DATA = {};      // cache bảng chung: key → rows
+async function load(key, force){
+  if(DATA[key] && !force) return DATA[key];
+  DATA[key] = await api('GET', '/api/t/'+key);
+  if(key==='trang') fillDatalists();
+  return DATA[key];
+}
+function fillDatalists(){
+  const urls = (DATA.trang||[]).map(r=>r.fields['URL']).filter(Boolean);
+  $('#dlUrl').innerHTML = urls.slice(0,2000).map(u=>`<option value="${esc(u)}">`).join('');
+  const cums = new Set([...(DATA.trang||[]), ...(DATA.tukhoa||[])].map(r=>r.fields['Cụm chủ đề']).filter(Boolean));
+  $('#dlCum').innerHTML = [...cums].map(c=>`<option value="${esc(c)}">`).join('');
+}
+
+/* ================= điều hướng ================= */
+const NAV = [
+  {id:'tongquan', label:'Tổng quan'},
+  {id:'chandoan', label:'🩺 Chẩn đoán rớt top'},
+  {grp:'1 · Discovery'},
+  {id:'khach', label:'B1 · Khách hàng & hành trình', key:'khach'},
+  {id:'tukhoa', label:'B2 · Từ khoá', key:'tukhoa'},
+  {id:'cum', label:'B3 · Cụm chủ đề & silo', key:'trang'},
+  {id:'doithu', label:'B4 · Đối thủ', key:'doithu'},
+  {grp:'2 · Improving'},
+  {id:'kythuat', label:'B5 · Audit 5 hạng mục', key:'kythuat'},
+  {id:'audit', label:'B5 · Danh sách lỗi & sửa', key:'sualoi'},
+  {id:'kiemweb', label:'B5 · Kiểm nhiều website', key:'kiemweb'},
+  {grp:'3 · Create & Optimize'},
+  {id:'content', label:'B6 · Content'},
+  {id:'gia', label:'B6 · Giá & dữ kiện', key:'giadukien'},
+  {id:'onpage', label:'B7 · Onpage'},
+  {id:'entity', label:'B8 · Entity', key:'hoso'},
+  {id:'geo', label:'GEO · AI Search', key:'geo'},
+  {grp:'4 · Promotion'},
+  {id:'link', label:'B9 · Link building', key:'lienket'},
+  {grp:'5 · Evaluate'},
+  {id:'danhgia', label:'B10 · Đánh giá', key:'danhgia'},
+  {id:'algo', label:'B10 · Thuật toán Google', key:'thuattoan'},
+  {grp:'Quản lý'},
+  {id:'kehoach', label:'Kế hoạch 10 tháng'},
+];
+function renderNav(){
+  $('#nav').innerHTML = NAV.map(n => n.grp ? `<div class="grp">${esc(n.grp)}</div>`
+    : `<button data-v="${n.id}" class="${VIEW===n.id?'on':''}">${esc(n.label)}${n.key && DATA[n.key] ? `<em>${DATA[n.key].length}</em>`:''}</button>`).join('');
+  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+}
+function go(v){ VIEW=v; store.set('rooty-view2', v); renderNav(); render(); window.scrollTo(0,0); }
+
+function guide(id){
+  const g = GUIDES[id]; if(!g) return '';
+  const open = store.get('guide-open-'+id, true);
+  return `<details class="guide" ${open?'open':''} data-g="${id}">
+    <summary><span class="stp">${esc(g.step)}</span><h1>${esc(g.title)}</h1><span class="tg"></span></summary>
+    <div class="gbody">
+      <div><p class="goal"><b>Mục tiêu:</b> ${g.goal}</p><h4>Cách làm</h4><ol>${g.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>
+      <div><h4>Đạt khi</h4><ul class="done">${g.done.map(s=>`<li>${s}</li>`).join('')}</ul>
+        <h4>Lệnh cho Claude Code</h4><div class="cmd"><span>${esc(g.cmd)}</span><button class="btn sm" data-copy="${esc(g.cmd)}">Copy</button></div></div>
+    </div></details>`;
+}
+function wireCommon(root){
+  root.querySelectorAll('details.guide').forEach(d=>d.addEventListener('toggle',()=>store.set('guide-open-'+d.dataset.g, d.open)));
+  root.querySelectorAll('[data-copy]').forEach(b=>b.onclick=e=>{ e.preventDefault(); copy(b.dataset.copy); });
+  root.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+}
+
+/* ================= bảng dữ liệu chung ================= */
+const GRID_STATE = {};
+function chipClass(field, v){
+  if(!v) return '';
+  if(/^(Đạt|Khớp|Có|Đã có|Đã sửa|Xong|Đang live|Đã xác nhận|Tốt|Cao|Mua|Đã gán trang)$/.test(v)) return 'c-ok';
+  if(/^(Chưa đạt|Lệch|Mất link|🔴 Cao|Cần viết|Xoá|Chưa có)$/.test(v)) return 'c-bad';
+  if(/^(🟡 Vừa|Cần sửa|Đang sửa|Đang làm|Đang viết|Vừa|Cân nhắc|Gộp|Cần sửa|Giả định|Kế hoạch)$/.test(v)) return 'c-warn';
+  if(/^(Pillar \(trụ cột\)|Nội bộ|Trang tour\/sản phẩm|Trang sản phẩm)$/.test(v)) return 'c-info';
+  return '';
+}
+function cell(f, v){
+  if(v===null || v===undefined || v==='') return '<span class="meta">—</span>';
+  switch(f.k){
+    case 'select': return `<span class="chip ${chipClass(f.n, v)}">${esc(v)}</span>`;
+    case 'url': return `<span class="u" title="${esc(v)}">${esc(pathOf(v))}</span>`;
+    case 'date': return esc(fmtDate(v));
+    case 'num': case 'dec': return esc(Number(v).toLocaleString('vi-VN'));
+    case 'long': return `<span class="trunc" title="${esc(v)}">${esc(v)}</span>`;
+    default: return `<span class="trunc">${esc(v)}</span>`;
+  }
+}
+/* opts: {title, cols, filters, chips:[{id,label,fn}], actions:[{label,cls,fn}], defaults, sort, limit} */
+async function grid(el, key, opts){
+  const meta = CFG.tables[key], fields = meta.fields, F = Object.fromEntries(fields.map(f=>[f.n,f]));
+  const st = GRID_STATE[key+(opts.sid||'')] ||= {q:'', f:{}, chip:null, limit: opts.limit||100};
+  const rows = await load(key);
+  const cols = (opts.cols||fields.slice(0,6).map(f=>f.n)).map(n=>F[n]).filter(Boolean);
+  const draw = () => {
+    const base = opts.where ? rows.filter(r=>opts.where(r.fields)) : rows;
+    let list = base.filter(r=>{
+      const f = r.fields;
+      if(st.q &&!Object.values(f).join(' ').toLowerCase().includes(st.q.toLowerCase())) return false;
+      for(const [k,v] of Object.entries(st.f)) if(v && (f[k]||'') !== v) return false;
+      if(st.chip){ const c=(opts.chips||[]).find(c=>c.id===st.chip); if(c && !c.fn(f)) return false; }
+      return true;
+    });
+    if(opts.sort) list = list.slice().sort((a,b)=>opts.sort(a.fields,b.fields));
+    const filterSel = (opts.filters||[]).map(n=>{
+      const fd = F[n]; let vals = fd.k==='select' ? fd.o : [...new Set(rows.map(r=>r.fields[n]).filter(Boolean))].sort();
+      return `<select data-f="${esc(n)}" aria-label="${esc(n)}"><option value="">${esc(n)}: tất cả</option>${vals.map(v=>`<option ${st.f[n]===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`;
+    }).join('');
+    const chips = (opts.chips||[]).map(c=>`<button class="chipf ${st.chip===c.id?'on':''}" data-chip="${c.id}">${esc(c.label)}</button>`).join('');
+    const acts = (opts.actions||[]).map((a,i)=>`<button class="btn sm ${a.cls||''}" data-act="${i}">${esc(a.label)}</button>`).join('');
+    const seed = (!rows.length && meta.seed) ? `<button class="btn sm" data-seed>Nạp dữ liệu mẫu</button>` : '';
+    el.innerHTML = `<div class="gwrap">
+      <div class="gtool"><h3>${esc(opts.title||meta.name)}</h3><span class="cnt">${list.length}/${base.length} dòng</span>
+        <input type="search" placeholder="Tìm…" value="${esc(st.q)}" aria-label="Tìm trong ${esc(meta.name)}">${filterSel}${chips}${seed}${acts}
+        <button class="btn sm primary" data-add>+ Thêm</button></div>
+      <div class="tscroll">${list.length ? `<table class="g"><thead><tr>${cols.map(c=>`<th>${esc(c.n)}</th>`).join('')}</tr></thead>
+        <tbody>${list.slice(0,st.limit).map(r=>`<tr data-id="${r.record_id}">${cols.map(c=>`<td class="${['num','dec'].includes(c.k)?'num':''}">${cell(c, r.fields[c.n])}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+        : `<div class="empty">${rows.length?'Không có dòng nào khớp bộ lọc.':'Chưa có dữ liệu. Bấm “+ Thêm”'+(meta.seed?' hoặc “Nạp dữ liệu mẫu”':'')+(opts.emptyHint?' · '+opts.emptyHint:'')+'.'}</div>`}</div>
+      ${list.length>st.limit?`<div class="more"><button class="btn sm" data-more>Hiện thêm (${list.length-st.limit} dòng nữa)</button></div>`:''}
+    </div>`;
+    const s = el.querySelector('input[type=search]');
+    s.oninput = ()=>{ st.q=s.value; const pos=s.selectionStart; draw(); const n=el.querySelector('input[type=search]'); n.focus(); n.setSelectionRange(pos,pos); };
+    el.querySelectorAll('select[data-f]').forEach(x=>x.onchange=()=>{ st.f[x.dataset.f]=x.value; draw(); });
+    el.querySelectorAll('[data-chip]').forEach(x=>x.onclick=()=>{ st.chip = st.chip===x.dataset.chip?null:x.dataset.chip; draw(); });
+    el.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>opts.actions[+x.dataset.act].fn());
+    el.querySelector('[data-add]').onclick = ()=>openForm(key, null, opts.defaults||{}, opts.onSave, opts.formActions);
+    el.querySelector('[data-seed]')?.addEventListener('click', async()=>{ try{ const r=await api('POST',`/api/t/${key}/seed`); toast(r.message); await load(key,true); render(); }catch(e){ toast(e.message,true); } });
+    el.querySelector('[data-more]')?.addEventListener('click', ()=>{ st.limit+=200; draw(); });
+    el.querySelectorAll('tbody tr').forEach(tr=>tr.onclick=()=>openForm(key, rows.find(r=>r.record_id===tr.dataset.id), {}, opts.onSave, opts.formActions));
+  };
+  draw();
+}
+
+/* ================= form chung trong drawer ================= */
+function openDrawer(){ $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); $('#drawer').setAttribute('aria-hidden','false'); }
+function closeDrawer(){ $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); $('#drawer').setAttribute('aria-hidden','true'); CUR=null; }
+$('#dClose').onclick = closeDrawer; $('#scrim').onclick = closeDrawer;
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#drawer').classList.contains('on')) closeDrawer(); });
+
+function openForm(key, rec, defaults, onSave, extra){
+  const meta = CFG.tables[key], f = rec ? rec.fields : defaults;
+  $('#dTitle').textContent = rec ? (f[meta.fields[0].n] || meta.name) : `Thêm vào «${meta.name}»`;
+  $('#dBody').innerHTML = `<div class="grid2">${meta.fields.map((fd,i)=>{
+    const v = f[fd.n]; const id = 'ff'+i; const full = ['long','url'].includes(fd.k) || i===0 ? 'full' : '';
+    let input;
+    if(fd.k==='select') input = `<select class="field" id="${id}"><option value="">—</option>${fd.o.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+    else if(fd.k==='long') input = `<textarea class="field" id="${id}">${esc(v)}</textarea>`;
+    else if(fd.k==='date') input = `<input class="field" type="date" id="${id}" value="${toDateInput(v)}">`;
+    else if(fd.k==='num'||fd.k==='dec') input = `<input class="field" type="number" step="${fd.k==='dec'?'0.1':'1'}" id="${id}" value="${v??''}">`;
+    else { const dl = fd.k==='url' ? 'list="dlUrl"' : fd.n==='Cụm chủ đề' ? 'list="dlCum"' : '';
+      input = `<input class="field" id="${id}" ${dl} value="${esc(v)}">${fd.k==='url'&&v?`<a href="${esc(v)}" target="_blank" rel="noopener" style="font-size:12px">Mở link ↗</a>`:''}`; }
+    return `<label class="${full}">${esc(fd.n)}${i===0?' *':''}${input}</label>`;
+  }).join('')}</div>`;
+  $('#dFoot').innerHTML = `${rec?'<button class="btn danger" id="fDel">Xoá</button>':''}${rec&&extra?extra.map((a,i)=>`<button class="btn" data-x="${i}">${esc(a.label)}</button>`).join(''):''}<span class="sp"></span><button class="btn" id="fCancel">Huỷ</button><button class="btn primary" id="fSave">${rec?'Lưu':'Thêm'}</button>`;
+  if(rec && extra) $('#dFoot').querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{ const t=b.textContent; b.disabled=true; b.textContent='Đang xử lý…';
+    try{ await extra[+b.dataset.x].fn(rec); const fresh=(DATA[key]||[]).find(r=>r.record_id===rec.record_id); if(fresh) openForm(key, fresh, {}, onSave, extra); }
+    catch(e){ toast(e.message,true); b.disabled=false; b.textContent=t; } });
+  $('#fCancel').onclick = closeDrawer;
+  $('#fSave').onclick = async ()=>{
+    const body = {};
+    meta.fields.forEach((fd,i)=>{ const el=$('#ff'+i); let v = el.value;
+      if(fd.k==='date') v = fromDateInput(v); else if(fd.k==='num'||fd.k==='dec') v = v===''?null:Number(v);
+      body[fd.n] = v; });
+    if(onSave) onSave(body);
+    try{
+      if(rec) await api('PATCH', `/api/t/${key}/${rec.record_id}`, body); else await api('POST', `/api/t/${key}`, body);
+      toast(rec?'Đã lưu':'Đã thêm'); closeDrawer(); await load(key, true); renderNav(); render();
+    }catch(e){ toast(e.message, true); }
+  };
+  if(rec) $('#fDel').onclick = async ()=>{
+    if(!confirm('Xoá dòng này? Không hoàn tác được.')) return;
+    try{ await api('DELETE', `/api/t/${key}/${rec.record_id}`); toast('Đã xoá'); closeDrawer(); await load(key,true); renderNav(); render(); }
+    catch(e){ toast(e.message, true); }
+  };
+  openDrawer();
+}
+
+/* ================= CSV ================= */
+async function readFileText(file){
+  // Keyword Planner xuất CSV dạng UTF-16 (BOM FF FE), có tab; các công cụ khác thường UTF-8
+  const buf = new Uint8Array(await file.arrayBuffer());
+  if(buf[0]===0xFF && buf[1]===0xFE) return new TextDecoder('utf-16le').decode(buf);
+  if(buf[0]===0xFE && buf[1]===0xFF) return new TextDecoder('utf-16be').decode(buf);
+  return new TextDecoder('utf-8').decode(buf);
+}
+function parseCSV(text){
+  const rows=[]; let row=[], cur='', q=false;
+  text = text.replace(/^﻿/,'');
+  const first = text.split('\n').slice(0,5).join('\n');
+  const cnt = ch => (first.split(ch).length-1);
+  const sep = cnt('\t') > Math.max(cnt(','), cnt(';')) ? '\t' : (cnt(';') > cnt(',') ? ';' : ',');
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===sep){ row.push(cur); cur=''; }
+    else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+    else if(c!=='\r') cur+=c;
+  }
+  if(cur||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(x=>x.trim()));
+}
+/* tìm dòng tiêu đề (Keyword Planner có 2 dòng tiêu đề phụ ở trên) */
+function headerRow(rows, re){ for(let i=0;i<Math.min(rows.length,8);i++){ if(rows[i].some(x=>re.test(x.toLowerCase()))) return i; } return -1; }
+const toNum = (v, dec) => { if(v==null) return null; let s=String(v).trim().replace('%',''); if(!s || s==='-' ) return null;
+  const m = s.match(/^(\d[\d.,]*)\s*[–-]\s*(\d[\d.,]*)/); if(m) s = m[1];   // "1K – 10K" hoặc "100 - 1000" → cận dưới
+  s = s.replace(/k$/i,'000');
+  if(dec){ if(s.includes(',') && !s.includes('.')) s=s.replace(',','.'); } else s=s.replace(/[^\d.-]/g,'').replace(/\.(?=\d{3}\b)/g,'');
+  const n=Number(s); return isNaN(n)?null:n; };
+function guessIntent(k){
+  k=k.toLowerCase();
+  if(/rooty/.test(k)) return 'Điều hướng';
+  if(/nên |hay |so sánh|review|đánh giá|uy tín|tốt nhất|top |kinh nghiệm|có nên/.test(k)) return 'Cân nhắc';
+  if(/giá|bao nhiêu tiền|đặt|book|mua|(^|\s)(tour|combo|vé|khách sạn|resort|cano|thuê xe)(\s|$)/.test(k)) return 'Mua';
+  return 'Thông tin';
+}
+const INTENT_STAGE = {'Thông tin':'Nhận thức','Cân nhắc':'Cân nhắc','Mua':'Quyết định','Điều hướng':'Quyết định'};
+function toolIntent(s){ s=(s||'').toLowerCase(); if(/transac/.test(s)) return 'Mua'; if(/commerc/.test(s)) return 'Cân nhắc'; if(/navig|brand/.test(s)) return 'Điều hướng'; if(/inform/.test(s)) return 'Thông tin'; return null; }
+function pickFile(cb){ const inp=$('#csvFile'); inp.value=''; inp.onchange=async()=>{ const f=inp.files[0]; if(f) cb(parseCSV(await readFileText(f)), f.name); }; inp.click(); }
+function importKeywordsCSV(){
+  pickFile(async (rows, fname)=>{
+    const hi = headerRow(rows, /quer|truy v|từ khoá|từ khóa|keyword/); if(hi<0){ toast('Không thấy cột từ khoá/truy vấn trong file', true); return; }
+    const h = rows[hi].map(x=>x.toLowerCase().trim()), idx = re => h.findIndex(x=>re.test(x));
+    const iq=idx(/^(top )?quer|truy v|từ khoá|từ khóa|^keyword$|keyword/), ic=idx(/click|nhấp/), ii=idx(/impr|hiển thị/), ip=idx(/posit|vị trí/),
+      iv=idx(/avg\. monthly|monthly searches|lượt tìm kiếm trung bình|volume|lượng tìm|search vol/), id=idx(/difficult|độ khó|^kd/),
+      icpc=idx(/cpc|top of page bid \(high|giá thầu đầu trang \(cao|giá thầu/), icomp=idx(/^competition$|^cạnh tranh$|competition|cạnh tranh/),
+      ipar=idx(/parent/), iint=idx(/intent|ý định/);
+    let src = 'Công cụ từ khoá';
+    if(ic>=0||ii>=0) src='Search Console'; else if(h.some(x=>/avg\. monthly|lượt tìm kiếm trung bình|top of page bid|giá thầu/.test(x))) src='Keyword Planner';
+    else if(id>=0||ipar>=0) src='Ahrefs/Semrush'; else if(/keywordtool/i.test(fname)) src='Keywordtool.io';
+    const recs = rows.slice(hi+1).map(r=>{ const kw=(r[iq]||'').trim(); const it = (iint>=0 && toolIntent(r[iint])) || guessIntent(kw); return {
+      'Từ khoá': kw, 'Ý định': it, 'Giai đoạn': INTENT_STAGE[it], 'Nguồn': src, 'Trạng thái': 'Mới',
+      'Lượt nhấp': ic>=0?toNum(r[ic]):null, 'Hiển thị': ii>=0?toNum(r[ii]):null, 'Vị trí': ip>=0?toNum(r[ip],true):null,
+      'Lượng tìm': iv>=0?toNum(r[iv]):null, 'Độ khó': id>=0?toNum(r[id]):null, 'CPC': icpc>=0?toNum(r[icpc]):null,
+      'Cạnh tranh': icomp>=0?(r[icomp]||'').trim():'', 'Từ khoá cha': ipar>=0?(r[ipar]||'').trim():'' }; }).filter(r=>r['Từ khoá']);
+    try{ const res = await api('POST','/api/t/tukhoa/bulk',{records:recs}); toast(`${src}: ${res.message}`); await load('tukhoa',true); renderNav(); render(); }
+    catch(e){ toast(e.message, true); }
+  });
+}
+function importCompetitorCSV(){
+  const name = prompt('Tên đối thủ của file này (VD: Klook):'); if(!name) return;
+  pickFile(async rows=>{
+    const hi = headerRow(rows, /keyword|từ khoá|từ khóa/); if(hi<0){ toast('Không thấy cột Keyword', true); return; }
+    const h = rows[hi].map(x=>x.toLowerCase().trim()), idx = re => h.findIndex(x=>re.test(x));
+    const iq=idx(/keyword|từ khoá|từ khóa/), ip=idx(/^position$|^current position|vị trí|^pos/), iv=idx(/volume|lượng tìm|search vol/),
+      it=idx(/^traffic$|^current traffic|organic traffic|traffic/), iu=idx(/^url$|current url|landing|url/);
+    const recs = rows.slice(hi+1).map(r=>({'Từ khoá': (r[iq]||'').trim().toLowerCase(), 'Đối thủ': name,
+      'Vị trí đối thủ': ip>=0?toNum(r[ip],true):null, 'Lượng tìm': iv>=0?toNum(r[iv]):null, 'Traffic đối thủ': it>=0?toNum(r[it]):null,
+      'URL đối thủ': iu>=0?(r[iu]||'').trim():'', 'Đã thêm vào Từ khoá':'Chưa'})).filter(r=>r['Từ khoá']);
+    try{ const res = await api('POST','/api/t/dtkw/bulk',{records:recs}); toast(res.message+' — bấm «Phân loại Common/Gap»'); await load('dtkw',true); render(); }
+    catch(e){ toast(e.message, true); }
+  });
+}
+function exportCSV(key, fname){
+  const meta = CFG.tables[key], rows = DATA[key]||[];
+  const q = v => { const s = v==null ? '' : String(v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const lines = [meta.fields.map(f=>q(f.n)).join(',')].concat(rows.map(r=>meta.fields.map(f=>q(f.k==='date'&&r.fields[f.n]?toDateInput(r.fields[f.n]):r.fields[f.n])).join(',')));
+  const blob = new Blob(['﻿'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname || (key+'.csv'); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+/* bảng điều khiển việc chạy nền (mở rộng từ khoá, soi đối thủ) */
+let JOB_POLL = {};
+async function jobPanel(el, name, label, startUrl, body, refreshKeys){
+  const draw = s => {
+    el.innerHTML = `<div class="vhead" style="margin-bottom:10px"><div style="flex:1 1 300px">${s.running?`<b>Đang chạy…</b> <span class="meta">có thể chuyển tab khác</span>`:(s.result?`<span class="meta">Lần chạy gần nhất:</span> ${esc(s.result)}`:'<span class="meta">Chưa chạy lần nào.</span>')}
+      ${s.running?`<div class="meta" style="font-family:ui-monospace,Consolas,monospace;white-space:pre-wrap">${esc(s.lines.slice(-2).join('\n'))}</div>`:''}</div>
+      <button class="btn primary" ${s.running?'disabled':''}>${s.running?'Đang chạy…':esc(label)}</button></div>`;
+    el.querySelector('button').onclick = async ()=>{ try{ const r=await api('POST', startUrl, typeof body==='function'?body():body); toast(r.message); poll(); }catch(e){ toast(e.message,true); } };
+  };
+  const poll = async ()=>{
+    clearTimeout(JOB_POLL[name]);
+    const s = await api('GET','/api/job/'+name); if(!el.isConnected) return; draw(s);
+    if(s.running) JOB_POLL[name] = setTimeout(poll, 2500);
+    else if(s.finished && s.finished !== store.get('job-seen-'+name,0)){ store.set('job-seen-'+name, s.finished); toast(s.result.slice(0,140)); refreshKeys.forEach(k=>delete DATA[k]); renderNav(); render(); }
+  };
+  await poll();
+}
+async function act(url, keys){ try{ toast('Đang xử lý…'); const r = await api('POST', url); toast(r.message); keys.forEach(k=>delete DATA[k]); renderNav(); render(); }catch(e){ toast(e.message, true); } }
+
+/* ================= VIEWS ================= */
+async function render(){
+  const m = $('#main');
+  const banner = CFG.mode==='demo' ? '<div class="banner"><b>Chế độ demo.</b> Dữ liệu đang lưu tạm trên máy. Điền Lark vào file <code>.env</code> rồi chạy lại server để lưu lên Lark Base (xem <code>app/README.md</code>).</div>' : '';
+  m.innerHTML = banner + guide(VIEW) + '<div id="view"></div>';
+  wireCommon(m);
+  const v = $('#view');
+  try{ await (VIEWS[VIEW]||VIEWS.tongquan)(v); wireCommon(v); }
+  catch(e){ v.innerHTML = `<div class="banner">${esc(e.message)}</div>`; }
+}
+const VIEWS = {};
+
+/* ---------- Tổng quan ---------- */
+VIEWS.tongquan = async v => {
+  v.innerHTML = '<div class="empty">Đang tải số liệu…</div>';
+  const keys = Object.keys(CFG.tables);
+  await Promise.all(keys.map(k=>load(k).catch(()=>[])));
+  const [bai, viec] = await Promise.all([api('GET','/api/bai').catch(()=>[]), api('GET','/api/viec').catch(()=>[])]);
+  BAI = bai; renderNav();
+  const D = k => (DATA[k]||[]).map(r=>r.fields), cnt = (arr, fn) => arr.filter(fn).length, pct = (a,b)=> b?Math.round(a/b*100):0;
+  const kh=D('khach'), ht=D('hanhtrinh'), tk=D('tukhoa'), tr=D('trang'), dt=D('doithu'), au=D('audit'), tt=D('thucthe'), hs=D('hoso'), lk=D('lienket'), dg=D('danhgia');
+  const cums = new Set(tr.map(f=>f['Cụm chủ đề']).filter(Boolean));
+  const opg = tr.filter(f=>f['Điểm onpage']!=null); const avg = opg.length ? Math.round(opg.reduce((s,f)=>s+Number(f['Điểm onpage']),0)/opg.length) : null;
+  const last = dg.slice().sort((a,b)=>String(b['Tháng']).localeCompare(String(a['Tháng'])));
+  const auOpen = cnt(au,f=>!['Đã sửa','Bỏ qua'].includes(f['Trạng thái'])), auRed = cnt(au,f=>f['Mức độ']==='🔴 Cao' && f['Trạng thái']!=='Đã sửa');
+  const vDone = cnt(viec.map(r=>r.fields), f=>['Xong','Không áp dụng'].includes(f['Trạng thái']));
+  const card = (go, stp, big, line, p) => `<button class="kcard" data-go="${go}"><span class="stp">${stp}</span><b class="big">${big}</b><span class="meta">${line}</span>${p!=null?`<div class="bar"><i style="width:${p}%"></i></div>`:''}</button>`;
+  v.innerHTML = `
+    <div class="ph">1 · Discovery</div><div class="cards4">
+      ${card('khach','B1 · Khách hàng', `${kh.length} chân dung`, `${cnt(kh,f=>f['Xác nhận']==='Đã xác nhận')} đã xác nhận · ${cnt(D('nguondl'),f=>f['Trạng thái']==='Đã phân tích')}/${D('nguondl').length} nguồn dữ liệu đã phân tích · ${ht.length} ghi nhận hành trình`, pct(cnt(kh,f=>f['Xác nhận']==='Đã xác nhận'), Math.max(kh.length,3)))}
+      ${card('tukhoa','B2 · Từ khoá', `${tk.length} từ khoá`, `${cnt(tk,f=>f['Trang đích'])} đã có trang đích · ${cnt(tk,f=>f['Vị trí']>=8&&f['Vị trí']<=30)} cơ hội nhanh`, pct(cnt(tk,f=>f['Trang đích']), tk.length))}
+      ${card('cum','B3 · Cụm & silo', `${cums.size} cụm`, `${cnt(tr,f=>f['Cụm chủ đề'])}/${tr.length} trang đã gán cụm · ${cnt(tr,f=>f['Vai trò silo']==='Pillar (trụ cột)')} trang trụ`, pct(cnt(tr,f=>f['Cụm chủ đề']), tr.length))}
+      ${card('doithu','B4 · Đối thủ', `${dt.length} đối thủ`, `${cnt(dt,f=>f['Khoảng trống Rooty thắng được'])} có khoảng trống`, pct(Math.min(dt.length,5),5))}
+    </div>
+    <div class="ph">2 · Improving</div><div class="cards4">
+      ${card('kythuat','B5 · Audit 5 hạng mục', `${cnt(D('kythuat'),f=>f['Kết quả']==='Đạt')}/${D('kythuat').length||74} đạt`, `${cnt(D('kythuat'),f=>f['Kết quả']==='Chưa đạt')} chưa đạt · ${cnt(D('kythuat'),f=>f['Kết quả']==='Chưa kiểm')} chưa kiểm`, pct(cnt(D('kythuat'),f=>f['Kết quả']==='Đạt'), D('kythuat').length||74))}
+      ${card('audit','B5 · Audit', `${auOpen} vấn đề mở`, `${auRed} vấn đề 🔴 · ${cnt(au,f=>f['Trạng thái']==='Đã sửa')}/${au.length} đã sửa`, pct(cnt(au,f=>f['Trạng thái']==='Đã sửa'), au.length))}
+    </div>
+    <div class="ph">3 · Create & Optimize</div><div class="cards4">
+      ${card('content','B6 · Content', `${bai.length} bài`, `${cnt(bai,r=>r.fields['Trạng thái']==='Chờ duyệt')} chờ duyệt · ${cnt(bai,r=>r.fields['Trạm']==='Đã đăng')} đã đăng · ${cnt(bai,r=>r.fields['Trạng thái']==='Bị trả về')} bị trả về`, pct(cnt(bai,r=>r.fields['Trạm']==='Đã đăng'), bai.length))}
+      ${card('onpage','B7 · Onpage', avg!=null?`${avg} điểm TB`:'Chưa có', `${cnt(tr,f=>f['Title']==='Chưa đạt')} title chưa đạt · ${cnt(tr,f=>f['Meta']==='Chưa đạt')} meta chưa đạt`, avg)}
+      ${card('entity','B8 · Entity', `${cnt(hs,f=>f['Khớp NAP']==='Khớp')}/${hs.length} hồ sơ khớp`, `${cnt(hs,f=>f['Trong sameAs']==='Có')} trong sameAs · ${tt.length} thực thể`, pct(cnt(hs,f=>f['Khớp NAP']==='Khớp'), hs.length))}
+    </div>
+    <div class="ph">4 · Promotion</div><div class="cards4">
+      ${card('link','B9 · Link building', `${lk.length} link`, `${cnt(lk,f=>f['Loại']==='Nội bộ')} nội bộ · ${cnt(lk,f=>f['Loại']!=='Nội bộ')} bên ngoài · ${cnt(lk,f=>['Đã gắn','Đang live'].includes(f['Trạng thái']))} đã live`, pct(cnt(lk,f=>['Đã gắn','Đang live'].includes(f['Trạng thái'])), lk.length))}
+    </div>
+    <div class="ph">5 · Evaluate</div><div class="cards4">
+      ${card('danhgia','B10 · Đánh giá', last[0]?`${Number(last[0]['Lượt nhấp']||0).toLocaleString('vi-VN')} lượt nhấp`:'Chưa có số', last[0]?`Tháng ${esc(last[0]['Tháng'])}${last[1]&&last[1]['Lượt nhấp']?` · ${Math.round((last[0]['Lượt nhấp']/last[1]['Lượt nhấp']-1)*100)}% so tháng trước`:''}`:'Nhập số tháng đầu tiên')}
+      ${card('kehoach','Kế hoạch 10 tháng', `${vDone}/${viec.length||37}`, `công đoạn xong · đang ở tháng T${CFG.currentMonth}`, pct(vDone, viec.length||37))}
+    </div>
+    <section class="logs"><h2>Nhật ký</h2><div class="loglist" id="logs"></div></section>`;
+  api('GET','/api/log').then(renderLogs).catch(()=>{});
+};
+function renderLogs(logs){
+  const el = $('#logs'); if(!el) return;
+  el.innerHTML = logs.map(l=>`<div><time>${fmtTime(l.fields['Thời gian'])}</time><span>${esc(l.fields['Nội dung'])}${l.fields['Slug']?` · <span class="meta">${esc(l.fields['Slug'])}</span>`:''}</span></div>`).join('') || '<div class="empty">Chưa có nhật ký</div>';
+}
+
+/* ---------- B1 · Chân dung khách hàng & hành trình mua hàng ---------- */
+let JR_PERSONA = store.get('jr-persona','');
+async function seedBtn(key){ try{ const r=await api('POST',`/api/t/${key}/seed`); toast(r.message); await load(key,true); renderNav(); render(); }catch(e){ toast(e.message,true); } }
+VIEWS.khach = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>1</span> Thu thập dữ liệu thị trường</h2>
+      <p class="meta">Chân dung phải dựa trên dữ liệu thật, không phỏng đoán. Mỗi nguồn ghi cách thu, cỡ mẫu và phát hiện chính.
+      <a href="/docs/mau-khao-sat-khach.md" target="_blank" rel="noopener">Mở mẫu khảo sát & kịch bản phỏng vấn ↗</a></p></div>
+    <div id="gSrc"></div>
+    <div class="sec"><h2><span>2</span> Chân dung khách hàng (Customer Persona)</h2>
+      <p class="meta">5 nhóm thông tin: nhân khẩu học · tâm lý & lối sống · nhu cầu & động cơ · điểm đau · hành vi tiêu dùng. Bấm vào thẻ để sửa.</p></div>
+    <div id="personas"></div>
+    <div class="sec"><h2><span>3</span> Hành trình mua hàng (Customer Journey)</h2>
+      <p class="meta">5 giai đoạn từ lúc chưa biết Rooty đến khi giới thiệu bạn bè. Mỗi ô là một ghi nhận — bấm để sửa.</p></div>
+    <div id="jmap"></div>
+    <details class="gwrap" style="padding:0"><summary style="padding:10px 14px;cursor:pointer;font-weight:600">Bảng chi tiết hành trình (lọc, thêm, sửa)</summary><div id="gJr" style="padding:0 0 1px"></div></details>`;
+  await Promise.all([load('khach'), load('hanhtrinh'), load('nguondl')]);
+  await grid($('#gSrc'),'nguondl',{title:'Nguồn dữ liệu khách', cols:['Nguồn','Cách thu thập','Cỡ mẫu','Phát hiện chính','Trạng thái'], filters:['Loại','Trạng thái'],
+    defaults:{'Trạng thái':'Kế hoạch'}});
+  drawPersonas(); drawJourney();
+  await grid($('#gJr'),'hanhtrinh',{title:'Hành trình khách', cols:['Câu hỏi / nhu cầu','Giai đoạn','Nhóm khách','Điểm chạm','Cảm xúc','Loại nội dung','Trang đáp ứng'],
+    filters:['Giai đoạn','Nhóm khách','Cảm xúc','Loại nội dung'],
+    sort:(a,b)=>CFG.tables.hanhtrinh.fields[1].o.indexOf(a['Giai đoạn'])-CFG.tables.hanhtrinh.fields[1].o.indexOf(b['Giai đoạn'])});
+};
+function drawPersonas(){
+  const rows = DATA.khach, el = $('#personas');
+  const line = (label, ...vals) => { const t = vals.filter(Boolean).join(' · '); return t ? `<div class="pl"><b>${label}</b><span>${esc(t)}</span></div>` : ''; };
+  el.innerHTML = `<div class="pgrid">${rows.map(r=>{ const f = r.fields;
+    return `<button class="pcard" data-id="${r.record_id}">
+      <div class="ph1"><div><div class="pname">${esc(f['Nhóm khách'])}</div><div class="meta">${esc(f['Tên đại diện']||'')}</div></div>
+        <div style="text-align:right">${f['Tỷ trọng khách %']!=null?`<b class="big2">${f['Tỷ trọng khách %']}%</b><div class="meta">khách</div>`:''}
+        <span class="chip ${f['Xác nhận']==='Đã xác nhận'?'c-ok':'c-warn'}">${esc(f['Xác nhận']||'Giả định')}</span></div></div>
+      <div class="pblock"><h5>👤 Nhân khẩu học</h5>${line('Tuổi', f['Độ tuổi'], f['Giới tính'])}${line('Nghề', f['Nghề nghiệp'])}${line('Thu nhập', f['Thu nhập'])}${line('Nơi sống', f['Nơi sống'], f['Học vấn'])}</div>
+      <div class="pblock"><h5>💭 Tâm lý & lối sống</h5><p>${esc(f['Tâm lý & lối sống']||'—')}</p>${f['Sở thích']?`<p class="meta">Thích: ${esc(f['Sở thích'])}</p>`:''}</div>
+      <div class="pblock"><h5>🎯 Nhu cầu & động cơ</h5><p>${esc(f['Nhu cầu & động cơ']||'—')}</p></div>
+      <div class="pblock pain"><h5>⚠️ Điểm đau</h5><p>${esc(f['Điểm đau']||'—')}</p>${f['Câu hỏi hay hỏi']?`<p class="meta">Hay hỏi: ${esc(f['Câu hỏi hay hỏi'])}</p>`:''}</div>
+      <div class="pblock"><h5>🛒 Hành vi tiêu dùng</h5>${line('Tìm ở', f['Kênh tìm thông tin'])}${line('Mua', f['Mua online/offline'])}${line('Quyết định vì', f['Yếu tố quyết định'])}
+        ${line('Ngân sách', f['Ngân sách / chuyến'])}${line('Khi nào', f['Thời điểm đi'], f['Đặt trước bao lâu'] ? 'đặt trước '+f['Đặt trước bao lâu'] : '')}${line('Tour hợp', f['Tour phù hợp'])}</div>
+    </button>`; }).join('')}
+    <div class="pcard padd"><button class="btn primary" id="pAdd">+ Thêm chân dung</button>${!rows.length&&CFG.tables.khach.seed?'<button class="btn" id="pSeed">Nạp 4 chân dung mẫu</button>':''}
+      <span class="meta">${rows.length?`${rows.filter(r=>r.fields['Xác nhận']==='Đã xác nhận').length}/${rows.length} đã xác nhận bằng dữ liệu`:'Nên có 3–4 chân dung.'}</span></div></div>`;
+  el.querySelectorAll('.pcard[data-id]').forEach(c=>c.onclick=()=>openForm('khach', rows.find(r=>r.record_id===c.dataset.id), {}));
+  $('#pAdd').onclick = ()=>openForm('khach', null, {'Xác nhận':'Giả định'});
+  $('#pSeed')?.addEventListener('click', ()=>seedBtn('khach'));
+}
+function drawJourney(){
+  const stages = CFG.tables.hanhtrinh.fields[1].o, all = DATA.hanhtrinh, names = DATA.khach.map(r=>r.fields['Nhóm khách']).filter(Boolean);
+  const rows = all.filter(r=>!JR_PERSONA || [JR_PERSONA,'Tất cả',''].includes(r.fields['Nhóm khách']||''));
+  const ROWS = [['Câu hỏi / nhu cầu','❓ Câu hỏi / nhu cầu'],['Hành động của khách','🚶 Hành động'],['Điểm chạm','📍 Điểm chạm'],['Cảm xúc','💗 Cảm xúc'],
+    ['Rào cản','🧱 Rào cản'],['Cơ hội cho Rooty','💡 Cơ hội cho Rooty'],['Loại nội dung','📝 Nội dung & từ khoá'],['Chỉ số đo','📊 Chỉ số đo']];
+  const item = (r, k) => { const f=r.fields; let t = f[k]; if(!t) return '';
+    if(k==='Loại nội dung') t = t + (f['Từ khoá ví dụ']?` — “${f['Từ khoá ví dụ']}”`:'') + (f['Trang đáp ứng']?` → ${pathOf(f['Trang đáp ứng'])}`:'');
+    const who = (!JR_PERSONA && f['Nhóm khách'] && f['Nhóm khách']!=='Tất cả') ? `<em>${esc(f['Nhóm khách'])}</em>` : '';
+    return `<button class="ji ${k==='Cảm xúc'?'emo':''}" data-id="${r.record_id}">${who}${esc(t)}</button>`; };
+  $('#jmap').innerHTML = `<div class="gtool" style="border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;background:var(--surface)">
+      <h3>Bản đồ hành trình</h3><span class="cnt">${rows.length} ghi nhận</span>
+      <select id="jrP" aria-label="Lọc theo nhóm khách"><option value="">Mọi nhóm khách</option>${names.map(n=>`<option ${n===JR_PERSONA?'selected':''}>${esc(n)}</option>`).join('')}</select>
+      ${!all.length&&CFG.tables.hanhtrinh.seed?'<button class="btn sm" id="jSeed">Nạp hành trình mẫu</button>':''}
+      <button class="btn sm primary" id="jAdd">+ Thêm ghi nhận</button></div>
+    <div class="jwrap"><div class="jgrid" style="grid-template-columns:150px repeat(${stages.length},minmax(170px,1fr))">
+      <div class="jh"></div>${stages.map((s,i)=>`<div class="jh"><span>${i+1}</span>${esc(s)}</div>`).join('')}
+      ${ROWS.map(([k,label])=>`<div class="jl">${label}</div>${stages.map(s=>`<div class="jc">${rows.filter(r=>r.fields['Giai đoạn']===s).map(r=>item(r,k)).join('')}</div>`).join('')}`).join('')}
+    </div></div>`;
+  $('#jrP').onchange = e=>{ JR_PERSONA = e.target.value; store.set('jr-persona', JR_PERSONA); drawJourney(); };
+  $('#jAdd').onclick = ()=>openForm('hanhtrinh', null, {'Nhóm khách': JR_PERSONA||'Tất cả', 'Giai đoạn': stages[0]});
+  $('#jSeed')?.addEventListener('click', ()=>seedBtn('hanhtrinh'));
+  document.querySelectorAll('#jmap .ji').forEach(b=>b.onclick=()=>openForm('hanhtrinh', all.find(r=>r.record_id===b.dataset.id), {}));
+}
+
+/* ---------- B2 · Nghiên cứu từ khoá ---------- */
+const TOOLS = [
+  ['Google Keyword Planner','https://business.google.com/vn/ad-tools/keyword-planner/','Miễn phí (cần tài khoản Google Ads). Nhập từ khoá gốc → “Tải xuống ý tưởng từ khoá” (CSV) → Nhập CSV ở đây.'],
+  ['Google Search Console','https://search.google.com/search-console','Từ khoá thật đang đưa khách tới rootytrip.com: Hiệu suất → Truy vấn → Xuất CSV.'],
+  ['Ahrefs / Semrush','https://ahrefs.com/keywords-explorer','Mở rộng theo cấp (Parent topic), lượng tìm, độ khó (KD), ý định. Xuất CSV → nhập ở đây.'],
+  ['Keywordtool.io','https://keywordtool.io/','Gợi ý từ Google, YouTube, TikTok… Bản miễn phí cho danh sách, bản trả phí có lượng tìm.'],
+];
+VIEWS.tukhoa = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>1</span> Brainstorm từ khoá gốc (seed)</h2>
+      <p class="meta">Từ góc độ người bán: tên sản phẩm · thương hiệu · tính năng/đặc điểm · nhu cầu cốt lõi · địa điểm. Bấm “Mở rộng” để lấy từ khoá dài từ gợi ý tìm kiếm của Google.</p></div>
+    <div id="jobExp"></div><div id="gSeed"></div>
+    <div class="sec"><h2><span>2</span> Dùng công cụ chuyên dụng</h2></div>
+    <div class="cards4">${TOOLS.map(([n,u,d])=>`<div class="kcard" style="cursor:default"><b>${esc(n)}</b><span class="meta">${esc(d)}</span><a href="${u}" target="_blank" rel="noopener" style="font-size:13px">Mở công cụ ↗</a></div>`).join('')}</div>
+    <div class="sec"><h2><span>3</span> Danh sách từ khoá & phân loại theo ý định tìm kiếm</h2>
+      <p class="meta">Informational = <b>Thông tin</b> · Navigational = <b>Điều hướng</b> (tìm thương hiệu) · Commercial = <b>Cân nhắc</b> · Transactional = <b>Mua</b>. Ý định được đoán tự động — kiểm lại.</p></div>
+    <div class="strip" id="intents"></div><div id="g"></div>`;
+  await Promise.all([load('trang').catch(()=>{}), load('tukhoagoc'), load('tukhoa')]);
+  jobPanel($('#jobExp'), 'expand', 'Mở rộng các từ khoá gốc chưa mở rộng (gợi ý Google)', '/api/kw/expand', {}, ['tukhoa','tukhoagoc']);
+  await grid($('#gSeed'),'tukhoagoc',{title:'Từ khoá gốc', cols:['Từ khoá gốc','Loại','Sản phẩm / dịch vụ','Cụm dự kiến','Mở rộng','Số từ khoá tìm được'], filters:['Loại','Mở rộng'],
+    defaults:{'Mở rộng':'Chưa'}});
+  const tk = DATA.tukhoa.map(r=>r.fields);
+  $('#intents').innerHTML = ['Thông tin','Điều hướng','Cân nhắc','Mua'].map(i=>`<div class="pill"><b>${tk.filter(f=>f['Ý định']===i).length}</b>${i}</div>`).join('')
+    + `<div class="pill"><b>${tk.filter(f=>f['Lượng tìm']||f['Hiển thị']).length}<span class="meta">/${tk.length}</span></b>có số liệu</div>`;
+  await grid($('#g'),'tukhoa',{cols:['Từ khoá','Ý định','Giai đoạn','Lượng tìm','Độ khó','Hiển thị','Vị trí','Cụm chủ đề','Nguồn','Ưu tiên','Trạng thái'],
+    filters:['Ý định','Nguồn','Từ khoá gốc','Ưu tiên','Trạng thái'],
+    chips:[{id:'nhanh',label:'Cơ hội nhanh (vị trí 8–30)',fn:f=>f['Vị trí']>=8&&f['Vị trí']<=30},{id:'noso',label:'Chưa có số liệu',fn:f=>!f['Lượng tìm']&&!f['Hiển thị']},{id:'q',label:'Dạng câu hỏi',fn:f=>/(không|bao nhiêu|ở đâu|có gì|nên|thế nào|mấy|khi nào|là gì)/.test(f['Từ khoá']||'')}],
+    sort:(a,b)=>(num(b['Lượng tìm'])||num(b['Hiển thị'])||0)-(num(a['Lượng tìm'])||num(a['Hiển thị'])||0),
+    actions:[{label:'Nhập CSV (GSC / Keyword Planner / Ahrefs / Semrush)', fn:importKeywordsCSV},{label:'Xuất CSV', fn:()=>exportCSV('tukhoa','tu-khoa-rooty.csv')}],
+    defaults:{'Trạng thái':'Mới'}, emptyHint:'bấm “Mở rộng” ở trên hoặc nhập CSV'});
+};
+
+/* ---------- B3 · Topic Cluster ---------- */
+async function importCrawl(){
+  try{ toast('Đang nạp…'); const r = await api('POST','/api/import/crawl'); toast(r.message); await load('trang',true); renderNav(); render(); }
+  catch(e){ toast(e.message, true); }
+}
+VIEWS.cum = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>1</span> Gom từ khoá thành nhóm URL & cụm chủ đề</h2>
+      <p class="meta">Từ khoá có kết quả Google gần giống nhau (cùng ý định) → chung <b>một nhóm URL</b> = một bài. Các nhóm cùng chủ đề → một <b>cụm</b>: 1 <b>Pillar</b> (từ khoá rộng, lượng tìm cao, 3.000–5.000 từ) + nhiều <b>Cluster</b> (từ khoá dài/câu hỏi, 1.000–2.000 từ) link về Pillar.</p></div>
+    <div class="vhead"><div style="flex:1 1 300px" id="cstat"></div>
+      <button class="btn" id="bGroup">Gợi ý gom nhóm tự động</button><button class="btn" id="bPosts">Tạo bài cho nhóm chưa có trang</button><button class="btn" id="bExp">Xuất CSV</button></div>
+    <div id="board"></div>
+    <div class="sec"><h2><span>2</span> Trang đích & vai trò Pillar / Cluster</h2>
+      <p class="meta">Mỗi cụm đúng 1 trang Pillar. Trang danh mục thường làm Pillar; trang tour gắn “Trang sản phẩm”.</p></div>
+    <div id="g"></div>`;
+  await Promise.all([load('trang'), load('tukhoa')]);
+  $('#bGroup').onclick = ()=>act('/api/kw/group', ['tukhoa']);
+  $('#bPosts').onclick = ()=>act('/api/kw/create-posts', ['tukhoa']);
+  $('#bExp').onclick = ()=>exportCSV('tukhoa','topic-cluster-rooty.csv');
+  drawClusters();
+  await grid($('#g'),'trang',{title:'Trang đích', cols:['URL','Tiêu đề','Cụm chủ đề','Vai trò silo','Loại trang','Từ khoá chính','Nội dung','Số từ','Link vào'],
+    filters:['Loại trang','Cụm chủ đề','Vai trò silo','Nội dung'],
+    chips:[{id:'nocum',label:'Chưa gán cụm',fn:f=>!f['Cụm chủ đề']},{id:'pil',label:'Pillar',fn:f=>f['Vai trò silo']==='Pillar (trụ cột)'},{id:'weak',label:'Ít link vào (≤ 1)',fn:f=>f['Link vào']!=null&&f['Link vào']<=1}],
+    actions:[{label:'Nạp trang từ crawl', fn:importCrawl}], defaults:{'Vai trò silo':'Khác'}, emptyHint:'bấm “Nạp trang từ crawl”'});
+};
+function drawClusters(){
+  const kws = DATA.tukhoa.filter(r=>r.fields['Trạng thái']!=='Bỏ'), pages = DATA.trang;
+  const vol = f => Number(f['Lượng tìm']||f['Hiển thị']||0);
+  const noGroup = kws.filter(r=>!r.fields['Nhóm URL']).length;
+  const cl = {};
+  kws.forEach(r=>{ const f=r.fields, c=f['Cụm chủ đề']||'(chưa gán cụm)', g=f['Nhóm URL']||'(chưa gom nhóm)';
+    ((cl[c] ||= {})[g] ||= []).push(r); });
+  const pillarOf = c => pages.filter(p=>p.fields['Cụm chủ đề']===c && p.fields['Vai trò silo']==='Pillar (trụ cột)');
+  const groupsAll = Object.values(cl).reduce((s,o)=>s+Object.keys(o).length,0);
+  $('#cstat').innerHTML = `<b>${kws.length}</b> từ khoá · <b>${groupsAll}</b> nhóm URL · <b>${Object.keys(cl).length}</b> cụm · <span style="color:var(--bad)"><b>${noGroup}</b> chưa gom nhóm</span>`;
+  const names = Object.keys(cl).sort((a,b)=>a.startsWith('(')-b.startsWith('(') || a.localeCompare(b));
+  $('#board').innerHTML = names.length ? names.map(c=>{
+    const groups = Object.entries(cl[c]).map(([g,rs])=>{ const tv = rs.reduce((s,r)=>s+vol(r.fields),0), url = (rs.find(r=>r.fields['Trang đích'])||{fields:{}}).fields['Trang đích'];
+      return {g, rs, tv, url}; }).sort((a,b)=>b.tv-a.tv || b.rs.length-a.rs.length);
+    const pil = pillarOf(c), head = groups[0];
+    return `<section class="phase"><h3>${esc(c)} <span class="meta">${groups.length} nhóm · ${groups.reduce((s,x)=>s+x.rs.length,0)} từ khoá</span>
+      <span class="meta" style="margin-left:auto">${pil.length===1?`Pillar: <span class="u">${esc(pathOf(pil[0].fields['URL']))}</span>`:pil.length>1?`<span class="chip c-bad">${pil.length} Pillar — chỉ nên 1</span>`:c.startsWith('(')?'':`<span class="chip c-warn">Chưa có trang Pillar</span>${head?` — gợi ý: “${esc(head.g)}”`:''}`}</span></h3>
+      <div class="tscroll"><table class="g"><thead><tr><th>Nhóm URL (1 bài)</th><th>Từ khoá trong nhóm</th><th class="num">Tổng lượng tìm</th><th>Trang đích</th><th>Độ dài gợi ý</th></tr></thead><tbody>
+      ${groups.map((x,i)=>`<tr data-g="${esc(x.g)}" data-c="${esc(c)}"><td><b>${esc(x.g)}</b>${i===0&&!c.startsWith('(')?' <span class="chip c-info">Pillar?</span>':''}</td>
+        <td><span class="trunc">${x.rs.slice(0,8).map(r=>esc(r.fields['Từ khoá'])).join(' · ')}${x.rs.length>8?` … +${x.rs.length-8}`:''}</span></td>
+        <td class="num">${x.tv?x.tv.toLocaleString('vi-VN'):'—'}</td>
+        <td>${x.url?`<span class="u">${esc(pathOf(x.url))}</span>`:'<span class="chip c-bad">Cần viết</span>'}</td>
+        <td class="meta">${i===0&&!c.startsWith('(')?'3.000–5.000 từ':'1.000–2.000 từ'}</td></tr>`).join('')}
+      </tbody></table></div></section>`;
+  }).join('') : '<div class="banner">Chưa có từ khoá. Làm Bước 2 trước (mở rộng seed hoặc nhập CSV), rồi bấm “Gợi ý gom nhóm tự động”.</div>';
+  document.querySelectorAll('#board tbody tr').forEach(tr=>tr.onclick=()=>{
+    $('#q2')?.remove(); GRID_STATE['tukhoa'] = {q: tr.dataset.g.startsWith('(')?'':tr.dataset.g, f:{}, chip:null, limit:100};
+    go('tukhoa'); toast('Đang lọc từ khoá theo nhóm — sửa cột Nhóm URL / Cụm / Trang đích ở đây'); });
+}
+
+/* ---------- B4 · Đối thủ ---------- */
+VIEWS.doithu = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>1</span> Đánh giá điểm mạnh & điểm yếu đối thủ</h2>
+      <p class="meta">Điểm mạnh: nội dung · backlink & uy tín · UX/UI & tốc độ · thương hiệu, giá, chính sách. Điểm yếu: khoảng trống nội dung · bài cũ, heading/title chưa tối ưu · chuyển đổi & chăm sóc khách. Bấm “Soi website” để đo nhanh kỹ thuật.</p></div>
+    <div id="jobScan"></div><div id="g"></div>
+    <div class="sec"><h2><span>2</span> Từ khoá đối thủ đang xếp hạng</h2>
+      <p class="meta">Xuất “Organic keywords” của đối thủ từ Ahrefs/Semrush (CSV) → nhập ở đây → “Phân loại” so với bảng Từ khoá của Rooty: <b>Gap</b> = đối thủ có, Rooty chưa · <b>Common</b> = cả hai cùng có (ai đứng cao hơn). Chuyển Gap sang Bước 2.</p></div>
+    <div class="strip" id="kwsum"></div><div id="g2"></div>`;
+  await Promise.all([load('doithu'), load('dtkw')]);
+  jobPanel($('#jobScan'), 'scan', 'Soi website tất cả đối thủ', '/api/doithu/scan', {}, ['doithu']);
+  await grid($('#g'),'doithu',{cols:['Đối thủ','Website','Loại','Mạnh ở cụm','Số từ khoá organic','Traffic ước tính','DR/DA','Khoảng trống Rooty thắng được','Ngày soi','Trạng thái'],
+    filters:['Loại','Trạng thái','Chạy Google Ads'], defaults:{'Trạng thái':'Cần phân tích','Chạy Google Ads':'Chưa kiểm'}});
+  const d = DATA.dtkw.map(r=>r.fields), P = CFG.tables.dtkw.fields.find(f=>f.n==='Phân loại').o;
+  $('#kwsum').innerHTML = P.map(p=>`<div class="pill"><b>${d.filter(f=>f['Phân loại']===p).length}</b>${esc(p)}</div>`).join('')
+    + `<div class="pill"><b>${d.filter(f=>!f['Phân loại']).length}</b>chưa phân loại</div>`;
+  await grid($('#g2'),'dtkw',{title:'Từ khoá đối thủ', cols:['Từ khoá','Đối thủ','Vị trí đối thủ','Vị trí Rooty','Lượng tìm','Phân loại','Cơ hội','Đã thêm vào Từ khoá'],
+    filters:['Đối thủ','Phân loại','Cơ hội','Đã thêm vào Từ khoá'],
+    sort:(a,b)=>(num(b['Lượng tìm'])||0)-(num(a['Lượng tìm'])||0),
+    actions:[{label:'Nhập CSV từ khoá đối thủ', fn:importCompetitorCSV},{label:'Phân loại Common/Gap', fn:()=>act('/api/dtkw/classify',['dtkw'])},
+      {label:'Chuyển Gap sang Từ khoá', fn:()=>act('/api/dtkw/to-keywords',['dtkw','tukhoa'])}],
+    emptyHint:'nhập CSV “Organic keywords” của đối thủ từ Ahrefs/Semrush'});
+};
+
+/* ---------- B5 · Technical SEO ---------- */
+let CRAWL_POLL = null;
+async function crawlPanel(el){
+  const draw = s => {
+    const last = s.lastReport ? `Báo cáo crawl mới nhất: <b>${esc(s.lastReport)}</b> · ${fmtTime(s.lastReportAt)}` : 'Chưa có báo cáo crawl.';
+    el.innerHTML = `<div class="vhead">
+      <div style="flex:1 1 320px"><div class="meta">Website: ${esc(s.site)}</div><div>${s.running ? '<b>Đang crawl…</b> <span class="meta">mất vài phút — có thể chuyển tab khác</span>' : last}</div>
+        ${s.running || s.result ? `<div class="meta" style="margin-top:4px;font-family:ui-monospace,Consolas,monospace;white-space:pre-wrap">${esc(s.running ? s.lines.slice(-2).join('\n') : s.result)}</div>`:''}</div>
+      <button class="btn" id="btnCheck">Kiểm tự động</button>
+      <button class="btn primary" id="btnCrawl" ${s.running?'disabled':''}>${s.running?'Đang chạy…':'Chạy crawl'}</button></div>`;
+    $('#btnCrawl').onclick = async ()=>{ try{ const r=await api('POST','/api/run/crawl',{maxPages:1500}); toast(r.message); poll(); }catch(e){ toast(e.message,true); } };
+    $('#btnCheck').onclick = async ()=>{ const b=$('#btnCheck'); b.disabled=true; b.textContent='Đang kiểm… (~40 giây)';
+      try{ const r=await api('POST','/api/tech/check'); toast(r.message); await load('kythuat',true); renderNav(); if(VIEW==='kythuat') render(); }
+      catch(e){ toast(e.message,true); b.disabled=false; b.textContent='Kiểm tự động'; } };
+  };
+  const poll = async ()=>{
+    clearTimeout(CRAWL_POLL);
+    const s = await api('GET','/api/run/status');
+    if(!el.isConnected) return;
+    draw(s);
+    if(s.running) CRAWL_POLL = setTimeout(poll, 3000);
+    else if(s.finished && s.finished !== store.get('crawl-seen',0)){ store.set('crawl-seen', s.finished); toast('Crawl xong — '+s.result.slice(0,120));
+      ['trang','audit','kythuat'].forEach(k=>delete DATA[k]); renderNav(); render(); }
+  };
+  await poll();
+}
+const AREA_ICON = {'Technical SEO':'⚙️','Silo':'🏗️','UX/UI':'🖱️','Onsite':'📝','Entity':'🏷️'};
+VIEWS.kythuat = async v => {
+  v.innerHTML = '<div id="cp"></div><div class="areas" id="areas"></div><div class="strip" id="sum"></div><div id="g"></div>';
+  crawlPanel($('#cp'));
+  const lv = {'🔴 Cao':0,'🟡 Vừa':1,'🟢 Thấp':2}, rs = {'Chưa đạt':0,'Chưa kiểm':1,'Đạt':2,'Không áp dụng':3};
+  const st = GRID_STATE['kythuat'] ||= {q:'', f:{}, chip:null, limit:200};
+  await load('kythuat');
+  const k = DATA.kythuat.map(r=>r.fields), areas = CFG.tables.kythuat.fields.find(f=>f.n==='Hạng mục').o;
+  $('#areas').innerHTML = areas.map(a=>{ const x=k.filter(f=>f['Hạng mục']===a), ok=x.filter(f=>f['Kết quả']==='Đạt').length,
+      bad=x.filter(f=>f['Kết quả']==='Chưa đạt').length, red=x.filter(f=>f['Kết quả']==='Chưa đạt'&&f['Mức độ']==='🔴 Cao').length,
+      checked=x.filter(f=>['Đạt','Chưa đạt'].includes(f['Kết quả'])).length, p = checked?Math.round(ok/checked*100):null;
+    return `<button class="acard ${st.f['Hạng mục']===a?'on':''}" data-a="${esc(a)}"><span class="ai">${AREA_ICON[a]||''}</span><b>${esc(a)}</b>
+      <span class="ascore" style="color:var(${p==null?'--muted':p>=80?'--ok':p>=50?'--warn':'--bad'})">${p==null?'—':p+'%'}</span>
+      <span class="meta">${ok}/${x.length} đạt · ${bad} chưa đạt${red?` · <b style="color:var(--bad)">${red} 🔴</b>`:''}</span>
+      <div class="bar"><i style="width:${x.length?Math.round(ok/x.length*100):0}%"></i></div></button>`; }).join('');
+  document.querySelectorAll('.acard').forEach(b=>b.onclick=()=>{ st.f['Hạng mục'] = st.f['Hạng mục']===b.dataset.a ? '' : b.dataset.a; render(); });
+  await grid($('#g'),'kythuat',{title: st.f['Hạng mục'] ? `Checklist · ${st.f['Hạng mục']}` : 'Checklist audit — 5 hạng mục',
+    cols:['Mã','Mục kiểm','Hạng mục','Nhóm','Mức độ','Kết quả','Chi tiết kết quả','Lần kiểm','Người sửa'],
+    filters:['Hạng mục','Nhóm','Kết quả','Mức độ'], limit:200,
+    chips:[{id:'bad',label:'Chưa đạt',fn:f=>f['Kết quả']==='Chưa đạt'},{id:'man',label:'Cần kiểm tay',fn:f=>f['Kiểm tự động']==='Không'},{id:'todo',label:'Chưa kiểm',fn:f=>f['Kết quả']==='Chưa kiểm'}],
+    sort:(a,b)=>areas.indexOf(a['Hạng mục'])-areas.indexOf(b['Hạng mục'])||(rs[a['Kết quả']]??9)-(rs[b['Kết quả']]??9)||(lv[a['Mức độ']]??9)-(lv[b['Mức độ']]??9)||String(a['Mã']).localeCompare(String(b['Mã'])),
+    emptyHint:'bấm “Kiểm tự động” (tự nạp checklist 74 mục rồi chấm) hoặc “Nạp dữ liệu mẫu”'});
+  const sel = st.f['Hạng mục'];
+  $('#sum').innerHTML = k.length ? [...new Set(k.filter(f=>!sel||f['Hạng mục']===sel).map(f=>f['Nhóm']))].filter(Boolean).map(g=>{ const x=k.filter(f=>f['Nhóm']===g);
+    const ok=x.filter(f=>f['Kết quả']==='Đạt').length, bad=x.filter(f=>f['Kết quả']==='Chưa đạt').length;
+    return `<div class="pill"><b>${ok}<span class="meta">/${x.length}</span>${bad?` <span class="chip c-bad">${bad}</span>`:''}</b>${esc(g)}</div>`; }).join('') : '';
+};
+
+/* ---------- B5 · Audit ---------- */
+VIEWS.audit = async v => {
+  v.innerHTML = '<div id="cp"></div><div class="strip" id="sum"></div><div id="g"></div>';
+  crawlPanel($('#cp'));
+  const lv = {'🔴 Cao':0,'🟡 Vừa':1,'🟢 Thấp':2};
+  await grid($('#g'),'audit',{cols:['Vấn đề','Hạng mục','Mức độ','Số trang','Người sửa','Hạn','Trạng thái'],
+    filters:['Hạng mục','Mức độ','Trạng thái'], chips:[{id:'open',label:'Chưa xử lý',fn:f=>!['Đã sửa','Bỏ qua'].includes(f['Trạng thái'])}],
+    sort:(a,b)=>(lv[a['Mức độ']]??3)-(lv[b['Mức độ']]??3)||(b['Số trang']||0)-(a['Số trang']||0),
+    actions:[{label:'Nạp lỗi từ báo cáo crawl & GEO audit', fn:async()=>{ try{ const r=await api('POST','/api/import/audit'); toast(r.message); await load('audit',true); renderNav(); render(); }catch(e){ toast(e.message,true);} }}],
+    defaults:{'Trạng thái':'Mới'}, emptyHint:'bấm “Nạp lỗi từ báo cáo”'});
+  const a = DATA.audit.map(r=>r.fields);
+  $('#sum').innerHTML = ['Kỹ thuật','Silo','UX/UI','Onsite','Entity','GEO'].map(h=>{ const x=a.filter(f=>f['Hạng mục']===h);
+    return `<div class="pill"><b>${x.filter(f=>!['Đã sửa','Bỏ qua'].includes(f['Trạng thái'])).length}<span class="meta">/${x.length}</span></b>${h} còn mở</div>`; }).join('');
+  await fixSection(v);
+};
+
+/* ---------- Sửa lỗi từng trang: lỗi × URL × trạng thái × thứ hạng trước/sau ---------- */
+const FIX_OPEN = ['Mới','Đã xác nhận','Đang sửa','Sửa chưa đạt','Tái phát'], FIX_DONE = ['Đã sửa','Hết lỗi (quét lại)'];
+async function fixSection(v){
+  const box = document.createElement('div');
+  box.innerHTML = `<div class="sec"><h2><span>✓</span> Sửa lỗi từng trang — lưu trạng thái đến khi sửa xong, đo thứ hạng trước/sau</h2>
+    <p class="meta">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b>. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, nhập GSC Trang mới ở B10 → bấm <b>“Đo hiệu quả”</b> để ghi “sau” và kết luận Tốt lên / Không đổi / Giảm. Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
+    <div class="vhead"><button class="btn primary" id="fxImp">Nhập báo cáo lỗi (.xlsx)</button><input type="file" id="fxFile" accept=".xlsx" hidden>
+      <button class="btn" id="fxMeasure">Đo hiệu quả (sau khi nhập GSC mới)</button><span class="meta">Máy tự kiểm lại được: <b>Link tự thân</b>, <b>Đổi năm giả</b>; loại khác người kiểm.</span></div>
+    <div id="fxJob"></div><div class="gwrap" style="padding:12px 14px" id="fxSum"></div><div id="fxG"></div>`;
+  v.appendChild(box);
+  $('#fxImp').onclick = ()=>$('#fxFile').click();
+  $('#fxFile').onchange = async e=>{ const file=e.target.files[0]; if(!file) return;
+    const b64 = await new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(String(r.result).split(',')[1]); r.onerror=no; r.readAsDataURL(file); });
+    try{ toast('Đang nhập…'); const r=await api('POST','/api/loi/import',{name:file.name, b64}); toast(r.message); ['sualoi','audit'].forEach(k=>delete DATA[k]); renderNav(); render(); }catch(err){ toast(err.message,true); } };
+  $('#fxMeasure').onclick = ()=>act('/api/loi/measure',['sualoi']);
+  jobPanel($('#fxJob'), 'loicheck', 'Kiểm lại trang (mở từng trang còn lỗi / đã sửa, xem lỗi còn không)', '/api/loi/recheck', {}, ['sualoi']);
+  await load('sualoi');
+  let S = {kinds:{}}; try{ S = await api('GET','/api/loi/summary'); }catch(e){}
+  const st = GRID_STATE['sualoi'] ||= {q:'', f:{}, chip:null, limit:100};
+  const fmt = (x,unit,goodNeg)=> x==null||x.median==null ? '<span class="meta">—</span>' : `<b style="color:var(${(goodNeg? x.median<0 : x.median>0)?'--ok':x.median===0?'--muted':'--bad'})">${x.median>0?'+':''}${Number(x.median).toLocaleString('vi-VN')}${unit}</b> <span class="meta">(${x.n} trang)</span>`;
+  const K = Object.entries(S.kinds).sort((a,b)=>b[1].open-a[1].open);
+  $('#fxSum').innerHTML = K.length ? `<table class="g"><thead><tr><th>Loại lỗi</th><th>Tổng</th><th>Còn mở</th><th>Đã sửa</th><th>Bỏ qua / không phải lỗi</th><th style="min-width:140px">Tiến độ</th><th>Δ lượt nhấp — đã sửa</th><th>Δ lượt nhấp — chưa sửa (đối chứng)</th><th>Δ vị trí — đã sửa</th><th>Δ vị trí — đối chứng</th><th>Kết quả đo</th></tr></thead><tbody>${K.map(([k,d])=>{ const done=d.fixed+d.skip, p=d.total?Math.round(done/d.total*100):0;
+      return `<tr data-k="${esc(k)}" style="cursor:pointer" class="${st.f['Loại lỗi']===k?'on':''}"><td><b>${esc(k)}</b></td><td class="num">${d.total}</td><td class="num">${d.open?`<b style="color:var(--bad)">${d.open}</b>`:0}</td><td class="num">${d.fixed}</td><td class="num">${d.skip}</td>
+        <td><div class="bar" style="margin:0"><i style="width:${p}%"></i></div><span class="meta">${p}%</span></td>
+        <td>${fmt(d.fixClicks,'')}</td><td>${fmt(d.ctlClicks,'')}</td><td>${fmt(d.fixPos,'',true)}</td><td>${fmt(d.ctlPos,'',true)}</td>
+        <td><span class="meta">${Object.entries(d.effect).map(([e,n])=>`${esc(e)} ${n}`).join(' · ')||'chưa đo'}</span></td></tr>`; }).join('')}</tbody></table>
+    <p class="meta" style="margin:8px 0 0">Δ = trung vị thay đổi “sau − trước” (vị trí: số âm là lên hạng). Sửa có tác dụng khi nhóm <b>đã sửa</b> tốt hơn rõ rệt so với nhóm <b>đối chứng</b> cùng kỳ. Bấm một dòng để lọc bảng dưới.</p>`
+    : '<span class="meta">Chưa có lỗi nào — bấm “Nhập báo cáo lỗi (.xlsx)”.</span>';
+  $('#fxSum').querySelectorAll('tr[data-k]').forEach(tr=>tr.onclick=()=>{ st.f['Loại lỗi'] = st.f['Loại lỗi']===tr.dataset.k ? '' : tr.dataset.k; render(); });
+  const lv = {'🔴 Cao':0,'🟡 Vừa':1,'🟢 Thấp':2}, so = s=>{ const i=['Tái phát','Sửa chưa đạt','Đang sửa','Đã xác nhận','Mới','Đã sửa','Hết lỗi (quét lại)','Không phải lỗi','Bỏ qua'].indexOf(s); return i<0?9:i; };
+  await grid($('#fxG'),'sualoi',{title: st.f['Loại lỗi'] ? `Sửa lỗi · ${st.f['Loại lỗi']}` : 'Sửa lỗi từng trang',
+    cols:['Loại lỗi','URL','Ngôn ngữ','Mức độ','Trạng thái','Cần sửa gì','Người sửa','Hạn','Ngày sửa','Kiểm lại','Nhấp trước','Vị trí trước','Nhấp sau','Vị trí sau','Hiệu quả'],
+    filters:['Loại lỗi','Trạng thái','Mức độ','Ngôn ngữ','Hiệu quả','Đợt quét'], limit:100,
+    chips:[{id:'open',label:'Còn mở',fn:f=>FIX_OPEN.includes(f['Trạng thái'])},{id:'again',label:'Tái phát / sửa chưa đạt',fn:f=>['Tái phát','Sửa chưa đạt'].includes(f['Trạng thái'])},
+      {id:'wait',label:'Đã sửa, chờ đo',fn:f=>FIX_DONE.includes(f['Trạng thái'])&&(!f['Hiệu quả']||f['Hiệu quả']==='Chờ đo')},{id:'up',label:'Tốt lên',fn:f=>f['Hiệu quả']==='Tốt lên'},{id:'down',label:'Giảm',fn:f=>f['Hiệu quả']==='Giảm'}],
+    sort:(a,b)=>so(a['Trạng thái'])-so(b['Trạng thái'])||(lv[a['Mức độ']]??3)-(lv[b['Mức độ']]??3)||String(a['Loại lỗi']).localeCompare(String(b['Loại lỗi'])),
+    formActions:[{label:'Kiểm lại trang này', fn: async rec=>{ const r=await api('POST','/api/loi/recheck',{ids:[rec.record_id]}); toast(r.message+' — xem kết quả sau vài giây'); setTimeout(async()=>{ await load('sualoi',true); if(VIEW==='audit') render(); }, 6000); }}],
+    actions:[{label:'Xuất CSV', fn:()=>exportCSV('sualoi','sua-loi-tung-trang.csv')}],
+    defaults:{'Trạng thái':'Mới','Ngày phát hiện':Date.now()}, emptyHint:'nhập báo cáo lỗi .xlsx'});
+}
+
+/* ---------- B7 ---------- */
+const OP_CHECKS = ['Title','Meta','Heading','URL chuẩn','Hình ảnh'];
+const OP_ICON = {'Title':'🏷️','Meta':'📄','Heading':'🔠','URL chuẩn':'🔗','Hình ảnh':'🖼️'};
+const OP_RULE = {'Title':'50–60 ký tự · từ khoá gần đầu · “| Rooty Trip” ở cuối','Meta':'120–160 ký tự · có từ khoá · có lời kêu gọi',
+  'Heading':'1 H1 chứa từ khoá, gần giống Title · H2/H3 chứa từ khoá phụ','URL chuẩn':'ngắn, không dấu, gạch ngang, có từ khoá, không từ thừa',
+  'Hình ảnh':'tên file không dấu · alt mô tả · WebP · ≤ 200KB'};
+VIEWS.onpage = async v => {
+  v.innerHTML = `<div id="jobOp"></div><div class="areas" id="opa"></div><div id="g"></div>`;
+  await load('trang');
+  jobPanel($('#jobOp'), 'onpage', 'Chấm chi tiết trang quan trọng (trang chủ, danh mục, Pillar, tour — tối đa 40)', '/api/onpage/batch', {limit:40}, ['trang']);
+  const st = GRID_STATE['trangop'] ||= {q:'', f:{}, chip:null, limit:100};
+  const tr = DATA.trang.map(r=>r.fields).filter(f=>f['Loại trang']!=='Ngôn ngữ khác');
+  $('#opa').innerHTML = OP_CHECKS.map(c=>{ const ok=tr.filter(f=>f[c]==='Đạt').length, bad=tr.filter(f=>f[c]==='Chưa đạt').length, chk=ok+bad, p=chk?Math.round(ok/chk*100):null;
+    return `<button class="acard ${st.chip==='bad-'+c?'on':''}" data-c="${esc(c)}"><span class="ai">${OP_ICON[c]}</span><b>${esc(c)}</b>
+      <span class="ascore" style="color:var(${p==null?'--muted':p>=80?'--ok':p>=50?'--warn':'--bad'})">${p==null?'—':p+'%'}</span>
+      <span class="meta">${ok} đạt · ${bad} chưa đạt${chk<tr.length?` · ${tr.length-chk} chưa kiểm`:''}</span><span class="meta" style="font-size:11.5px">${esc(OP_RULE[c])}</span></button>`; }).join('');
+  document.querySelectorAll('#opa .acard').forEach(b=>b.onclick=()=>{ st.chip = st.chip==='bad-'+b.dataset.c ? null : 'bad-'+b.dataset.c; render(); });
+  const chips = OP_CHECKS.map(c=>({id:'bad-'+c, label:c+' chưa đạt', fn:f=>f[c]==='Chưa đạt'}));
+  await grid($('#g'),'trang',{sid:'op', title:'Onpage từng trang — bấm một dòng để xem chi tiết & “Chấm onpage trang này”',
+    cols:['URL','Từ khoá chính','Loại trang',...OP_CHECKS,'Điểm onpage','Onpage','Lần chấm onpage'],
+    filters:['Loại trang','Onpage','Cụm chủ đề','Vai trò silo'],
+    chips:[{id:'imp',label:'Trang quan trọng',fn:f=>['Trang tour/sản phẩm','Danh mục','Trang chủ'].includes(f['Loại trang'])||f['Vai trò silo']==='Pillar (trụ cột)'},
+      {id:'low',label:'Điểm < 60',fn:f=>f['Điểm onpage']!=null&&f['Điểm onpage']<60},{id:'deep',label:'Đã chấm chi tiết',fn:f=>!!f['Lần chấm onpage']}, ...chips],
+    sort:(a,b)=>(!!b['Lần chấm onpage'])-(!!a['Lần chấm onpage']) || (a['Điểm onpage']??101)-(b['Điểm onpage']??101),
+    formActions:[{label:'Chấm onpage trang này', fn: async rec=>{ const r=await api('POST',`/api/onpage/${rec.record_id}/check`); toast(r.message); await load('trang',true); }},
+      {label:'Copy lệnh Claude viết lại', fn: async rec=>{ copy(`/rooty-onpage ${rec.fields['URL']}`); }}],
+    actions:[{label:'Chấm nhanh tất cả từ crawl', fn:()=>act('/api/onpage/rescore',['trang'])},{label:'Nạp trang từ crawl', fn:importCrawl}],
+    emptyHint:'bấm “Nạp trang từ crawl” (dùng chung bảng Trang đích với B3)'});
+};
+
+/* ---------- B8 ---------- */
+VIEWS.entity = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>1</span> Thông tin thương hiệu chuẩn (NAP gốc)</h2>
+      <p class="meta">Tên · Địa chỉ · Hotline · Website phải trùng khớp 100% ở mọi nơi. Đây là bản gốc để so mọi hồ sơ và để sinh schema.</p></div>
+    <div id="nap"></div>
+    <div class="sec"><h2><span>2</span> Social profiles & liên kết chéo</h2>
+      <p class="meta">Website ↔ mạng xã hội phải trỏ qua lại: icon/link trên web tới từng hồ sơ, link trong bio hồ sơ về web, và khai báo trong <code>sameAs</code>.</p></div>
+    <div class="vhead"><div class="strip" id="hsum" style="margin:0;flex:1 1 400px"></div>
+      <button class="btn" id="bScan">Quét liên kết chéo (website ↔ hồ sơ)</button><button class="btn" id="bNap">Kiểm NAP các hồ sơ</button></div>
+    <div id="g1"></div>
+    <div class="sec"><h2><span>3</span> Schema Markup (JSON-LD)</h2>
+      <p class="meta">Mã chuẩn sinh từ NAP gốc + các hồ sơ “Đã có”: TravelAgency (một loại LocalBusiness) + Organization, logo, hotline, địa chỉ, giờ mở cửa, sameAs, kèm WebSite và WebPage. So với schema đang có trên trang chủ.</p></div>
+    <div id="schema" class="gwrap" style="padding:12px 14px"><span class="meta">Đang đọc schema trang chủ…</span></div>
+    <div class="sec"><h2><span>4</span> Thực thể & dữ kiện</h2><p class="meta">Điểm đến, tour, HDV/tác giả — thuộc tính có nguồn, dùng chung cho mọi bài viết.</p></div>
+    <div id="g2"></div>`;
+  await Promise.all([load('brand'), load('hoso'), load('thucthe')]);
+  // ① NAP gốc
+  const b = DATA.brand[0];
+  const NAPF = ['Tên thương hiệu','Website','Hotline chính','Địa chỉ','Thành phố','Tỉnh/thành','Giờ mở cửa','Logo URL','Email','Năm thành lập','Giấy phép lữ hành'];
+  $('#nap').innerHTML = `<div class="gwrap" style="padding:12px 14px">
+    ${b ? `<div class="grid2" style="gap:6px 18px">${NAPF.map(k=>`<div class="pl" style="grid-template-columns:130px 1fr"><b>${esc(k)}</b><span>${b.fields[k]?esc(b.fields[k]):'<span class="chip c-bad">thiếu</span>'}</span></div>`).join('')}</div>` : '<span class="meta">Chưa có NAP gốc.</span>'}
+    <div class="row"><button class="btn sm primary" id="bFromSite">Lấy từ website</button>${b?'<button class="btn sm" id="bEditNap">Sửa NAP gốc</button>':''}</div></div>`;
+  $('#bFromSite').onclick = ()=>act('/api/entity/from-site', ['brand']);
+  if(b) $('#bEditNap').onclick = ()=>openForm('brand', b, {});
+  // ② hồ sơ
+  const hs = DATA.hoso.map(r=>r.fields).filter(f=>!String(f['Nền tảng']).startsWith('Website'));
+  const groups = CFG.tables.hoso.fields.find(f=>f.n==='Nhóm').o.filter(g=>g!=='Website chính');
+  $('#hsum').innerHTML = groups.map(g=>{ const x=hs.filter(f=>f['Nhóm']===g); return `<div class="pill"><b>${x.filter(f=>f['Trạng thái']==='Đã có').length}<span class="meta">/${x.length}</span></b>${esc(g)} đã có</div>`; }).join('')
+    + `<div class="pill"><b>${hs.filter(f=>f['Khớp NAP']==='Khớp').length}</b>khớp NAP</div><div class="pill"><b>${hs.filter(f=>f['Trong sameAs']==='Có').length}</b>trong sameAs</div>`
+    + `<div class="pill"><b style="color:var(--bad)">${hs.filter(f=>f['Trạng thái']==='Cần sửa').length}</b>cần sửa</div>`;
+  $('#bScan').onclick = ()=>act('/api/entity/scan', ['hoso']);
+  $('#bNap').onclick = ()=>act('/api/entity/nap', ['hoso']);
+  await grid($('#g1'),'hoso',{title:'Hồ sơ thương hiệu', cols:['Nền tảng','Nhóm','URL','Web trỏ tới hồ sơ','Hồ sơ trỏ về web','Trong sameAs','Khớp NAP','Đã xác minh','Trạng thái','Ghi chú'],
+    filters:['Nhóm','Trạng thái','Khớp NAP','Trong sameAs'], limit:50,
+    chips:[{id:'fix',label:'Cần sửa / cảnh báo',fn:f=>f['Trạng thái']==='Cần sửa'||/⚠/.test(f['Ghi chú']||'')},{id:'miss',label:'Chưa có',fn:f=>f['Trạng thái']==='Chưa có'}],
+    sort:(a,b)=>groups.indexOf(a['Nhóm'])-groups.indexOf(b['Nhóm'])});
+  await grid($('#g2'),'thucthe',{title:'Thực thể & dữ kiện', cols:['Thực thể','Loại','Thuộc tính','Nguồn','Ngày kiểm','Schema'], filters:['Loại'],
+    chips:[{id:'old',label:'Chưa kiểm trong 30 ngày',fn:f=>!f['Ngày kiểm']||Date.now()-f['Ngày kiểm']>30*864e5}]});
+  // ③ schema
+  try{
+    const s = await api('GET','/api/entity/schema');
+    $('#schema').innerHTML = `<div class="row" style="margin-top:0"><b>Schema hiện tại trên trang chủ:</b> <span class="chip c-info">${esc(s.liveType||'không có')}</span>
+      <span class="meta">sameAs đang khai báo ${s.liveSameAs.length} URL</span></div>
+      ${s.gaps.length?`<ul style="margin:8px 0 10px;padding-left:20px;font-size:14px">${s.gaps.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`:'<p class="meta">Schema trang chủ đã đủ so với bản chuẩn.</p>'}
+      <div class="row"><button class="btn sm primary" id="bCopyLd">Copy mã JSON-LD</button>
+        <a class="btn sm" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" href="https://search.google.com/test/rich-results?url=${encodeURIComponent(CFG.site||'https://rootytrip.com')}">Rich Results Test ↗</a>
+        <a class="btn sm" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" href="https://validator.schema.org/">Schema Validator ↗</a></div>
+      <pre class="cmd" style="white-space:pre;overflow:auto;max-height:340px;display:block;margin-top:8px">${esc('<script type="application/ld+json">\n'+s.jsonld+'\n<\/script>')}</pre>
+      <p class="hint" style="margin:6px 0 0">Dán vào Rank Math → Schema (hoặc plugin chèn mã vào &lt;head&gt; trang chủ). Ô nào trong NAP gốc còn “thiếu” thì mã sẽ không có thuộc tính đó — điền NAP gốc trước.</p>`;
+    $('#bCopyLd').onclick = ()=>copy('<script type="application/ld+json">\n'+s.jsonld+'\n<\/script>');
+  }catch(e){ $('#schema').innerHTML = `<span class="meta">${esc(e.message)}</span>`; }
+};
+
+/* ---------- B9 ---------- */
+const anchorClass = a => { a=(a||'').trim().toLowerCase(); if(!a) return 'Trống'; if(/rootytrip\.com|^https?:/.test(a)) return 'URL';
+  if(/rooty/.test(a)) return 'Thương hiệu'; if(/^(tại đây|xem thêm|xem ngay|chi tiết|click|bấm vào đây|đây|link|đọc thêm|here|read more)$/.test(a)) return 'Chung chung'; return 'Từ khoá'; };
+VIEWS.link = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>0</span> Kế hoạch link cho một trang cần lên top — silo kim tự tháp</h2>
+      <p class="meta">Chọn trang cần đẩy (VD trang tour 3 đảo) + từ khoá → trang dựng <b>kim tự tháp nội bộ</b>: các <b>bài vệ tinh</b> (mỗi bài một câu hỏi con: Hòn Móng Tay, lặn san hô…) link lên <b>bài trụ</b> và <b>trang đích</b>; bài trụ + danh mục link lên trang đích; vệ tinh nối ngang có chọn lọc (bánh xe <i>nhỏ trong cụm</i>). Mỗi link có anchor theo tỉ lệ an toàn và câu đặt link. ⛔ Không làm “bánh xe / kim tự tháp link” bằng site vệ tinh bên ngoài (Web 2.0, PBN, tier 2–3) — Google xếp vào <b>link spam</b>.</p></div>
+    <div class="gwrap" style="padding:12px 14px" id="lpBox"></div>
+    <div class="sec"><h2><span>1</span> Liên kết nội bộ (Internal link)</h2>
+      <p class="meta">Dẫn người đọc và Googlebot theo tầng Trang chủ → Danh mục → Trang chi tiết, dồn sức mạnh về trang tour/danh mục cần đẩy top. Anchor tự nhiên, chứa từ khoá của trang đích; không trỏ lan man.</p></div>
+    <div class="strip" id="istat"></div><div id="iweak"></div><div id="jobSug"></div><div id="gi"></div>
+    <div class="sec"><h2><span>2</span> Backlink — liên kết từ website khác</h2>
+      <p class="meta">“Lá phiếu tín nhiệm”: ưu tiên site uy tín, cùng chủ đề du lịch, link nằm trong nội dung chính. Chiến lược: Guest post · Digital PR/báo chí · Broken link · Linkable asset.</p></div>
+    <div class="strip" id="bstat"></div><div id="jobChk"></div><div id="gb"></div>
+    <div class="sec"><h2><span>3</span> Tìm link gãy (Broken link building)</h2>
+      <p class="meta">Dán URL một trang tài nguyên/bài tổng hợp du lịch Phú Quốc của website khác → trang kiểm các link ra ngoài, liệt kê link gãy để đề xuất chủ site thay bằng bài của Rooty.</p></div>
+    <div class="gwrap" style="padding:12px 14px"><div class="row" style="margin-top:0"><input class="field" id="brUrl" placeholder="https://blog-du-lich.com/kinh-nghiem-phu-quoc/" style="flex:1 1 300px">
+      <button class="btn primary" id="brGo">Tìm link gãy</button></div><div id="brRes"></div></div>`;
+  await Promise.all([load('lienket'), load('trang').catch(()=>{})]);
+  // ① nội bộ
+  try{
+    const s = await api('GET','/api/links/stats');
+    if(!s.ready){ $('#istat').innerHTML = `<div class="banner">${esc(s.message)}</div>`; }
+    else{
+      $('#istat').innerHTML = `<div class="pill"><b>${s.content.toLocaleString('vi-VN')}</b>link trong nội dung</div><div class="pill"><b>${s.menuFooter.toLocaleString('vi-VN')}</b>link menu/footer/sidebar</div>
+        <div class="pill"><b style="color:var(${s.generic?'--bad':'--ok'})">${s.generic}</b>anchor chung chung (“tại đây”, “xem thêm”)</div>
+        <div class="pill"><b>${s.empty}</b>link ảnh không alt / anchor trống</div>
+        <div class="pill"><b style="color:var(${s.weakImportantCount?'--bad':'--ok'})">${s.weakImportantCount}<span class="meta">/${s.importantCount}</span></b>trang tour/danh mục/Pillar &lt; 3 link trong nội dung</div>`;
+      $('#iweak').innerHTML = `<details class="gwrap" style="padding:0"><summary style="padding:10px 14px;cursor:pointer;font-weight:600">Trang quan trọng ít link trỏ vào nhất · ví dụ anchor chung chung</summary>
+        <div style="padding:0 14px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px">
+        <div><h4 style="margin:6px 0">Ít link trong nội dung nhất</h4>${s.weakImportant.map(w=>`<div class="meta"><b style="color:var(--ink)">${w.n}</b> · <span class="u">${esc(pathOf(w.url))}</span></div>`).join('')}</div>
+        <div><h4 style="margin:6px 0">Anchor chung chung</h4>${s.genericEx.map(x=>`<div class="meta" style="word-break:break-all">${esc(x)}</div>`).join('')||'<span class="meta">Không có</span>'}</div></div>
+        <p class="hint" style="margin:0 14px 10px">Nguồn: ${esc(s.file)}</p></details>`;
+    }
+  }catch(e){ $('#istat').innerHTML = `<div class="banner">${esc(e.message)}</div>`; }
+  jobPanel($('#jobSug'), 'linksuggest', 'Gợi ý link nội bộ (tìm câu đã nhắc tới trang tour/danh mục mà chưa gắn link)', '/api/links/suggest', {targets:25}, ['lienket']);
+  await grid($('#gi'),'lienket',{sid:'in', title:'Link nội bộ', where:f=>f['Loại']==='Nội bộ',
+    cols:['Anchor','Từ URL','Đến URL','Câu gắn link','Trạng thái'], filters:['Trạng thái'],
+    chips:[{id:'auto',label:'Gợi ý tự động',fn:f=>/Gợi ý tự động/.test(f['Ghi chú']||'')},{id:'todo',label:'Chưa gắn',fn:f=>f['Trạng thái']==='Kế hoạch'}],
+    defaults:{'Loại':'Nội bộ','Chiến lược':'Liên kết nội bộ','Trạng thái':'Kế hoạch','Thuộc tính':'Dofollow','Vị trí đặt':'Trong nội dung'},
+    emptyHint:'bấm “Gợi ý link nội bộ”'});
+  // ② backlink
+  const bl = DATA.lienket.map(r=>r.fields).filter(f=>f['Loại']!=='Nội bộ');
+  const ac = {}; bl.filter(f=>f['Anchor']).forEach(f=>{ const c=anchorClass(f['Anchor']); ac[c]=(ac[c]||0)+1; });
+  const nA = Object.values(ac).reduce((a,b)=>a+b,0), exact = nA ? Math.round((ac['Từ khoá']||0)/nA*100) : 0;
+  const live = bl.filter(f=>f['Trạng thái']==='Đang live');
+  $('#bstat').innerHTML = `<div class="pill"><b>${live.length}<span class="meta">/${bl.length}</span></b>đang live</div>
+    <div class="pill"><b style="color:var(--bad)">${bl.filter(f=>f['Trạng thái']==='Mất link').length}</b>mất link</div>
+    <div class="pill"><b>${live.filter(f=>f['Thuộc tính']==='Dofollow').length}</b>dofollow</div>
+    <div class="pill"><b>${new Set(live.map(f=>f['Domain nguồn']).filter(Boolean)).size}</b>domain trỏ về</div>`
+    + ['Thương hiệu','URL','Từ khoá','Chung chung'].map(c=>`<div class="pill"><b>${nA?Math.round((ac[c]||0)/nA*100):0}%</b>anchor ${c.toLowerCase()}</div>`).join('')
+    + (exact>30?`<div class="pill" style="border-color:var(--bad)"><b style="color:var(--bad)">⚠</b>anchor từ khoá ${exact}% — nên ≤ 30%, tăng anchor thương hiệu/URL</div>`:'');
+  jobPanel($('#jobChk'), 'linkcheck', 'Kiểm backlink còn sống (mở trang nguồn: còn link? dofollow? trong nội dung?)', '/api/links/check', {}, ['lienket']);
+  await grid($('#gb'),'lienket',{sid:'bl', title:'Backlink & PR', where:f=>f['Loại']!=='Nội bộ',
+    cols:['Domain nguồn','Chiến lược','Anchor','Đến URL','Uy tín (DR/DA)','Liên quan chủ đề','Vị trí đặt','Thuộc tính','Điểm chất lượng','Trạng thái','Kiểm lần cuối'],
+    filters:['Chiến lược','Trạng thái','Thuộc tính','Liên quan chủ đề'],
+    chips:[{id:'lost',label:'Mất link',fn:f=>f['Trạng thái']==='Mất link'},{id:'hq',label:'Chất lượng ≥ 70',fn:f=>(f['Điểm chất lượng']||0)>=70}],
+    sort:(a,b)=>(b['Điểm chất lượng']||0)-(a['Điểm chất lượng']||0),
+    actions:[{label:'Tính lại điểm chất lượng', fn:()=>act('/api/links/rescore',['lienket'])}],
+    defaults:{'Loại':'Backlink','Trạng thái':'Kế hoạch','Đến URL':CFG.site+'/','Liên quan chủ đề':'Cao'},
+    emptyHint:'thêm từng cơ hội backlink (guest post, báo chí, đối tác…) hoặc lưu từ “Tìm link gãy”'});
+  // ③ link gãy
+  $('#brGo').onclick = async ()=>{ const b=$('#brGo'), url=$('#brUrl').value.trim(); b.disabled=true; b.textContent='Đang kiểm… (~30 giây)';
+    try{ const r = await api('POST','/api/links/broken',{url}); toast(r.message);
+      $('#brRes').innerHTML = r.broken.length ? `<table class="g" style="margin-top:10px"><thead><tr><th>Link gãy</th><th>Anchor</th><th>Mã</th><th></th></tr></thead><tbody>${r.broken.map((x,i)=>`<tr><td><span class="u">${esc(x.url)}</span></td><td>${esc(x.anchor)}</td><td>${esc(x.status)}</td><td><button class="btn sm" data-i="${i}">Lưu làm cơ hội</button></td></tr>`).join('')}</tbody></table>` : `<p class="meta">${esc(r.message)}</p>`;
+      $('#brRes').querySelectorAll('[data-i]').forEach(btn=>btn.onclick=async()=>{ const x=r.broken[+btn.dataset.i];
+        try{ await api('POST','/api/t/lienket',{'Anchor': x.anchor||'', 'Loại':'Backlink', 'Chiến lược':'Broken link', 'Từ URL': r.page, 'Đến URL': CFG.site+'/', 'Trạng thái':'Kế hoạch',
+          'Domain nguồn': new URL(r.page).hostname.replace('www.',''), 'Ghi chú': `Link gãy trên trang: ${x.url} (mã ${x.status}, anchor «${x.anchor}»). Đề xuất chủ site thay bằng bài phù hợp của Rooty.`});
+          toast('Đã lưu cơ hội backlink'); btn.disabled=true; btn.textContent='Đã lưu'; await load('lienket',true); }catch(e){ toast(e.message,true); } });
+    }catch(e){ toast(e.message,true); } finally{ b.disabled=false; b.textContent='Tìm link gãy'; } };
+};
+
+/* ---------- B10 ---------- */
+const PERIOD_DAYS = {'Hàng tuần':7, 'Hàng tháng':31, 'Hàng quý':92};
+function importReviewCSV(){
+  pickFile(async (rows, fname)=>{
+    try{ toast('Đang nhập…'); const r = await api('POST','/api/review/import',{rows, name: fname, period: ($('#rvPeriod')||{}).value||''});
+      toast(r.message); ['danhgia','trang','tukhoa','cannib'].forEach(k=>delete DATA[k]); renderNav(); render(); }
+    catch(e){ toast(e.message, true); }
+  });
+}
+VIEWS.danhgia = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>1</span> Nhập số liệu Google Search Console & GA4</h2>
+      <p class="meta">Xuất CSV rồi bấm “Nhập CSV” — trang tự nhận loại file. <b>GSC</b> (Hiệu suất → Xuất → CSV): <i>Ngày</i> → số liệu tháng & cảnh báo tuần · <i>Trang</i> → số liệu từng URL · <i>Truy vấn</i> → thứ hạng từ khoá. <b>Truy vấn × Trang</b> (Search Analytics for Sheets / Looker Studio) → xung đột từ khoá. <b>GA4</b> (Báo cáo → Tương tác → Trang đích, lọc kênh Organic Search → Chia sẻ → Tải CSV) → phiên, tỷ lệ tương tác, chuyển đổi từng trang.</p></div>
+    <div class="vhead"><label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)">Kỳ số liệu <input class="field" id="rvPeriod" placeholder="VD: 3 tháng 08–10/2026" style="width:220px"></label>
+      <button class="btn primary" id="rvImp">Nhập CSV (GSC / GA4)</button><span class="meta" id="rvLast"></span></div>
+    <div class="sec"><h2><span>2</span> Theo dõi chỉ số</h2></div>
+    <div id="wk"></div><div class="cards4" id="kpi"></div>
+    <div class="gwrap" style="padding:12px 14px" id="ch"></div><div id="g"></div>
+    <div class="sec"><h2><span>3</span> Xung đột từ khoá (cannibalization)</h2><p class="meta">Một từ khoá có ≥ 2 trang Rooty cùng nhận hiển thị → Google phân vân, cả hai cùng yếu. Giữ 1 trang chính; trang còn lại gộp + 301, đổi từ khoá, hoặc link nội bộ về trang chính.</p></div>
+    <div id="gc"></div>
+    <div class="sec"><h2><span>4</span> Content audit hàng quý — giữ · cập nhật · gộp · xoá/noindex</h2>
+      <p class="meta">Gom số liệu GSC + GA4 + crawl cho từng URL → bấm “Phân loại” để có đề xuất kèm lý do → chị duyệt ở cột “Quyết định” → “Tạo việc cập nhật” đưa bài sang tab Content.</p></div>
+    <div class="strip" id="casum"></div><div id="gca"></div>
+    <div class="sec"><h2><span>5</span> Nhật ký thay đổi (change log)</h2><p class="meta">Mỗi lần sửa bài/onpage/kỹ thuật ghi 1 dòng. “Đo lại” ghi số liệu trước (trong 7 ngày đầu) và sau (từ tuần thứ 4) để biết thay đổi có hiệu quả không.</p></div>
+    <div id="gl"></div>
+    <div class="sec"><h2><span>6</span> Lịch review định kỳ</h2><p class="meta">Hàng tuần: biến động traffic, lỗi index. Hàng quý: audit kỹ thuật, audit nội dung, kế hoạch quý tiếp theo.</p></div>
+    <div id="lich"></div>`;
+  $('#rvImp').onclick = importReviewCSV;
+  await Promise.all(['danhgia','trang','cannib','changelog','lichreview'].map(k=>load(k).catch(()=>[])));
+  // ② KPI
+  const months = DATA.danhgia.map(r=>r.fields).filter(f=>f['Tháng']).sort((a,b)=>String(a['Tháng']).localeCompare(String(b['Tháng'])));
+  const cur = months[months.length-1], prev = months[months.length-2];
+  const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ chuyển đổi %','GA4',1]];
+  $('#kpi').innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
+    return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
+      <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span></div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
+  try{ const s = await api('GET','/api/review/summary');
+    if(s.lastDay) $('#rvLast').textContent = `Số liệu GSC theo ngày đến ${s.lastDay}`;
+    if(s.week){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
+      $('#wk').innerHTML = `<div class="banner" style="${bad?'':'background:var(--ok-soft)'}"><b style="color:var(${bad?'--bad':'--ok'})">${bad?'⚠ Traffic tuần giảm mạnh':'Tuần này'}</b> (${esc(w.from)} → ${esc(w.to)}): ${w.clicks.toLocaleString('vi-VN')} lượt nhấp (${w.clicksChange>0?'+':''}${w.clicksChange??'—'}% so tuần trước) · ${w.impr.toLocaleString('vi-VN')} hiển thị (${w.imprChange>0?'+':''}${w.imprChange??'—'}%).${bad?' Kiểm GSC → trang/từ khoá nào giảm, có lỗi index hay cập nhật thuật toán không.':''}</div>`; }
+  }catch(e){}
+  $('#ch').innerHTML = months.length>=2 ? chart(months) : '<div class="meta">Biểu đồ lượt nhấp & chuyển đổi hiện khi có từ 2 tháng số liệu.</div>';
+  await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Tỷ lệ tương tác %','Tỷ lệ chuyển đổi %','Chuyển đổi organic','Trang lỗi index','Nguồn số liệu'],
+    sort:(a,b)=>String(b['Tháng']).localeCompare(String(a['Tháng'])), defaults:{'Tháng': new Date().toISOString().slice(0,7)}, limit:24});
+  // ③ cannibalization
+  await grid($('#gc'),'cannib',{title:'Xung đột từ khoá', cols:['Từ khoá','Số trang','Hiển thị','Lượt nhấp','Trang nên giữ','Các URL','Cách xử lý','Trạng thái'],
+    filters:['Trạng thái','Cách xử lý'], sort:(a,b)=>(b['Hiển thị']||0)-(a['Hiển thị']||0), emptyHint:'nhập file GSC Truy vấn × Trang'});
+  // ④ content audit
+  const tr = DATA.trang.map(r=>r.fields).filter(f=>f['Loại trang']!=='Ngôn ngữ khác');
+  const D = CFG.tables.trang.fields.find(f=>f.n==='Đề xuất audit').o;
+  $('#casum').innerHTML = D.map(d=>`<div class="pill"><b>${tr.filter(f=>f['Đề xuất audit']===d).length}</b>${esc(d)}</div>`).join('')
+    + `<div class="pill"><b>${tr.filter(f=>f['GSC hiển thị']!=null).length}<span class="meta">/${tr.length}</span></b>trang có số liệu GSC</div>`;
+  await grid($('#gca'),'trang',{sid:'ca', title:'Content audit', where:f=>f['Loại trang']!=='Ngôn ngữ khác',
+    cols:['URL','Loại trang','GSC lượt nhấp','GSC hiển thị','GSC CTR %','GSC vị trí','GA4 phiên','GA4 tương tác %','GA4 chuyển đổi','Đề xuất audit','Lý do đề xuất','Quyết định'],
+    filters:['Đề xuất audit','Quyết định','Loại trang','Cụm chủ đề'],
+    chips:[{id:'data',label:'Có số liệu GSC',fn:f=>f['GSC hiển thị']!=null},{id:'nodec',label:'Chưa quyết định',fn:f=>f['Đề xuất audit']&&!f['Quyết định']}],
+    sort:(a,b)=>(b['GSC hiển thị']||0)-(a['GSC hiển thị']||0),
+    actions:[{label:'Phân loại content audit', fn:()=>act('/api/review/classify',['trang'])},{label:'Tạo việc cập nhật (sang B6)', fn:()=>act('/api/review/tasks',[])},{label:'Xuất CSV', fn:()=>exportCSV('trang','content-audit-rooty.csv')}],
+    emptyHint:'chạy crawl (B5) để có danh sách URL'});
+  // ⑤ change log
+  await grid($('#gl'),'changelog',{title:'Nhật ký thay đổi', cols:['Ngày','URL','Thay đổi','Loại','Người làm','Lượt nhấp trước','Lượt nhấp sau','Vị trí trước','Vị trí sau','Kết quả'],
+    filters:['Loại','Kết quả'], sort:(a,b)=>(b['Ngày']||0)-(a['Ngày']||0),
+    actions:[{label:'Đo lại hiệu quả', fn:()=>act('/api/review/remeasure',['changelog'])}],
+    defaults:{'Ngày': Date.now(), 'Kết quả':'Chờ đo', 'Loại':'Nội dung'}, emptyHint:'mỗi lần sửa một trang, thêm 1 dòng'});
+  // ⑥ lịch review
+  const L = DATA.lichreview;
+  if(!L.length){ $('#lich').innerHTML = `<div class="gwrap" style="padding:12px 14px"><button class="btn primary" id="lSeed">Nạp lịch review mẫu (13 việc tuần/tháng/quý)</button></div>`; $('#lSeed').onclick=()=>seedBtn('lichreview'); }
+  else{
+    const due = f => { const last=f['Lần làm gần nhất']; if(!last) return {late:true, txt:'chưa làm lần nào'}; const next = last + PERIOD_DAYS[f['Tần suất']]*864e5; const d=Math.round((next-Date.now())/864e5); return {late:d<0, txt: d<0?`quá hạn ${-d} ngày`:`còn ${d} ngày`}; };
+    $('#lich').innerHTML = ['Hàng tuần','Hàng tháng','Hàng quý'].map(t=>`<section class="phase"><h3>${t}</h3>${L.filter(r=>r.fields['Tần suất']===t).map(r=>{ const f=r.fields, s=due(f);
+      return `<div class="vrow ${s.late?'late':'now'}"><div class="vmain" style="grid-template-columns:minmax(0,1fr) 150px 120px 120px"><div class="vname">${esc(f['Việc'])}<div class="who">${esc(f['Cách làm']||'')}</div></div>
+        <span class="meta">${f['Lần làm gần nhất']?'làm '+fmtDate(f['Lần làm gần nhất']):''}<br><b style="color:var(${s.late?'--bad':'--ok'})">${s.txt}</b></span>
+        ${f['Tab liên quan']?`<button class="btn sm" data-go="${esc(f['Tab liên quan'])}">Mở tab</button>`:'<span></span>'}
+        <button class="btn sm primary" data-done="${r.record_id}">Đã làm hôm nay</button></div></div>`; }).join('')}</section>`).join('');
+    $('#lich').querySelectorAll('[data-done]').forEach(b=>b.onclick=async()=>{ try{ await api('PATCH',`/api/t/lichreview/${b.dataset.done}`,{'Lần làm gần nhất': Date.now()}); toast('Đã ghi nhận'); await load('lichreview',true); render(); }catch(e){ toast(e.message,true);} });
+    wireCommon($('#lich'));
+  }
+};
+function chart(rows){
+  const W=900,H=220,P=36, n=rows.length;
+  const s1 = rows.map(f=>Number(f['Lượt nhấp']||0)), s2 = rows.map(f=>Number(f['Chuyển đổi organic']||0));
+  const rng = s => { const lo=Math.min(...s), hi=Math.max(...s,1), pad=(hi-lo)*0.15||hi*0.1||1; return [Math.max(0,lo-pad), hi+pad]; };
+  const m1 = rng(s1), m2 = rng(s2);
+  const x = i => P + i*(W-2*P)/Math.max(n-1,1), y = (v,[lo,hi]) => H-P - (v-lo)/(hi-lo)*(H-2*P);
+  const line = (s,m) => s.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v,m).toFixed(1)}`).join('');
+  return `<div class="meta" style="margin-bottom:6px"><span style="color:var(--brand);font-weight:700">━ Lượt nhấp</span> &nbsp; <span style="color:var(--info);font-weight:700">━ Chuyển đổi organic</span> (thang riêng)</div>
+  <svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Biểu đồ lượt nhấp và chuyển đổi theo tháng">
+    <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="var(--line)"/>
+    <path d="${line(s1,m1)}" fill="none" stroke="var(--brand)" stroke-width="2.5"/>
+    <path d="${line(s2,m2)}" fill="none" stroke="var(--info)" stroke-width="2" stroke-dasharray="5 4"/>
+    ${rows.map((f,i)=>`<circle cx="${x(i)}" cy="${y(s1[i],m1)}" r="3.5" fill="var(--brand)"><title>${f['Tháng']}: ${s1[i]} lượt nhấp · ${s2[i]} chuyển đổi</title></circle><text x="${x(i)}" y="${H-P+16}" text-anchor="middle">${esc(f['Tháng'])}</text>`).join('')}
+    <text x="${P}" y="${P-10}">Lượt nhấp: ${Math.min(...s1).toLocaleString('vi-VN')} – ${Math.max(...s1).toLocaleString('vi-VN')}</text>
+  </svg>`;
+}
+
+/* ---------- GEO · AI Search (Checklist GEO của GTV) ---------- */
+const GEO_ICON = {G0:'🎯',G1:'🤖',G2:'🏠',G3:'✍️',G4:'📣',G5:'📊'};
+const GEO_CRIT = {8:'Máy đọc được',13:'Tác giả + kinh nghiệm',14:'Mở đầu = câu trả lời',15:'H2 = câu hỏi thật',16:'Câu đầu sau H2 trả lời',17:'Đoạn tự đứng',
+  18:'Mật độ dữ kiện',19:'Trích nguồn / số liệu',20:'Thông tin riêng Rooty',22:'Độ mới thật',24:'Không phản tác dụng'};
+const GEO_GATE = new Set([14,15,16,17]);
+VIEWS.geo = async v => {
+  v.innerHTML = `
+    <div class="sec"><h2><span>1</span> Checklist GEO — 6 điểm chạm, 32 việc (GTV v2026.08)</h2>
+      <p class="meta">Làm theo thứ tự G0 → G5. Việc gắn 🔒 <b>cửa chặn</b> phải xong trước — chưa qua thì công sức các bước sau gần như không có tác dụng vì AI chưa đọc được hoặc chưa coi Rooty là ứng viên. Bấm <b>“Tự kiểm từ dữ liệu”</b> để lấy kết quả từ B5, chấm bài và đo AI; việc thủ công chị tự đổi trạng thái.</p></div>
+    <div class="areas" id="gp"></div><div id="gck"></div>
+    <div class="sec"><h2><span>2</span> Chấm GEO từng bài — điểm chạm G3 “cấu trúc đoạn”</h2>
+      <p class="meta">Máy đọc bài đã đăng và chấm 11 tiêu chí đo được (#8, #13–20, #22, #24); 3 tiêu chí còn lại (#21 đoạn kiểm chứng được, #23 Blur Test, #25 so với AI Overview) kiểm tay khi duyệt. Bấm một dòng để xem chi tiết từng tiêu chí và chấm lại.</p></div>
+    <div id="jobGeo"></div><div class="areas" id="gcr"></div><div id="gpg"></div>
+    <div class="sec"><h2><span>3</span> Đo hiện diện trên AI — G0 #3 (số nền) & G5 #30–32</h2>
+      <p class="meta">Hỏi đúng câu trong bộ câu hỏi trên ChatGPT / Gemini / AI Overview / Perplexity (cửa sổ ẩn danh, không đăng nhập nếu được) → copy <b>toàn bộ</b> câu trả lời → dán vào ô dưới. Trang tự nhận ra Rooty có được nhắc tên, có trích link, đứng thứ mấy, đối thủ nào xuất hiện. Mỗi câu chạy <b>≥ 3 lần</b> mỗi máy; báo cáo theo chủ đề, không theo từng câu. Số đo AI chỉ mang tính tham khảo xu hướng — đối chiếu referral thật trong GA4 trước khi kết luận.</p></div>
+    <div class="gwrap" style="padding:12px 14px" id="ansBox"></div>
+    <div class="cards4" id="pres"></div><div class="gwrap" style="padding:12px 14px" id="presT"></div>
+    <div id="gai"></div><div id="gq"></div>`;
+  await Promise.all(['geo','trang','aihien','cauhoiai'].map(k=>load(k).catch(()=>[])));
+  let S = null; try{ S = await api('GET','/api/geo/summary'); await load('geo',true); }catch(e){}
+  // ① điểm chạm
+  const st = GRID_STATE['geo'] ||= {q:'', f:{}, chip:null, limit:40};
+  const pts = CFG.tables.geo.fields.find(f=>f.n==='Điểm chạm').o;
+  const G = DATA.geo.map(r=>r.fields);
+  $('#gp').innerHTML = pts.map(p=>{ const code=p.split(' · ')[0], x=G.filter(f=>f['Điểm chạm']===p), ok=x.filter(f=>['Đạt','Không áp dụng'].includes(f['Trạng thái'])).length,
+      bad=x.filter(f=>f['Trạng thái']==='Chưa đạt').length, gate=x.filter(f=>f['Cửa chặn']==='Có'), gateOk=gate.filter(f=>f['Trạng thái']==='Đạt').length;
+    return `<button class="acard ${st.f['Điểm chạm']===p?'on':''}" data-p="${esc(p)}"><span class="ai">${GEO_ICON[code]||''}</span><b>${esc(p)}</b>
+      <span class="ascore" style="color:var(${!x.length?'--muted':ok===x.length?'--ok':bad?'--bad':'--warn'})">${x.length?ok+'/'+x.length:'—'}</span>
+      <span class="meta">${bad?`${bad} chưa đạt · `:''}${gate.length?`🔒 ${gateOk}/${gate.length} cửa chặn`:'không có cửa chặn'}</span>
+      <div class="bar"><i style="width:${x.length?Math.round(ok/x.length*100):0}%"></i></div></button>`; }).join('');
+  document.querySelectorAll('#gp .acard').forEach(b=>b.onclick=()=>{ st.f['Điểm chạm'] = st.f['Điểm chạm']===b.dataset.p ? '' : b.dataset.p; render(); });
+  const rs = {'Chưa đạt':0,'Đang làm':1,'Chưa làm':2,'Đạt':3,'Không áp dụng':4};
+  await grid($('#gck'),'geo',{title: st.f['Điểm chạm'] ? `Checklist GEO · ${st.f['Điểm chạm']}` : 'Checklist GEO — 32 việc',
+    cols:['Số','Việc','Điểm chạm','Mức','Cửa chặn','Bằng chứng','Trạng thái','Kết quả tự kiểm','Đo ở đâu','Người làm','Hạn'],
+    filters:['Điểm chạm','Trạng thái','Mức','Bằng chứng'], limit:40,
+    chips:[{id:'gate',label:'🔒 Cửa chặn',fn:f=>f['Cửa chặn']==='Có'},{id:'must',label:'Bắt buộc',fn:f=>f['Mức']==='Bắt buộc'},
+      {id:'open',label:'Chưa xong',fn:f=>!['Đạt','Không áp dụng'].includes(f['Trạng thái'])},{id:'ab',label:'Bằng chứng A–B (làm trước)',fn:f=>['A','B'].includes(f['Bằng chứng'])}],
+    sort:(a,b)=>(a['Số']||0)-(b['Số']||0),
+    actions:[{label:'Tự kiểm từ dữ liệu', cls:'primary', fn:()=>act('/api/geo/sync',['geo'])}],
+    emptyHint:'bấm “Nạp dữ liệu mẫu” để nạp 32 việc của GTV'});
+  // ② chấm bài
+  jobPanel($('#jobGeo'), 'geo', 'Chấm GEO 30 bài viết chưa chấm (ưu tiên bài nhiều hiển thị GSC / nhiều link vào)', '/api/geo/batch', {limit:30}, ['trang','geo']);
+  const crit = (S && S.crit) || {};
+  $('#gcr').innerHTML = Object.entries(GEO_CRIT).map(([n,name])=>{ const c=crit[n]; const p=c?Math.round(c[0]/c[1]*100):null;
+    return `<div class="acard" style="cursor:default"><span class="ai">${GEO_GATE.has(+n)?'🔒':'#'+n}</span><b>${GEO_GATE.has(+n)?'#'+n+' ':''}${esc(name)}</b>
+      <span class="ascore" style="color:var(${p==null?'--muted':p>=80?'--ok':p>=50?'--warn':'--bad'})">${p==null?'—':p+'%'}</span>
+      <span class="meta">${c?`${c[0]}/${c[1]} trang đạt`:'chưa chấm'}</span></div>`; }).join('')
+    + (S && S.pages ? `<div class="acard" style="cursor:default"><span class="ai">Σ</span><b>Điểm GEO trung bình</b><span class="ascore">${S.avg}</span><span class="meta">${S.pages} trang · ${S.gatePass} qua 4 cửa chặn G3</span></div>` : '');
+  await grid($('#gpg'),'trang',{sid:'geo', title:'Điểm GEO từng trang — bấm một dòng để xem chi tiết & “Chấm GEO trang này”',
+    where:f=>f['Loại trang']!=='Ngôn ngữ khác',
+    cols:['URL','Từ khoá chính','Loại trang','Điểm GEO','Qua cửa chặn GEO','Lần chấm GEO','GSC hiển thị','Chấm GEO'],
+    filters:['Loại trang','Qua cửa chặn GEO','Cụm chủ đề'],
+    chips:[{id:'done',label:'Đã chấm',fn:f=>f['Điểm GEO']!=null},{id:'gatebad',label:'Chưa qua cửa chặn',fn:f=>f['Qua cửa chặn GEO']==='Chưa đạt'},
+      {id:'low',label:'Điểm < 60',fn:f=>f['Điểm GEO']!=null&&f['Điểm GEO']<60},{id:'post',label:'Bài viết',fn:f=>f['Loại trang']==='Bài viết'}],
+    sort:(a,b)=>(b['Điểm GEO']!=null)-(a['Điểm GEO']!=null) || (a['Điểm GEO']??101)-(b['Điểm GEO']??101) || (b['GSC hiển thị']||0)-(a['GSC hiển thị']||0),
+    formActions:[{label:'Chấm GEO trang này', fn: async rec=>{ const r=await api('POST',`/api/geo/page/${rec.record_id}`); toast(r.message); await load('trang',true); }},
+      {label:'Copy lệnh Claude sửa theo GEO', fn: async rec=>{ copy(`/rooty-onpage sửa ${rec.fields['URL']} theo kết quả Chấm GEO (cột «Chấm GEO» trong tab GEO): ưu tiên tiêu chí 🔒 chưa đạt`); }}],
+    emptyHint:'chạy crawl (B5) để có danh sách URL'});
+  // ③ đo hiện diện AI
+  const Q = DATA.cauhoiai.map(r=>r.fields).sort((a,b)=>String(a['Mã câu']).localeCompare(String(b['Mã câu'])));
+  const runs = DATA.aihien.map(r=>r.fields);
+  const cnt = (code, eng) => runs.filter(f=>f['Mã câu']===code && f['Máy AI']===eng).length;
+  const engines = CFG.tables.aihien.fields.find(f=>f.n==='Máy AI').o;
+  $('#ansBox').innerHTML = Q.length ? `<div class="formgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+      <label style="grid-column:1/-1">Câu hỏi<select class="field" id="aQ">${Q.map(q=>`<option value="${esc(q['Mã câu'])}">${esc(q['Mã câu'])} · ${esc(q['Câu hỏi'])}</option>`).join('')}</select></label>
+      <label>Máy AI<select class="field" id="aE">${engines.map(e=>`<option>${esc(e)}</option>`).join('')}</select></label>
+      <label>Phiên bản mô hình (GTV bắt buộc ghi)<input class="field" id="aM" placeholder="VD: GPT-5 · Gemini 3 Pro · ghi đúng tên app hiển thị"></label>
+      <div style="display:flex;align-items:flex-end"><span class="meta" id="aCnt"></span></div>
+      <label style="grid-column:1/-1">Câu trả lời của AI (dán toàn bộ, kể cả danh sách nguồn/link)<textarea class="field" id="aT" style="min-height:140px"></textarea></label>
+    </div><div class="row" style="margin-top:8px"><button class="btn primary" id="aGo">Phân tích & lưu lần đo</button><button class="btn sm" id="aCopy">Copy câu hỏi</button><span class="meta" id="aRes"></span></div>`
+    : `<button class="btn primary" id="qSeed">Nạp bộ 30 câu hỏi AI (từ 01-prompts/bo-cau-hoi-ai.csv)</button>`;
+  if(Q.length){
+    const showCnt = ()=>{ const n=cnt($('#aQ').value,$('#aE').value); $('#aCnt').innerHTML = `Câu này trên ${esc($('#aE').value)}: <b style="color:var(${n>=3?'--ok':'--warn'})">${n}/3 lần</b>`; };
+    $('#aQ').onchange = showCnt; $('#aE').onchange = showCnt; showCnt();
+    $('#aM').value = store.get('geo-model-'+$('#aE').value,'');
+    $('#aE').addEventListener('change', ()=>{ $('#aM').value = store.get('geo-model-'+$('#aE').value,''); });
+    $('#aCopy').onclick = ()=>copy(Q.find(q=>q['Mã câu']===$('#aQ').value)['Câu hỏi']);
+    $('#aGo').onclick = async ()=>{ const b=$('#aGo'); b.disabled=true;
+      try{ store.set('geo-model-'+$('#aE').value, $('#aM').value);
+        const r = await api('POST','/api/geo/answer',{code:$('#aQ').value, engine:$('#aE').value, model:$('#aM').value, text:$('#aT').value});
+        toast(r.message.slice(0,140)); const keep={q:$('#aQ').value,e:$('#aE').value}; await load('aihien',true); await render();
+        if($('#aQ')){ $('#aQ').value=keep.q; $('#aE').value=keep.e; $('#aE').dispatchEvent(new Event('change')); $('#aQ').dispatchEvent(new Event('change')); $('#aRes').textContent=r.message; }
+      }catch(e){ toast(e.message,true); b.disabled=false; } };
+  } else $('#qSeed').onclick = ()=>seedBtn('cauhoiai');
+  const P = S && S.presence;
+  if(P && P.runs){
+    const all = Object.values(P.engines); const m = all.reduce((s,d)=>s+d.mention,0), l = all.reduce((s,d)=>s+d.link,0);
+    $('#pres').innerHTML = [
+      ['Lượt đo', P.runs.toLocaleString('vi-VN'), `${P.pairs} cặp câu × máy`],
+      ['Tỷ lệ nhắc tên Rooty', Math.round(m/P.runs*1000)/10+'%', `${m}/${P.runs} câu trả lời`],
+      ['Tỷ lệ trích link rootytrip.com', Math.round(l/P.runs*1000)/10+'%', `${l} lượt`],
+      ['Chưa đủ 3 lần', P.pairsUnder3, P.pairsUnder3?'cặp câu × máy cần chạy thêm':'đủ chuẩn GTV'],
+    ].map(([k,b,s])=>`<div class="kcard" style="cursor:default"><span class="stp">${esc(k)}</span><b class="big">${esc(String(b))}</b><span class="meta">${esc(String(s))}</span></div>`).join('');
+    const tbl = (title, obj) => `<h4 style="margin:6px 0">${title}</h4><table class="g"><thead><tr><th></th><th>Lượt đo</th><th>Nhắc Rooty</th><th>Trích link</th></tr></thead><tbody>${Object.entries(obj).map(([k,d])=>`<tr><td>${esc(k)}</td><td class="num">${d.runs}</td><td class="num">${d.mentionPct}%</td><td class="num">${d.linkPct}%</td></tr>`).join('')}</tbody></table>`;
+    $('#presT').innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      <div>${tbl('Theo máy AI', P.engines)}${P.concentrationAlert.length?`<p class="meta" style="color:var(--bad)">⚠ Hơn 70% lượt được nhắc dồn vào ${esc(P.concentrationAlert.join(', '))} — kết quả dễ mất khi máy đó đổi nguồn.</p>`:''}</div>
+      <div>${tbl('Theo chủ đề', P.topics)}</div>
+      <div><h4 style="margin:6px 0">Đối thủ được AI nhắc nhiều nhất</h4>${P.competitors.length?`<table class="g"><tbody>${P.competitors.map(([c,n])=>`<tr><td>${esc(c)}</td><td class="num">${n} lượt</td></tr>`).join('')}</tbody></table>`:'<span class="meta">Chưa thấy đối thủ nào.</span>'}
+        ${P.wrong?`<p class="meta" style="color:var(--bad)">${P.wrong} câu trả lời nói sai/thiếu về Rooty — xem cột “Lỗi sai”.</p>`:''}</div></div>`;
+  } else { $('#pres').innerHTML=''; $('#presT').innerHTML = '<span class="meta">Chưa có lượt đo nào. Đo lần đầu = số nền (T1) — ghi lại ngày và phiên bản mô hình để so về sau.</span>'; }
+  await grid($('#gai'),'aihien',{title:'Các lần đo hiện diện AI', cols:['Ngày chạy','Mã câu','Câu hỏi','Chủ đề','Máy AI','Phiên bản mô hình','Lần chạy','Nhắc tên Rooty','Thứ tự Rooty','Trích link Rooty','Đối thủ xuất hiện','Thông tin đúng'],
+    filters:['Máy AI','Chủ đề','Nhắc tên Rooty','Thông tin đúng'], sort:(a,b)=>(b['Ngày chạy']||0)-(a['Ngày chạy']||0), limit:50,
+    chips:[{id:'yes',label:'Có nhắc Rooty',fn:f=>f['Nhắc tên Rooty']==='Có'},{id:'wrong',label:'AI nói sai',fn:f=>['Sai','Một phần'].includes(f['Thông tin đúng'])}],
+    emptyHint:'dán câu trả lời của AI ở ô phía trên'});
+  await grid($('#gq'),'cauhoiai',{title:'Bộ câu hỏi AI (giữ cố định để so qua các quý)', cols:['Mã câu','Câu hỏi','Nhóm','Chủ đề','Trang Rooty trả lời'],
+    filters:['Nhóm','Chủ đề'], sort:(a,b)=>String(a['Mã câu']).localeCompare(String(b['Mã câu'])), limit:50,
+    emptyHint:'nạp bộ 30 câu mẫu; GTV khuyên 28–40 câu: 50% sát lúc mua · 35% cân nhắc · 15% mới tìm hiểu'});
+};
+
+/* ---------- Thuật toán Google: cập nhật chính thức + lên top không vi phạm ---------- */
+const FAST_DO = [
+  ['Đẩy từ khoá đang ở vị trí 8–20', 'B10 → Content audit: trang “nhiều hiển thị nhưng vị trí 8–30” → bổ sung ý còn thiếu so với top 3, câu trả lời ngay đầu bài, cập nhật thông tin thật.', 'danhgia'],
+  ['Tăng CTR bằng Title/Meta', 'Trang top 10 mà CTR thấp hơn mức thường gặp → viết lại Title/Meta có giá, số, lợi ích (B7). Lên nhanh nhất vì không cần đổi nội dung.', 'onpage'],
+  ['Link nội bộ về trang cần lên', 'Gắn link từ bài đang có traffic sang trang tour/Pillar cần đẩy, anchor tự nhiên, trong thân bài (B9 · Gợi ý link nội bộ).', 'link'],
+  ['Sửa lỗi kỹ thuật & lỗi nội dung', 'Lỗi 🔴 ở B5 (index, redirect, link tự thân, đổi năm giả) — sửa xong đo trước/sau.', 'audit'],
+  ['Viết đúng ý định + có trải nghiệm thật', 'Bài mới theo dây chuyền B6, qua đủ 4 cổng; mỗi bài có thông tin chỉ Rooty có (HDV, giá thực tế, ảnh tự chụp).', 'content'],
+  ['Được nhắc tên ở nơi khác', 'Google Business Profile, đánh giá thật, báo/blog du lịch, YouTube — link sạch, có liên quan (B8, B9).', 'entity'],
+];
+const FAST_DONT = ['Mua link dofollow, PBN, đổi link hàng loạt', 'Viết AI hàng loạt theo danh sách từ khoá không biên tập, nhân bản sang nhiều ngôn ngữ',
+  'Chỉ đổi năm/ngày cập nhật trên tiêu đề', 'Nhiều trang na ná nhau cho từng biến thể từ khoá (doorway)', 'Nhồi từ khoá, chữ/link ẩn',
+  'Thuê click, tool cào Google check thứ hạng liên tục', 'Đánh giá/review giả, giá ảo “từ 99k”', 'Mua domain hết hạn để chuyển hướng về site'];
+VIEWS.algo = async v => {
+  v.innerHTML = `<div id="alBan"></div>
+    <div class="vhead"><button class="btn primary" id="alRef">Lấy tin mới từ Google</button>
+      <a class="btn" href="https://status.search.google.com/" target="_blank" rel="noopener">Google Search Status Dashboard ↗</a>
+      <a class="btn" href="https://developers.google.com/search/docs/essentials/spam-policies" target="_blank" rel="noopener">Chính sách spam ↗</a><span class="meta" id="alLast"></span></div>
+    <div class="sec"><h2><span>1</span> Các đợt cập nhật thuật toán & ảnh hưởng tới Rooty</h2>
+      <p class="meta">Nguồn chính thức duy nhất là Google Search Status Dashboard. Trang tự lấy lại mỗi 24 giờ khi mở app. Ảnh hưởng = lượt nhấp TB/ngày 14 ngày trước khi đợt bắt đầu so với 14 ngày sau khi đợt xong (cần nhập GSC file <i>Ngày</i> ở B10). Mỗi đợt core/spam: đọc “Việc cần làm”, xem ảnh hưởng, ghi “Kết luận”, chọn “Đã review”.</p></div>
+    <div id="gUp"></div>
+    <div class="sec"><h2><span>2</span> Lên top nhanh mà không vi phạm</h2></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px" id="fast"></div>
+    <div class="sec"><h2><span>3</span> Chính sách spam của Google — Rooty có đang dính không?</h2>
+      <p class="meta">Vi phạm chính sách spam có thể bị hạ hạng hoặc gỡ khỏi Google (thuật toán SpamBrain tự động, hoặc “thao tác thủ công” báo trong Search Console). Bấm “Tự kiểm” để chấm từ dữ liệu app (B5 lỗi từng trang, GEO, B9 backlink); mục còn lại kiểm tay theo cột “Cách kiểm”.</p></div>
+    <div id="gPol"></div>
+    <div class="sec"><h2><span>4</span> Tin chính thức từ Google Search Central</h2><p class="meta">Đọc tin mức liên quan “Cao” trong tuần; ghi việc cần làm cho Rooty nếu có, rồi chọn “Đã đọc”.</p></div>
+    <div id="gBlog"></div>`;
+  $('#alRef').onclick = ()=>act('/api/algo/refresh',['thuattoan','tinseo']);
+  $('#fast').innerHTML = `<div class="gwrap" style="padding:12px 14px"><h4 style="margin:0 0 8px;color:var(--ok)">✅ Nên làm (nhanh nhất trước)</h4><ol style="margin:0;padding-left:20px">${FAST_DO.map(([t,d,tab])=>`<li style="margin-bottom:8px"><b>${esc(t)}</b> — <span class="meta">${esc(d)}</span> <button class="btn sm" data-go="${tab}">Mở tab</button></li>`).join('')}</ol></div>
+    <div class="gwrap" style="padding:12px 14px"><h4 style="margin:0 0 8px;color:var(--bad)">⛔ Không làm (dễ bị phạt, mất nhiều hơn được)</h4><ul style="margin:0;padding-left:20px">${FAST_DONT.map(t=>`<li style="margin-bottom:6px">${esc(t)}</li>`).join('')}</ul>
+      <p class="meta" style="margin:10px 0 0">Thời gian thật: trang mới thường cần vài tuần đến vài tháng để ổn định thứ hạng. Không có cách “lên top ngay” nào an toàn — ai hứa vậy thường là mua link hoặc thủ thuật bị Google phạt.</p></div>`;
+  await Promise.all(['thuattoan','tinseo','chinhsach'].map(k=>load(k).catch(()=>[])));
+  try{ const S = await api('GET','/api/algo/summary');
+    $('#alLast').textContent = S.last ? `Lấy lần cuối: ${new Date(S.last).toLocaleString('vi-VN')}` : 'Chưa lấy lần nào';
+    $('#alBan').innerHTML = S.active.length ? `<div class="banner"><b style="color:var(--bad)">⚠ Google đang triển khai: ${esc(S.active.join(', '))}</b> — thứ hạng còn dao động, chưa sửa vội; chờ Google báo xong rồi so số liệu.</div>`
+      : `<div class="banner" style="background:var(--ok-soft)">Không có đợt cập nhật nào đang triển khai.${S.unreviewed?` Còn <b>${S.unreviewed}</b> đợt core/spam chưa review.`:''}${S.unread?` <b>${S.unread}</b> tin quan trọng chưa đọc.`:''}${S.hasDaily?'':' Chưa có GSC theo ngày nên chưa đo được ảnh hưởng — nhập file <i>Ngày</i> ở B10.'}</div>`;
+  }catch(e){}
+  await grid($('#gUp'),'thuattoan',{title:'Cập nhật thuật toán', cols:['Tên đợt','Loại','Bắt đầu','Kết thúc','Trạng thái','Ảnh hưởng tới Rooty','Thay đổi lượt nhấp %','Thay đổi hiển thị %','Đã review','Kết luận'],
+    filters:['Loại','Ảnh hưởng tới Rooty','Đã review'], sort:(a,b)=>(b['Bắt đầu']||0)-(a['Bắt đầu']||0), limit:50,
+    chips:[{id:'main',label:'Core & Spam',fn:f=>['Core update','Spam update'].includes(f['Loại'])},{id:'todo',label:'Chưa review',fn:f=>f['Đã review']!=='Đã'},{id:'down',label:'Rooty giảm',fn:f=>f['Ảnh hưởng tới Rooty']==='Giảm'}],
+    emptyHint:'bấm “Lấy tin mới từ Google”'});
+  const ps = {'Vi phạm — cần sửa':0,'Có rủi ro':1,'Chưa kiểm':2,'An toàn':3};
+  await grid($('#gPol'),'chinhsach',{title:'Chính sách spam Google', cols:['Chính sách','Tên gốc','Trạng thái','Kết quả tự kiểm','Rủi ro với Rooty','Cách kiểm','Lần kiểm'],
+    filters:['Trạng thái','Nhóm'], sort:(a,b)=>(ps[a['Trạng thái']]??9)-(ps[b['Trạng thái']]??9), limit:30,
+    chips:[{id:'risk',label:'Có rủi ro / vi phạm',fn:f=>['Có rủi ro','Vi phạm — cần sửa'].includes(f['Trạng thái'])},{id:'man',label:'Chưa kiểm',fn:f=>f['Trạng thái']==='Chưa kiểm'}],
+    actions:[{label:'Tự kiểm từ dữ liệu', cls:'primary', fn:()=>act('/api/policy/check',['chinhsach'])}],
+    emptyHint:'bấm “Tự kiểm từ dữ liệu” (tự nạp 19 chính sách) hoặc “Nạp dữ liệu mẫu”'});
+  await grid($('#gBlog'),'tinseo',{title:'Tin Google Search Central', cols:['Ngày','Tiêu đề','Mức liên quan','Đã đọc','Tóm tắt','Việc cần làm cho Rooty'],
+    filters:['Mức liên quan','Đã đọc'], sort:(a,b)=>(b['Ngày']||0)-(a['Ngày']||0), limit:30,
+    chips:[{id:'hi',label:'Quan trọng chưa đọc',fn:f=>f['Mức liên quan']==='Cao'&&f['Đã đọc']!=='Đã'}],
+    formActions:[{label:'Mở bài gốc', fn: async rec=>{ window.open(rec.fields['Link'],'_blank','noopener'); }}],
+    emptyHint:'bấm “Lấy tin mới từ Google”'});
+};
+
+/* ---------- Kiểm nhiều website / nhiều trang cùng lúc ---------- */
+VIEWS.kiemweb = async v => {
+  v.innerHTML = `<div class="gwrap" style="padding:12px 14px">
+      <label>Danh sách cần kiểm — mỗi dòng một địa chỉ (tối đa 50/lần)
+        <textarea class="field" id="kwList" style="min-height:130px" placeholder="rootytrip.com&#10;klook.com/vi&#10;https://rootytrip.com/dia-trung-hai-phu-quoc/"></textarea></label>
+      <p class="meta" style="margin:6px 0">Chỉ tên miền (VD <code>rootytrip.com</code>) → kiểm <b>toàn site</b>: 34 mục kỹ thuật, bot AI, sitemap, HTTPS, tốc độ, schema, NAP, ảnh… như tab B5. Link có đường dẫn (VD <code>…/dia-trung-hai-phu-quoc/</code>) → kiểm <b>một trang</b>: chấm GEO + onpage. Chạy song song 4 địa chỉ một lúc, ~30–40 giây mỗi site.</p>
+      <div class="row"><input class="field" id="kwGroup" placeholder="Nhóm (VD: Website công ty · Đối thủ · Khách)" style="max-width:320px"><div id="kwJob" style="flex:1"></div></div></div>
+    <div class="strip" id="kwSum"></div><div id="kwG"></div>`;
+  const $l = $('#kwList'); $l.value = store.get('kiemweb-list','');
+  $l.oninput = ()=>store.set('kiemweb-list',$l.value);
+  jobPanel($('#kwJob'),'kiemweb','Kiểm tất cả cùng lúc','/api/kiemweb/run',()=>({text:$l.value, group:$('#kwGroup').value}),['kiemweb']);
+  $('#kwJob').addEventListener('click', e=>{ if(e.target.closest('button')) setTimeout(()=>{ if(VIEW==='kiemweb') render(); }, 2500); });
+  await load('kiemweb', true);
+  const R = DATA.kiemweb.map(r=>r.fields).filter(f=>f['Trạng thái']==='Xong');
+  $('#kwSum').innerHTML = R.length ? [
+      ['Đã kiểm', R.length], ['Điểm TB', Math.round(R.reduce((s,f)=>s+(f['Điểm %']||0),0)/R.length)+'%'],
+      ['Dưới 70%', R.filter(f=>(f['Điểm %']||0)<70).length], ['Tổng lỗi cần sửa', R.reduce((s,f)=>s+(f['Chưa đạt']||0),0)]
+    ].map(([k,n])=>`<div class="pill"><b>${n}</b>${esc(k)}</div>`).join('') : '';
+  await grid($('#kwG'),'kiemweb',{title:'Kết quả kiểm — bấm một dòng để xem “Lỗi cần sửa” và chi tiết từng mục',
+    cols:['Website','Nhóm','Loại kiểm','Trạng thái','Điểm %','Đạt','Chưa đạt','Chưa kiểm','Lỗi cần sửa','Lần kiểm'],
+    filters:['Nhóm','Loại kiểm','Trạng thái'], sort:(a,b)=>(a['Điểm %']??101)-(b['Điểm %']??101), limit:100,
+    chips:[{id:'low',label:'Dưới 70%',fn:f=>f['Điểm %']!=null&&f['Điểm %']<70},{id:'err',label:'Không kiểm được',fn:f=>f['Trạng thái']==='Lỗi'}],
+    formActions:[{label:'Kiểm lại', fn: async rec=>{ const r=await api('POST','/api/kiemweb/run',{ids:[rec.record_id]}); toast(r.message); }}],
+    actions:[{label:'Xuất CSV', fn:()=>exportCSV('kiemweb','kiem-nhieu-website.csv')}],
+    emptyHint:'dán danh sách ở trên rồi bấm “Kiểm tất cả cùng lúc”'});
+  if(DATA.kiemweb.some(r=>['Đang chờ','Đang kiểm'].includes(r.fields['Trạng thái']))) setTimeout(()=>{ if(VIEW==='kiemweb') render(); }, 8000);
+};
+
+/* ---------- Chẩn đoán rớt top: 1 nút → 4 bước ---------- */
+function mdHtml(md){
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/_(.+?)_/g,'<i>$1</i>').replace(/\[(ĐÃ KIỂM)\]/g,'<span class="chip c-ok">$1</span>').replace(/\[(NGHI VẤN)\]/g,'<span class="chip c-warn">$1</span>');
+  const out=[]; let tbl=null, list=null;
+  const flush=()=>{ if(tbl){ out.push(`<div class="tscroll"><table class="g"><thead><tr>${tbl[0].map(c=>`<th>${inline(c)}</th>`).join('')}</tr></thead><tbody>${tbl.slice(1).map(r=>`<tr>${r.map(c=>`<td>${inline(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`); tbl=null; }
+    if(list){ out.push(`<${list.t}>${list.items.map(i=>`<li>${inline(i)}</li>`).join('')}</${list.t}>`); list=null; } };
+  for(const line of md.split('\n')){
+    if(/^\|/.test(line)){ if(/^\|[-| ]+\|$/.test(line)) continue; (tbl ||= []).push(line.replace(/^\||\|$/g,'').split('|').map(s=>s.trim())); continue; }
+    let m;
+    if((m=line.match(/^(\d+)\.\s+(.*)/))){ if(!list||list.t!=='ol'){ flush(); list={t:'ol',items:[]}; } list.items.push(m[2]); continue; }
+    if((m=line.match(/^-\s+(.*)/))){ if(!list||list.t!=='ul'){ flush(); list={t:'ul',items:[]}; } list.items.push(m[1]); continue; }
+    flush();
+    if((m=line.match(/^(#{1,3})\s+(.*)/))) out.push(`<h${m[1].length+1} style="margin:14px 0 6px">${inline(m[2])}</h${m[1].length+1}>`);
+    else if(line.trim()) out.push(`<p style="margin:6px 0">${inline(line)}</p>`);
+  }
+  flush(); return out.join('');
+}
+VIEWS.chandoan = async v => {
+  v.innerHTML = `<div class="gwrap" style="padding:12px 14px">
+      <div class="row"><input class="field" id="cdSite" placeholder="Để trống = ${esc(CFG.site||'')} · hoặc nhập website WordPress khác" style="max-width:420px"><div id="cdJob" style="flex:1"></div></div>
+      <p class="meta" style="margin:8px 0 0">Một nút chạy cả 4 bước: <b>①</b> đọc GSC theo ngày tìm ngày bắt đầu rớt · <b>②</b> đối chiếu với các đợt core/spam update chính thức · <b>③</b> quét toàn bộ bài blog mọi ngôn ngữ tìm 8 loại lỗi (đổi năm giả, thiếu trải nghiệm, lạc chủ đề, trùng từ khoá, chèn thương mại, đa ngôn ngữ/mỏng, link tự thân, tác giả) + GEO + chính sách spam · <b>④</b> xếp thứ tự việc sửa theo kiểu rớt. Lỗi của rootytrip.com tự nạp vào <a href="#" data-go="audit">B5 · Sửa lỗi từng trang</a> kèm «Cần sửa gì». Mất 2–3 phút.</p></div>
+    <div class="gwrap" style="padding:14px 18px" id="cdRep"></div>`;
+  jobPanel($('#cdJob'),'chandoan','Chẩn đoán rớt top','/api/chandoan/run',()=>({site:$('#cdSite').value}),['sualoi','chinhsach']);
+  const L = await api('GET','/api/chandoan/last');
+  $('#cdRep').innerHTML = L.md ? `<div class="meta">Báo cáo lần gần nhất · ${new Date(L.at).toLocaleString('vi-VN')} · file <code>${esc(L.file||'')}</code></div>${mdHtml(L.md)}`
+    : '<span class="meta">Chưa chạy lần nào — bấm “Chẩn đoán rớt top”.</span>';
+};
+
+/* ---------- Giá & dữ kiện ---------- */
+const overdue = f => f['Ngày kiểm'] && (Date.now() - f['Ngày kiểm']) / 864e5 > (f['Kiểm lại sau (ngày)'] || 30);
+VIEWS.gia = async v => {
+  v.innerHTML = `<div class="gwrap" style="padding:12px 14px">
+      <p class="meta" style="margin:0 0 8px">Một chỗ lưu <b>giá và dữ kiện chuẩn</b> (giá tour/combo/vé, giờ mở cửa, lịch show, khoảng cách…) kèm <b>nguồn + ngày kiểm</b>. <b>Đổi giá</b>: bấm dòng → sửa ô “Giá trị” → Lưu — trang tự giữ giá cũ và ghi lịch sử. Sau đó bấm <b>“Dò bài”</b>: trang đọc toàn bộ blog, tìm câu nhắc sản phẩm đó kèm giá; bài ghi khác giá hiện tại thành việc <b>“Giá cũ”</b> ở <a href="#" data-go="audit">B5 · Sửa lỗi từng trang</a> (có sẵn “Cần sửa gì”: đổi số nào thành số nào, ở câu nào).</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px"><div id="gJob1"></div><div id="gJob2"></div></div></div>
+    <div class="strip" id="gSum"></div><div id="gG"></div>`;
+  jobPanel($('#gJob1'),'giasite','Lấy giá từ trang sản phẩm Rooty (tự phát hiện đổi giá)','/api/gia/from-site',{},['giadukien']);
+  jobPanel($('#gJob2'),'giausage','Dò bài đang ghi giá (toàn blog)','/api/gia/usage',{},['giadukien','sualoi']);
+  await load('giadukien', true);
+  const F = DATA.giadukien.map(r=>r.fields);
+  $('#gSum').innerHTML = F.length ? [['Dữ kiện', F.length], ['Quá hạn kiểm lại', F.filter(overdue).length], ['Đã đổi, chưa dò bài', F.filter(f=>f['Trạng thái']==='Đã đổi — dò lại bài').length],
+      ['Bài ghi khác giá', F.reduce((s,f)=>s+(f['Số bài ghi khác giá']||0),0)]].map(([k,n])=>`<div class="pill"><b>${n}</b>${esc(k)}</div>`).join('') : '';
+  const so = {'Đã đổi — dò lại bài':0,'Có bài cần sửa':1,'Cần kiểm lại':2,'Đúng':3,'Ngừng bán':4};
+  await grid($('#gG'),'giadukien',{title:'Giá & dữ kiện', cols:['Dữ kiện','Loại','Giá trị','Giá cũ','Ngày kiểm','Trạng thái','Số bài ghi khác giá','Nguồn','Lần dò bài'],
+    filters:['Loại','Trạng thái'], limit:100, sort:(a,b)=>(so[a['Trạng thái']]??9)-(so[b['Trạng thái']]??9)||(b['Số bài ghi khác giá']||0)-(a['Số bài ghi khác giá']||0),
+    chips:[{id:'od',label:'Quá hạn kiểm lại',fn:overdue},{id:'fix',label:'Có bài cần sửa',fn:f=>(f['Số bài ghi khác giá']||0)>0},{id:'chg',label:'Đã đổi giá',fn:f=>!!f['Giá cũ']}],
+    defaults:{'Loại':'Giá tour/combo/vé','Trạng thái':'Đúng','Ngày kiểm':Date.now(),'Kiểm lại sau (ngày)':30},
+    formActions:[{label:'Dò bài cho dữ kiện này', fn: async rec=>{ const r=await api('POST','/api/gia/usage',{ids:[rec.record_id]}); toast(r.message+' — xem kết quả sau ~1 phút'); }}],
+    actions:[{label:'Xuất CSV', fn:()=>exportCSV('giadukien','gia-du-kien-rooty.csv')}],
+    emptyHint:'bấm “Lấy giá từ trang sản phẩm Rooty” hoặc “+ Thêm” (ghi nguồn + ngày kiểm)'});
+};
+
+/* ---------- B9 · Kế hoạch link silo kim tự tháp cho một trang đích ---------- */
+const _linkView = VIEWS.link;
+VIEWS.link = async v => { await _linkView(v); await linkPlanSection(); };
+async function linkPlanSection(){
+  const box = $('#lpBox'); if(!box) return;
+  await load('trang');
+  const targets = DATA.trang.map(r=>r.fields).filter(f=>['Trang tour/sản phẩm','Danh mục'].includes(f['Loại trang']) && !/\/(en|ru|ko|zh-hans)\//.test(f['URL']||''))
+    .sort((a,b)=>String(a['H1']||a['URL']).localeCompare(String(b['H1']||b['URL'])));
+  const P = await api('GET','/api/linkplan/last');
+  const keep = store.get('lp-form',{url:P.target||'', kw:P.keyword||'', terms:''});
+  box.innerHTML = `<div style="display:grid;grid-template-columns:2fr 1.2fr 1.5fr;gap:10px" class="lpform">
+      <label>Trang cần lên top<select class="field" id="lpUrl">${targets.map(f=>`<option value="${esc(f['URL'])}" ${f['URL']===keep.url?'selected':''}>${esc((f['H1']||f['Tiêu đề']||'').slice(0,70))} — ${esc(pathOf(f['URL']))}</option>`).join('')}</select></label>
+      <label>Từ khoá chính<input class="field" id="lpKw" value="${esc(keep.kw)}" placeholder="VD: tour 3 đảo phú quốc"></label>
+      <label>Chủ đề con (tuỳ chọn, cách nhau dấu phẩy)<input class="field" id="lpTerms" value="${esc(keep.terms)}" placeholder="VD: Hòn Móng Tay, lặn ngắm san hô"></label></div>
+    <div id="lpJob" style="margin-top:8px"></div><div id="lpOut"></div>`;
+  const save = ()=>store.set('lp-form',{url:$('#lpUrl').value, kw:$('#lpKw').value, terms:$('#lpTerms').value});
+  ['#lpUrl','#lpKw','#lpTerms'].forEach(id=>$(id).onchange=save);
+  $('#lpUrl').addEventListener('change',()=>{ if(!$('#lpKw').value){ const f=targets.find(x=>x['URL']===$('#lpUrl').value); $('#lpKw').value=(f&&f['Từ khoá chính'])||''; save(); } });
+  jobPanel($('#lpJob'),'linkplan','Lập kế hoạch link','/api/linkplan/run',()=>({url:$('#lpUrl').value, keyword:$('#lpKw').value, terms:$('#lpTerms').value}),['lienket']);
+  if(!P.target){ $('#lpOut').innerHTML='<p class="meta">Chưa lập kế hoạch nào. Cần có bản đồ link từ “Chạy crawl” (tab B5).</p>'; return; }
+  const L = P.links||[], miss = L.filter(x=>!x.has), done = L.length-miss.length;
+  const node = (title,url,cls,sub)=>`<div class="lpn ${cls}"><b>${esc(title||pathOf(url))}</b><span class="meta">${esc(pathOf(url||''))}</span>${sub?`<span class="meta">${sub}</span>`:''}</div>`;
+  const inT = s => L.find(x=>x.from===s.url && x.to===P.target);
+  const kinds = Object.keys(P.mix_target||{});
+  const bar = (obj,title)=>{ const tot=kinds.reduce((a,k)=>a+(obj[k]||0),0)||1; return `<div class="meta" style="margin-top:6px">${title}</div><div class="mixbar">${kinds.map((k,i)=>`<i style="width:${Math.round((obj[k]||0)/tot*100)}%;background:var(${['--brand','--info','--warn','--ok'][i]})" title="${esc(k)}: ${obj[k]||0}"></i>`).join('')}</div>`; };
+  $('#lpOut').innerHTML = `
+    <style>.lpyr{display:flex;flex-direction:column;align-items:center;gap:8px;margin:14px 0}.lprow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;width:100%}
+      .lpn{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--card,#fff);display:flex;flex-direction:column;max-width:240px;min-width:150px;font-size:12.5px}
+      .lpn.t{border:2px solid var(--brand);max-width:360px}.lpn.p{border-color:var(--info)}.lpn.ok{border-left:4px solid var(--ok)}.lpn.no{border-left:4px solid var(--bad)}
+      .lparrow{color:var(--muted);font-size:18px;line-height:1}.mixbar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--line)}.mixbar i{display:block;height:100%}
+      @media(max-width:700px){.lpform{grid-template-columns:1fr!important}}</style>
+    <div class="cards4">
+      <div class="kcard" style="cursor:default"><span class="stp">Link vào trang đích</span><b class="big">${P.inbound}</b><span class="meta">${P.inbound_content} trong nội dung · ${P.inbound_menu} menu/footer/sidebar</span></div>
+      <div class="kcard" style="cursor:default"><span class="stp">Anchor chung chung</span><b class="big" style="color:var(${P.generic>5?'--bad':'--ok'})">${P.generic}</b><span class="meta">“Đặt ngay!”, ảnh, “xem thêm” — Google không hiểu trang nói gì</span></div>
+      <div class="kcard" style="cursor:default"><span class="stp">Link trong kế hoạch</span><b class="big">${done}/${L.length}</b><span class="meta">đã có · ${miss.length} việc mới ở bảng Liên kết</span></div>
+      <div class="kcard" style="cursor:default"><span class="stp">Bài vệ tinh</span><b class="big">${(P.satellites||[]).length}</b><span class="meta">chủ đề con: ${esc((P.terms||[]).slice(0,5).join(', ')||'—')}</span></div></div>
+    <div class="lpyr">
+      <div class="lprow">${node(P.title||'Trang đích', P.target, 't', 'Từ khoá: '+esc(P.keyword))}</div><div class="lparrow">▲ ▲</div>
+      <div class="lprow">${P.category?node('Danh mục',P.category,'p'):''}${P.pillar?node('Bài trụ: '+P.pillar.title,P.pillar.url,'p'):node('Chưa có bài trụ','', 'p no','Viết 1 bài “Tour … có đáng đi? giá, lịch trình” làm trụ')}</div><div class="lparrow">▲ ▲ ▲</div>
+      <div class="lprow">${(P.satellites||[]).map(s=>{ const x=inT(s); return node(s.title,s.url,x&&x.has?'ok':'no',(x&&x.has?'✓ đã link chữ lên đích':'✗ chưa có link chữ lên đích')+` · ${s.inlinks} link vào`); }).join('')}</div>
+    </div>
+    <div class="meta">Viền xanh = bài vệ tinh đã có link chữ mô tả lên trang đích · viền đỏ = chưa có / chỉ có “Đặt ngay!”. Anchor đang dùng nhiều nhất: ${(P.top_anchors||[]).map(([a,n])=>`«${esc(a)}» ${n}`).join(' · ')}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:8px">
+      <div>${bar(P.mix_now||{},'Tỉ lệ anchor hiện tại (link trong nội dung)')}</div><div>${bar(P.mix_after||{},'Sau khi làm theo kế hoạch')}</div>
+      <div>${bar(Object.fromEntries(kinds.map(k=>[k,Math.round((P.mix_target[k]||0)*100)])),'Mục tiêu an toàn')}<div class="meta">${kinds.map((k,i)=>`<span style="color:var(${['--brand','--info','--warn','--ok'][i]})">■</span> ${esc(k)} ${Math.round(P.mix_target[k]*100)}%`).join(' · ')}</div></div></div>
+    <div class="tscroll" style="margin-top:12px"><table class="g"><thead><tr><th>Vai trò</th><th>Từ trang</th><th>Đến trang</th><th>Anchor đề xuất</th><th>Loại anchor</th><th>Câu đặt link</th><th>Đã có</th></tr></thead>
+      <tbody>${L.slice().sort((a,b)=>a.has-b.has).map(x=>`<tr><td>${esc(x.role)}</td><td><span class="u">${esc(pathOf(x.from))}</span></td><td><span class="u">${esc(pathOf(x.to))}</span></td>
+        <td>${x.has?'<span class="meta">—</span>':`<b>${esc(x.anchor||'')}</b>`}</td><td>${esc(x.kind||'')}</td><td><span class="trunc" title="${esc(x.sentence||'')}">${esc(x.sentence||x.why||'')}</span></td><td>${x.has?'✓':''}</td></tr>`).join('')}</tbody></table></div>
+    <p class="meta">Việc chưa có đã thêm vào bảng <b>Liên kết</b> bên dưới (Trạng thái “Kế hoạch”, Ghi chú “Kế hoạch silo …”). Gắn xong đổi “Đã gắn”; chạy crawl lại rồi lập kế hoạch lại để thấy kim tự tháp xanh dần. Lập ngày ${new Date(P.at).toLocaleString('vi-VN')}.</p>`;
+}
+
+/* ================= B6 · CONTENT (kanban dây chuyền) ================= */
+let BAI = [], FILTER = null, CUR = null, GATE_TAB = null;
+const cls = s => 'st-' + String(s||'').replace(/\s+/g,'-');
+VIEWS.content = async v => {
+  v.innerHTML = `<div class="stats" id="stats"></div>
+    <div class="tools"><input id="q" type="search" placeholder="Tìm theo từ khoá, slug, người phụ trách…" aria-label="Tìm bài"><button class="btn primary" id="btnNew">+ Bài mới</button></div>
+    <div class="board" id="board"></div><section class="logs"><h2>Nhật ký</h2><div class="loglist" id="logs"></div></section>`;
+  $('#q').oninput = renderBoard;
+  $('#btnNew').onclick = ()=>{ $('#newForm').reset(); $('#newDlg').showModal(); };
+  BAI = await api('GET','/api/bai'); renderBoard();
+  api('GET','/api/log').then(renderLogs).catch(()=>{});
+};
+function renderBoard(){
+  if(!$('#board')) return;
+  const counts = {}; CFG.statuses.forEach(s=>counts[s]=0);
+  BAI.forEach(b=>{ const s=b.fields['Trạng thái']; if(s in counts) counts[s]++; });
+  $('#stats').innerHTML = [['Tất cả', BAI.length, null], ...CFG.statuses.map(s=>[s, counts[s], s])]
+    .map(([l,n,k])=>`<button class="stat ${FILTER===k?'on':''}" data-k="${k??''}"><b>${n}</b><span>${esc(l)}</span></button>`).join('');
+  document.querySelectorAll('.stat').forEach(el=>el.onclick=()=>{ FILTER = el.dataset.k || null; renderBoard(); });
+  const q = ($('#q').value||'').trim().toLowerCase(), today = new Date(); today.setHours(0,0,0,0);
+  const list = BAI.filter(b=>{ const f=b.fields; if(FILTER && f['Trạng thái']!==FILTER) return false;
+    return !q || [f['Từ khoá'],f['Slug'],f['Người phụ trách']].join(' ').toLowerCase().includes(q); });
+  $('#board').innerHTML = CFG.stages.map(st=>{
+    const items = list.filter(b=>(b.fields['Trạm']||'Hàng đợi')===st).sort((a,b)=>(b.fields['Cập nhật lúc']||0)-(a.fields['Cập nhật lúc']||0));
+    const g = CFG.gateToLeave[st];
+    return `<div class="col"><h3><span>${esc(st)} ${g?`<span class="gate-tag">· ${g}</span>`:''}</span><em>${items.length}</em></h3>
+      <div class="cardsk">${items.map(b=>{ const f=b.fields, due=f['Hạn'], late = due && due<today.getTime() && f['Trạng thái']!=='Đã đăng';
+        return `<button class="card" data-id="${b.record_id}"><div class="kw">${esc(f['Từ khoá'])}</div><div class="slug">${esc(f['Slug'])}</div>
+          <div class="row"><span class="chip ${cls(f['Trạng thái'])}">${esc(f['Trạng thái']||'—')}</span>${f['Ý định']?`<span class="chip c-info">${esc(f['Ý định'])}</span>`:''}${f['Điểm nội dung']!=null?`<span class="chip ${f['Điểm nội dung']>=80?'c-ok':'c-warn'}">${f['Điểm nội dung']}đ</span>`:''}${f['Định dạng']?`<span class="meta">${esc(f['Định dạng'])}</span>`:''}</div>
+          <div class="row">${['Cổng 1','Cổng 2','Cổng 3','Cổng 4'].map((k,i)=>`<span class="gp ${f[k]||''}" title="${k}: ${f[k]||'Chưa chấm'}">C${i+1}</span>`).join('')}
+            <span class="sp"></span>${f['Người phụ trách']?`<span class="meta">${esc(f['Người phụ trách'])}</span>`:''}${due?`<span class="meta ${late?'late':''}">· ${fmtDate(due)}</span>`:''}</div></button>`; }).join('') || '<div class="empty">Trống</div>'}</div></div>`;
+  }).join('');
+  document.querySelectorAll('.card').forEach(el=>el.onclick=()=>openBai(el.dataset.id));
+}
+function openBai(id){
+  CUR = BAI.find(b=>b.record_id===id); if(!CUR) return;
+  GATE_TAB = CFG.gateToLeave[CUR.fields['Trạm']||'Hàng đợi'] || GATE_TAB || 'Cổng 1';
+  drawBai(); openDrawer();
+}
+function gateDetail(){ try{ return JSON.parse(CUR.fields['Chi tiết cổng']||'{}'); }catch{ return {}; } }
+function drawBai(){
+  const f = CUR.fields, stages = CFG.stages, i = stages.indexOf(f['Trạm']||'Hàng đợi');
+  $('#dTitle').textContent = f['Từ khoá'];
+  const next = stages[i+1], prev = stages[i-1], needGate = CFG.gateToLeave[stages[i]], blocked = needGate && f[needGate]!=='PASS', det = gateDetail();
+  $('#dBody').innerHTML = `
+    <div class="row" style="margin-top:0"><span class="chip ${cls(f['Trạng thái'])}">${esc(f['Trạng thái'])}</span><span class="meta">${esc(f['Slug'])}</span><span class="meta">· cập nhật ${fmtTime(f['Cập nhật lúc'])}</span></div>
+    <div class="stepper" style="margin-top:12px">${stages.map((s,k)=>`<span class="${k<i?'done':k===i?'cur':''}" title="${esc(s)}">${esc(s.replace(/^\d · /,''))}</span>`).join('')}</div>
+    <div class="move"><button class="btn" id="mPrev" ${prev?'':'disabled'}>← Trả về ${prev?esc(prev):''}</button>
+      <button class="btn primary" id="mNext" ${next && !blocked?'':'disabled'}>${next?'Chuyển sang '+esc(next)+' →':'Đã xong'}</button></div>
+    ${blocked?`<p class="hint">Cần <b>${needGate}</b> = PASS mới rời trạm này. Chấm ở phần dưới.</p>`:''}
+    <h4>Thông tin bài</h4>
+    <div class="grid2">
+      <label class="full">Từ khoá<input class="field" id="fKw" value="${esc(f['Từ khoá'])}"></label>
+      <label>Loại trang<select class="field" id="fType"><option value="">—</option>${CFG.pageTypes.map(t=>`<option ${t===f['Loại trang']?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+      <label>Trạng thái<select class="field" id="fStatus">${CFG.statuses.map(t=>`<option ${t===f['Trạng thái']?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+      <label>Người phụ trách<input class="field" id="fWho" value="${esc(f['Người phụ trách'])}"></label>
+      <label>Hạn<input class="field" type="date" id="fDue" value="${toDateInput(f['Hạn'])}"></label>
+      <label class="full">Link bài (sau khi đăng)<input class="field" id="fLink" list="dlUrl" value="${esc(f['Link bài'])}" placeholder="https://rootytrip.com/…"></label>
+      <label class="full">Ghi chú<textarea class="field" id="fNote">${esc(f['Ghi chú'])}</textarea></label>
+    </div>
+
+    <h4>① Search Intent — ý định tìm kiếm</h4>
+    <div class="grid2">
+      <label>Ý định<select class="field" id="fIntent"><option value="">—</option>${CFG.intents.map(t=>`<option ${t===f['Ý định']?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+      <label>Định dạng<select class="field" id="fFormat"><option value="">—</option>${Object.entries(CFG.intentFormats).map(([it,fs])=>`<optgroup label="${esc(it)}">${fs.map(x=>`<option ${x===f['Định dạng']?'selected':''}>${esc(x)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+    </div>
+    <p class="hint" style="margin:6px 0 8px" id="intentHint"></p>
+    <button class="btn sm" id="bIntent">Suy ý định từ nhóm từ khoá (B3)</button>
+
+    <h4>② Phân tích SERP</h4>
+    <div class="row" style="margin-top:0"><a class="btn sm" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)"
+      href="https://www.google.com/search?hl=vi&gl=vn&pws=0&q=${encodeURIComponent(f['Từ khoá']||'')}">Mở Google “${esc(f['Từ khoá'])}” ↗</a>
+      <span class="meta">nên mở trong cửa sổ ẩn danh</span></div>
+    <label style="margin-top:8px">Top 10 đang là loại trang gì? (VD: 6 bài blog, 3 trang OTA, 1 video)<textarea class="field" id="fSerpType" style="min-height:56px">${esc(f['SERP: loại trang top 10'])}</textarea></label>
+    <div class="meta" style="margin:8px 0 4px">Tính năng đặc biệt trên trang kết quả:</div>
+    <div class="row" style="margin-top:0" id="serpFeat">${CFG.serpFeatures.map(x=>`<label class="chipf ${(f['SERP: tính năng']||'').split(', ').includes(x)?'on':''}" style="flex-direction:row;gap:4px;cursor:pointer"><input type="checkbox" value="${esc(x)}" ${(f['SERP: tính năng']||'').split(', ').includes(x)?'checked':''} style="display:none">${esc(x)}</label>`).join('')}</div>
+    <label style="margin-top:10px">Câu hỏi khách hay hỏi (People Also Ask / gợi ý Google) → dùng làm H2 & FAQ<textarea class="field" id="fQs" style="min-height:90px">${esc(f['Câu hỏi khách hay hỏi'])}</textarea></label>
+    <button class="btn sm" id="bQs" style="margin-top:6px">Lấy câu hỏi từ gợi ý Google</button>
+
+    <h4>③ Chấm bài đã đăng theo intent ${f['Điểm nội dung']!=null?`<span class="chip ${f['Điểm nội dung']>=80?'c-ok':f['Điểm nội dung']>=60?'c-warn':'c-bad'}">${f['Điểm nội dung']}/100</span>`:''}</h4>
+    <p class="hint" style="margin:0 0 6px">Đọc trang ở “Link bài”: trả lời ngay đầu bài, cấu trúc H2/H3, danh sách, bảng, ảnh, video và tiêu chí riêng của ý định (giá + nút đặt cho trang bán, bảng so sánh cho bài cân nhắc…).</p>
+    <button class="btn sm" id="bCheck">Chấm bài</button>
+    ${f['Kiểm nội dung']?`<pre class="cmd" style="white-space:pre-wrap;margin-top:8px;display:block">${esc(f['Kiểm nội dung'])}</pre>`:''}
+
+    <h4>④ Chấm GEO (Checklist GEO của GTV — để AI trích dẫn) ${f['Điểm GEO']!=null?`<span class="chip ${f['Điểm GEO']>=80?'c-ok':f['Điểm GEO']>=60?'c-warn':'c-bad'}">${f['Điểm GEO']}/100</span>`:''}</h4>
+    <p class="hint" style="margin:0 0 6px">Mở đầu = câu trả lời · H2 = câu hỏi thật · câu đầu sau H2 trả lời 40–50 từ · đoạn tự đứng · dữ kiện có số & nguồn · thông tin chỉ Rooty có · tác giả thật · độ mới. 🔒 = cửa chặn phải đạt.</p>
+    <button class="btn sm" id="bGeo">Chấm GEO</button>
+    ${f['Chấm GEO']?`<pre class="cmd" style="white-space:pre-wrap;margin-top:8px;display:block">${esc(f['Chấm GEO'])}</pre>`:''}
+
+    <h4>Lệnh cho Claude Code</h4>
+    <div class="cmd"><span>chạy dây chuyền cho ${esc(f['Slug'])}</span><button class="btn sm" data-copy="chạy dây chuyền cho ${esc(f['Slug'])}">Copy</button></div>
+    <h4>Chấm cổng QC</h4>
+    <div class="tabs">${Object.keys(CFG.gates).map(g=>`<button class="tab ${g===GATE_TAB?'on':''}" data-g="${g}">${g} <span class="gp ${f[g]||''}">${f[g]==='PASS'?'✓':f[g]==='FAIL'?'✗':'·'}</span></button>`).join('')}</div>
+    <div id="gateBox"></div>`;
+  $('#dFoot').innerHTML = '<span class="sp"></span><button class="btn primary" id="dSave">Lưu thông tin</button>';
+  wireCommon($('#dBody'));
+  document.querySelectorAll('#dBody .tab').forEach(el=>el.onclick=()=>{ GATE_TAB = el.dataset.g; drawBai(); });
+  $('#mPrev').onclick = ()=>moveBai(prev); $('#mNext').onclick = ()=>moveBai(next);
+  const items = CFG.gates[GATE_TAB] || [], saved = new Set((det[GATE_TAB]||{}).checked||[]);
+  $('#gateBox').innerHTML = items.map(c=>`<label class="crit"><input type="checkbox" value="${c.id}" ${saved.has(c.id)?'checked':''}><span>${c.required?'<span class="b">B</span>':''}${esc(c.text)}</span></label>`).join('')
+    + `<div class="verdict"><span id="vText"></span><button class="btn primary" id="gSave">Lưu kết quả ${GATE_TAB}</button></div>
+       <label>Ghi chú khi chấm<textarea class="field" id="gNote">${esc((det[GATE_TAB]||{}).note||'')}</textarea></label>`;
+  const upd = ()=>{ const ck=[...document.querySelectorAll('#gateBox input:checked')].map(x=>x.value);
+    const req=items.filter(c=>c.required), opt=items.filter(c=>!c.required), reqOk=req.every(c=>ck.includes(c.id));
+    const optPct = opt.length ? opt.filter(c=>ck.includes(c.id)).length/opt.length : 1, pass = reqOk && optPct>=0.8;
+    $('#vText').innerHTML = `<b style="color:var(${pass?'--ok':'--bad'})">${pass?'PASS':'FAIL'}</b> · ${ck.length}/${items.length} tiêu chí · bắt buộc ${req.filter(c=>ck.includes(c.id)).length}/${req.length}${opt.length?` · còn lại ${Math.round(optPct*100)}% (cần ≥80%)`:''}`; };
+  document.querySelectorAll('#gateBox input').forEach(x=>x.onchange=upd); upd();
+  $('#gSave').onclick = ()=>saveBai({gate: GATE_TAB, checked: [...document.querySelectorAll('#gateBox input:checked')].map(x=>x.value), note: $('#gNote').value}, `Đã lưu ${GATE_TAB}`);
+  const INTENT_TIP = {'Thông tin':'Người đọc muốn học/tìm câu trả lời → bài blog, hướng dẫn, checklist. Trả lời ngay đầu bài, H2 là câu hỏi, có bảng dữ kiện.',
+    'Điều hướng':'Người đọc tìm chính Rooty Trip → trang chủ, giới thiệu, liên hệ. Có hotline, địa chỉ, nút liên hệ rõ.',
+    'Cân nhắc':'Người đọc đang so sánh trước khi mua → bài so sánh, review, top list. Có bảng so sánh, ưu/nhược, kết luận rõ, dẫn sang trang tour.',
+    'Mua':'Người đọc sẵn sàng đặt → trang tour/sản phẩm, danh mục, landing page. Giá cụ thể, lịch trình, bao gồm/không bao gồm, nút Zalo/đặt nổi bật.'};
+  const tip = ()=>{ const it=$('#fIntent').value; $('#intentHint').textContent = it ? INTENT_TIP[it] + ' Định dạng hợp: ' + CFG.intentFormats[it].join(', ') + '.' : 'Chọn ý định hoặc bấm “Suy ý định”.'; };
+  $('#fIntent').onchange = tip; tip();
+  document.querySelectorAll('#serpFeat label').forEach(l=>l.onclick=e=>{ e.preventDefault(); const c=l.querySelector('input'); c.checked=!c.checked; l.classList.toggle('on', c.checked); });
+  const runBai = async (act, btn) => { const b=$(btn), t=b.textContent; b.disabled=true; b.textContent='Đang xử lý…';
+    try{ await saveFields(); const r=await api('POST',`/api/bai/${CUR.record_id}/${act}`); toast(r.message); BAI=await api('GET','/api/bai'); CUR=BAI.find(x=>x.record_id===CUR.record_id)||CUR; renderBoard(); drawBai(); }
+    catch(e){ toast(e.message,true); b.disabled=false; b.textContent=t; } };
+  $('#bIntent').onclick = ()=>runBai('intent','#bIntent');
+  $('#bGeo').onclick = ()=>runBai('geo','#bGeo');
+  $('#bQs').onclick = ()=>runBai('questions','#bQs');
+  $('#bCheck').onclick = ()=>runBai('check','#bCheck');
+  const fields = ()=>({'Từ khoá': $('#fKw').value.trim(), 'Loại trang': $('#fType').value, 'Trạng thái': $('#fStatus').value,
+    'Người phụ trách': $('#fWho').value.trim(), 'Hạn': fromDateInput($('#fDue').value), 'Link bài': $('#fLink').value.trim(), 'Ghi chú': $('#fNote').value,
+    'Ý định': $('#fIntent').value, 'Định dạng': $('#fFormat').value, 'SERP: loại trang top 10': $('#fSerpType').value,
+    'SERP: tính năng': [...document.querySelectorAll('#serpFeat input:checked')].map(x=>x.value).join(', '), 'Câu hỏi khách hay hỏi': $('#fQs').value});
+  const saveFields = ()=>api('PATCH','/api/bai/'+CUR.record_id, fields());
+  $('#dSave').onclick = ()=>saveBai(fields());
+}
+async function saveBai(body, msg){
+  try{ const r = await api('PATCH','/api/bai/'+CUR.record_id, body); toast(msg||'Đã lưu');
+    BAI = await api('GET','/api/bai'); CUR = BAI.find(b=>b.record_id===r.record_id) || CUR; renderBoard(); drawBai();
+    api('GET','/api/log').then(renderLogs).catch(()=>{}); }
+  catch(e){ toast(e.message, true); }
+}
+async function moveBai(to){ if(to) await saveBai({'Trạm': to}, 'Đã chuyển sang ' + to); }
+$('#newDlg').addEventListener('close', async ()=>{
+  if($('#newDlg').returnValue!=='ok') return;
+  const fm = $('#newForm');
+  try{ await api('POST','/api/bai',{'Từ khoá': fm.kw.value.trim(), 'Loại trang': fm.type.value, 'Người phụ trách': fm.who.value.trim(),
+      'Hạn': fromDateInput(fm.due.value), 'Ghi chú': fm.note.value});
+    toast('Đã thêm bài'); BAI = await api('GET','/api/bai'); renderBoard(); }
+  catch(e){ toast(e.message, true); }
+});
+
+/* ================= KẾ HOẠCH 10 THÁNG ================= */
+let VIEC = [], OPEN = new Set();
+const vcls = s => 's-' + String(s||'').replace(/\s+/g,'-');
+VIEWS.kehoach = async v => {
+  v.innerHTML = `<div class="vhead" id="vhead"></div>
+    <div class="vtools"><select id="fMang"></select><select id="fVs"></select><label><input type="checkbox" id="fNow"> Chỉ việc tháng này + trễ</label></div>
+    <div id="phases"></div>`;
+  $('#fMang').innerHTML = '<option value="">Mọi mảng</option>' + Object.keys(CFG.mang).map(m=>`<option>${esc(m)}</option>`).join('');
+  $('#fVs').innerHTML = '<option value="">Mọi trạng thái</option>' + CFG.viecStatus.map(m=>`<option>${esc(m)}</option>`).join('');
+  ['#fMang','#fVs','#fNow'].forEach(s=>$(s).onchange=renderViec);
+  VIEC = await api('GET','/api/viec'); renderViec();
+};
+function vState(f){ const cur=CFG.currentMonth, done=['Xong','Không áp dụng'].includes(f['Trạng thái']), den=Number(f['Đến tháng'])||0, tu=Number(f['Từ tháng'])||0;
+  return { done, late: !done && den && den < cur, now: !done && tu<=cur && cur<=den }; }
+function renderViec(){
+  const [y,m] = CFG.projectStart.split('-'), total = VIEC.length, done = VIEC.filter(r=>vState(r.fields).done).length;
+  const late = VIEC.filter(r=>vState(r.fields).late).length, now = VIEC.filter(r=>vState(r.fields).now).length;
+  $('#vhead').innerHTML = total ? `<div><div class="meta">Dự án bắt đầu ${m}/${y}</div><div class="big">Đang ở tháng T${CFG.currentMonth}</div></div>
+    <div class="bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div><b>${done}/${total}</b> <span class="meta">xong</span></div>
+    <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>
+    <a class="btn ghost" href="/docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>`
+    : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button>`;
+  if(!total){ $('#btnSeed').onclick = async()=>{ try{ const r=await api('POST','/api/viec/seed'); toast(r.message); VIEC=await api('GET','/api/viec'); renderViec(); }catch(e){ toast(e.message,true);} }; $('#phases').innerHTML=''; return; }
+  const fm=$('#fMang').value, fs=$('#fVs').value, fn=$('#fNow').checked;
+  const list = VIEC.filter(r=>{ const f=r.fields, s=vState(f); return (!fm||f['Mảng']===fm) && (!fs||f['Trạng thái']===fs) && (!fn||s.now||s.late); })
+    .sort((a,b)=>(a.fields['Từ tháng']-b.fields['Từ tháng'])||String(a.fields['Mã']).localeCompare(b.fields['Mã']));
+  $('#phases').innerHTML = CFG.pha.map(ph=>{ const all=VIEC.filter(r=>r.fields['Pha']===ph), rows=list.filter(r=>r.fields['Pha']===ph); if(!rows.length) return '';
+    const d = all.filter(r=>vState(r.fields).done).length;
+    return `<section class="phase"><h3>${esc(ph)}<div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div><span class="meta">${d}/${all.length} xong</span></h3>${rows.map(vRow).join('')}</section>`;
+  }).join('') || '<div class="empty">Không có việc nào khớp bộ lọc.</div>';
+  document.querySelectorAll('.vmain').forEach(el=>el.onclick=e=>{ if(e.target.closest('select')) return; const id=el.parentElement.dataset.id; OPEN.has(id)?OPEN.delete(id):OPEN.add(id); el.parentElement.classList.toggle('open'); });
+  document.querySelectorAll('.vs').forEach(el=>el.onchange=()=>saveViec(el.closest('.vrow').dataset.id, {'Trạng thái': el.value}));
+  document.querySelectorAll('.vsave').forEach(el=>el.onclick=()=>{ const row=el.closest('.vrow');
+    saveViec(row.dataset.id, {'Người phụ trách': row.querySelector('.vWho').value.trim(), 'Hạn': fromDateInput(row.querySelector('.vDue').value),
+      'Kết quả / link': row.querySelector('.vRes').value.trim(), 'Ghi chú': row.querySelector('.vNote').value}); });
+  wireCommon($('#phases'));
+}
+function vRow(r){
+  const f=r.fields, s=vState(f), mg=CFG.mang[f['Mảng']]||{}, tu=f['Từ tháng'], den=f['Đến tháng'];
+  const cmd = `/${mg.skill||'rooty-ke-hoach-seo'} làm công đoạn ${f['Mã']}: ${f['Công đoạn']}`;
+  return `<div class="vrow ${s.late?'late':s.now?'now':''} ${OPEN.has(r.record_id)?'open':''}" data-id="${r.record_id}">
+    <div class="vmain"><span class="code">${esc(f['Mã'])}</span>
+      <div class="vname">${f['Cửa chặn']==='Có'?'<span class="gate">◇ CỬA</span>':''}${esc(f['Công đoạn'])}${s.late?'<span class="latetag">TRỄ</span>':''}
+        ${f['Người phụ trách']?`<div class="who">${esc(f['Người phụ trách'])}${f['Hạn']?' · hạn '+fmtDate(f['Hạn']):''}</div>`:''}</div>
+      <span class="c-mang"><span class="chip">${esc(f['Mảng'])}</span></span><span class="c-thang">T${tu}${den!=tu?'–T'+den:''}</span>
+      <select class="vs ${vcls(f['Trạng thái'])}" aria-label="Trạng thái">${CFG.viecStatus.map(o=>`<option ${o===f['Trạng thái']?'selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="vdetail"><div class="meta">Đầu ra cần có: <b style="color:var(--ink)">${esc(f['Đầu ra']||'—')}</b></div>
+      <div class="grid2" style="margin-top:6px"><label>Người phụ trách<input class="field vWho" value="${esc(f['Người phụ trách'])}"></label>
+        <label>Hạn<input class="field vDue" type="date" value="${toDateInput(f['Hạn'])}"></label>
+        <label class="full">Kết quả / link file<input class="field vRes" value="${esc(f['Kết quả / link'])}"></label>
+        <label class="full">Ghi chú<textarea class="field vNote">${esc(f['Ghi chú'])}</textarea></label></div>
+      <div class="acts"><button class="btn primary vsave">Lưu</button>${mg.sop?`<a class="btn" href="/docs/${mg.sop}" target="_blank" rel="noopener">Mở SOP ${esc(f['Mảng'])}</a>`:''}
+        <button class="btn" data-copy="${esc(cmd)}">Copy lệnh cho Claude</button></div></div></div>`;
+}
+async function saveViec(id, body){
+  try{ const r = await api('PATCH','/api/viec/'+id, body); const i=VIEC.findIndex(x=>x.record_id===id); if(i>=0) VIEC[i]={record_id:id, fields:{...VIEC[i].fields, ...r.fields}};
+    toast('Đã lưu'); renderViec(); }
+  catch(e){ toast(e.message, true); }
+}
+
+/* ================= khởi động ================= */
+$('#btnReload').onclick = async ()=>{ Object.keys(DATA).forEach(k=>delete DATA[k]); renderNav(); render(); };
+$('#btnSetup').onclick = async ()=>{ $('#btnSetup').disabled=true; try{ const r=await api('POST','/api/setup'); toast(r.message); }catch(e){ toast(e.message,true);} finally{ $('#btnSetup').disabled=false; } };
+(async ()=>{
+  try{
+    CFG = await api('GET','/api/config');
+    $('#mode').textContent = CFG.mode==='lark' ? '● Lark Base' : 'DEMO · lưu tạm trên máy';
+    $('#mode').className = 'mode ' + CFG.mode;
+    $('#btnSetup').hidden = CFG.mode!=='lark';
+    $('#newForm').type.innerHTML = '<option value="">—</option>' + CFG.pageTypes.map(t=>`<option>${esc(t)}</option>`).join('');
+    VIEW = store.get('rooty-view2','tongquan'); if(!GUIDES[VIEW]) VIEW='tongquan';
+    renderNav(); render();
+  }catch(e){ $('#main').innerHTML = `<div class="banner">${esc(e.message)}</div>`; }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bang-theo-doi",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-X", "utf8", "app/server.py"],
+      "port": 8010
+    },
+    {
+      "name": "trang-mau",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8000", "--directory", "mau"],
+      "port": 8000
+    }
+  ]
+}

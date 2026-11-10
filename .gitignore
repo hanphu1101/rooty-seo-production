@@ -1,0 +1,3 @@
+.env
+app/demo-data.json
+__pycache__/

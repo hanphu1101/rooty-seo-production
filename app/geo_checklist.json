@@ -1,0 +1,389 @@
+{
+ "version": "v2026.08 — GTV SEO × The AI Growth (số liệu đến 23/08/2026)",
+ "diem_cham": {
+  "G0": {
+   "ten": "Chấm mức & đo số nền",
+   "lam": "Quyết định làm GEO tới mức nào, rồi đo “số nền” trước khi động vào bất cứ thứ gì.",
+   "nhip": "Nhịp: 1 lần đầu dự án, review lại mỗi quý. Cách chấm: /5."
+  },
+  "G1": {
+   "ten": "Cho máy đọc được",
+   "lam": "Trang tải đủ nhanh, đã vào chỉ mục, nội dung nằm sẵn trong HTML — và bạn chủ động quyết định cho bot AI nào vào.",
+   "nhip": "Nhịp: hoàn thiện trong 3 tháng đầu, xác minh lại ở logfile T7. Cách chấm: gộp chung Bộ T1 (xem Cách chấm)."
+  },
+  "G2": {
+   "ten": "Website là nguồn sự thật về mình",
+   "lam": "AI quay về chính website bạn để kiểm chứng. Không trả lời được thì nó đi lấy ở chỗ khác.",
+   "nhip": "Nhịp: 1 lần dựng nền, review mỗi quý. 🔺 Nâng hạng 08/2026: tách câu hỏi con đã dịch từ keyword discovery sang verification tại thực thể home — 3 phương pháp độc lập hội tụ."
+  },
+  "G3": {
+   "ten": "Cấu trúc đoạn trong bài",
+   "lam": "AI không đọc cả bài rồi tóm tắt — nó lấy từng đoạn. Đoạn nào tự đứng được thì mới có cơ hội.",
+   "nhip": "Nhịp: mỗi bài, design-in từ Outline/AM chứ không vá sau. Cách chấm: /12. > Ngưỡng đoạn nội dung: dùng bảng canonical \"3 con số đoạn nội dung\" tại Audition Đoạn nội dung — không neo con số ở đây."
+  },
+  "G4": {
+   "ten": "Được nhắc ở nơi khác",
+   "lam": "Được nhắc tên quan trọng hơn được đặt link. Chạy chung đợt offsite, không tách ngân sách.",
+   "nhip": "Nhịp: mỗi đợt offsite. Cách chấm: /5. Nguyên tắc nền: lượt nhắc tên ≠ link — off-page link authority tương quan ≈ 0 với AI lượt trích dẫn, nhưng thương hiệu lượt nhắc tên là nhóm tương quan mạnh nhất."
+  },
+  "G5": {
+   "ten": "Đo → báo cáo",
+   "lam": "Chạy lại đúng bộ câu hỏi cũ, mỗi câu ít nhất 3 lần. Chạy một lần rồi kết luận là tự lừa mình.",
+   "nhip": "Nhịp: chạy suốt dự án. Cách chấm: /5."
+  }
+ },
+ "items": [
+  {
+   "n": 1,
+   "g": "G0",
+   "khi": "T1",
+   "viec": "Đủ điều kiện được lấy làm nguồn",
+   "tieuchi": "Trang mục tiêu đã được lập chỉ mục + có mặt ở trang 1 cho ≥1 câu hỏi con. thứ hạng tìm kiếm là chỉ báo mạnh nhất: vị trí đầu = 58% lượt trích dẫn vs vị trí thứ mười = 14% (Ahrefs/Indig 04/2026).\nNgoại lệ đã biết (28,3% trang được trích dẫn có 0 từ khoá tự nhiên) là ngoại lệ — không dùng làm cớ bỏ qua nền SEO",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "B",
+   "lam": "AI + câu lệnh rà soát trang"
+  },
+  {
+   "n": 2,
+   "g": "G0",
+   "khi": "T1",
+   "viec": "Quyền vào website của bot AI — quyết định chủ đích",
+   "tieuchi": "Kiểm robots.txt + tường lửa + mạng phân phối nội dung (CDN) theo bảng phân loại bot theo mục đích: bot đi tìm nguồn (OAI-SearchBot · Claude-SearchBot · PerplexityBot · Googlebot) · bot lấy dữ liệu huấn luyện (GPTBot · ClaudeBot · Google-Extended) · bot chạy khi người dùng hỏi (ChatGPT-User · Claude-User · Perplexity-User).\nMuốn được trích dẫn → mở cho nhóm bot đi tìm nguồn + bot chạy khi người dùng hỏi. Chặn bot lấy dữ liệu huấn luyện là lựa chọn riêng, không ảnh hưởng Google Search. 🔴 Lượt ghé của bot lấy dữ liệu huấn luyện bot KHÔNG phải chỉ số đo mức hiện diện trên AI",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "A",
+   "lam": "kiểm tra kỹ thuật"
+  },
+  {
+   "n": 3,
+   "g": "G0",
+   "khi": "T1",
+   "viec": "Bộ câu lệnh số nền T1",
+   "tieuchi": "Chốt câu lệnh bộ ngay T1 và chạy số nền: ngành dịch vụ / agency = phễu 28-40 câu lệnh (nhóm câu sát lúc mua 50% / nhóm câu đang cân nhắc 35% / nhóm câu mới tìm hiểu 15%); ngành thương mại điện tử = ma trận 80-100.\nGhi cả Độ chính xác thông tin (AI nói về thương hiệu có đúng không) + phòng thủ câu hỏi gắn tên thương hiệu. số nền phải ghi ngày chạy tên máy AI + phiên bản mô hình",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "D",
+   "lam": "kỹ năng AI đóng gói + bảng theo dõi"
+  },
+  {
+   "n": 4,
+   "g": "G0",
+   "khi": "T1",
+   "viec": "GEO mức sẵn sàng bảng chấm điểm",
+   "tieuchi": "Chấm mức đầu tư GEO theo dữ liệu, không theo cảm tính: tỷ lệ truy vấn có kích hoạt khối AI trên Google của ngành (câu hỏi tìm hiểu 99,9% từ khoá có khối AI · ngành y tế 44,1% · câu tìm mua hàng chỉ 3,2% · câu tìm đúng thương hiệu 0,9%) + đối thủ AI lượt trích dẫn bộ + thứ hạng hiện tại.\nKết luận: Tối thiểu (số nền + quyền vào của bot + quy tắc viết nội dung — không phát sinh chi phí vì trùng nội dung ngữ nghĩa) hoặc Chuẩn hoá (đủ 6 điểm chạm)",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "B",
+   "lam": "khối AI trên trang Google · AI + bảng theo dõi"
+  },
+  {
+   "n": 5,
+   "g": "G0",
+   "khi": "T1",
+   "viec": "Điều phải nói trước communication tại buổi khởi động dự án",
+   "tieuchi": "5 điều phải nói trước đầu file được nói rõ trong buổi khởi động dự án + ghi vào đề xuất và phạm vi công việc.\nKhông bán llms.txt, không bán dữ liệu có cấu trúc (schema) như lượt trích dẫn đòn bẩy, không hứa chắc chắn lặp lại y hệt, không trích dẫn tên bịa, không nhồi \"chính chủ\"",
+   "muc": "Bắt buộc",
+   "chan": "Không",
+   "bc": "A",
+   "lam": "GEO · quy tắc báo cáo"
+  },
+  {
+   "n": 6,
+   "g": "G1",
+   "khi": "T1 → T3, kiểm lại T7",
+   "viec": "Speed / thời gian phản hồi máy chủ nền",
+   "tieuchi": "Mục speed của bảng kiểm liên quan pass (response time <200ms tốt · <350ms tối thiểu — ngưỡng khuyến nghị).",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "bảng kiểm liên quan §0, §2.1"
+  },
+  {
+   "n": 7,
+   "g": "G1",
+   "khi": "T1 → T3, kiểm lại T7",
+   "viec": "Lập chỉ mục & canonical vệ sinh kỹ thuật",
+   "tieuchi": "Canonical tự trỏ · không noindex ngoài ý muốn · đã được lập chỉ mục · featured image đã vào chỉ mục.\nĐây là điều kiện vào khâu lấy nguồn pool",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "D",
+   "lam": "bảng kiểm onpage"
+  },
+  {
+   "n": 8,
+   "g": "G1",
+   "khi": "T1 → T3, kiểm lại T7",
+   "viec": "Trang đọc được bằng máy",
+   "tieuchi": "HTML ≤ 2MB · DOM order = visual order · nội dung quan trọng in-flow (không nằm sau click trong tab/accordion, không JS-only) · extraction vệ sinh kỹ thuật: ~400 ký tự đầu sau H1 là một flow liền mạch, share button/newsletter không chen giữa",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "B",
+   "lam": "tối ưu HTML"
+  },
+  {
+   "n": 9,
+   "g": "G2",
+   "khi": "cuối T1 → T3",
+   "viec": "Site:domain answerability test",
+   "tieuchi": "Tự chạy site:yourdomain.com [câu hỏi thương mại] cho 5-10 câu khách hay hỏi (giá, tính năng, so sánh, chính sách, ở đâu): phải có trang trả lời được bằng text trên site chính chủ — không giấu trong PDF, không dựng hình JS-only, không chỉ nằm trên sàn/đại lý.\nEvidence: site: xuất hiện trong 64% tách câu hỏi con queries của ChatGPT (Nectiv 13/08/2026, n≈4K, đo qua API), domain slot điền từ memory (wire capture) — 3 phương pháp độc lập cùng hướng",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "B",
+   "lam": "Thực thể Home · Query tách câu hỏi con"
+  },
+  {
+   "n": 10,
+   "g": "G2",
+   "khi": "cuối T1 → T3",
+   "viec": "Owned truth pages đầy đủ",
+   "tieuchi": "Có và cập nhật: about · pricing · FAQ · docs/hướng dẫn · chính sách.\nTrang docs có giá trị GEO kể cả khi không bao giờ thứ hạng (vai trò: nguồn để AI mô tả đúng thương hiệu). Kèm hallucinated-URL check: URL AI bịa ra = ứng viên tạo trang / redirect",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "GEO §4 Pillars"
+  },
+  {
+   "n": 11,
+   "g": "G2",
+   "khi": "cuối T1 → T3",
+   "viec": "Thương hiệu E-A-V nhất quán đa kênh",
+   "tieuchi": "Tên thương hiệu · mô tả dịch vụ · thông tin cốt lõi (NAP, năm thành lập, phạm vi phục vụ) giống nhau trên site chính, GBP, LinkedIn, Facebook, directory ngành, review platform.\nLệch thông tin = AI trả lời sai về thương hiệu (đo bằng Độ chính xác thông tin ở mục tương ứng)",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "D",
+   "lam": "bảng kiểm liên quan · bảng kiểm liên quan"
+  },
+  {
+   "n": 12,
+   "g": "G2",
+   "khi": "cuối T1 → T3",
+   "viec": "Thực thể Home + dữ liệu có cấu trúc (schema) thực thể",
+   "tieuchi": "Organization/Person + sameAs trỏ đủ profile chính; @id graph nối Thực thể Home. ⚠ Làm vì thực thể understanding + rich result, KHÔNG vì lượt trích dẫn (điều phải nói trước 2)",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "A",
+   "lam": "công cụ sinh dữ liệu có cấu trúc (schema)"
+  },
+  {
+   "n": 13,
+   "g": "G2",
+   "khi": "cuối T1 → T3",
+   "viec": "Named author + experience-in-content",
+   "tieuchi": "Bài trọng điểm có tác giả thật, và kinh nghiệm nằm TRONG nội dung (\"khi chúng tôi test trên 40 site khách…\") — không phải box bio.\nRubric AI Mode: Experience Signals 17,4% vs Author Credibility 8,5% (Surfer, ⚠ COI vendor, correlational)",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "Authorship · quy tắc viết"
+  },
+  {
+   "n": 14,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Mở đầu trang = câu trả lời",
+   "tieuchi": "100-150 từ đầu của main content trả lời thẳng câu hỏi chính; không storytelling intro (ngoại lệ narrative niche — SERP-intent-conditional).\nIntro theo Extractive + Abstractive, đúng Concordance với thứ tự H2; bài câu hỏi tìm hiểu chính có Key-Facts table. Evidence: 38% lượt trích dẫn khối AI trên trang Google trích từ 100 từ đầu — tăng từ 20% một năm trước (Surfer 06/2026); 44,2% từ 30% đầu trang (Indig 02/2026)",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "B",
+   "lam": "quy tắc viết mở đầu"
+  },
+  {
+   "n": 15,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Tiêu đề mục = câu hỏi thật + scope 1 trang 1 câu hỏi",
+   "tieuchi": "tiêu đề mục khớp trực tiếp câu hỏi con user hỏi AI (K2Q khi query dạng câu hỏi).\nMap tách câu hỏi con theo cluster — ~90% tách câu hỏi con gom được vào ≤4 cluster và chỉ ~27% consistent giữa các lần chạy → không đuổi từng query. Trang 500-2.000 từ / 7-20 subheading; cover quá rộng → TÁCH page theo QDP (26-50% subtopic thắng 100%)",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "B",
+   "lam": "/ · QDP-QDH-QDS"
+  },
+  {
+   "n": 16,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Câu đầu sau tiêu đề mục = câu trả lời (Subordinate Text)",
+   "tieuchi": "4 pattern theo loại tiêu đề mục: định nghĩa → \"X là…\" · how-to → \"Để X, làm N bước…\" · so sánh → verdict trước · yes/no → trả lời ngay rồi mới điều kiện.\nCâu trả lời trực tiếp 40-50 từ",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "B",
+   "lam": "Subordinate Text Match"
+  },
+  {
+   "n": 17,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Đoạn nội dung tự đứng + tiêu đề mục hierarchy mạch lạc",
+   "tieuchi": "Mỗi H2 cắt rời vẫn đủ Thực thể + context + claim; không đại từ hồi chỉ (\"điều này\", \"như đã nói ở trên\"); đoạn 100-170 từ cho ý chính. tiêu đề mục hierarchy phải mạch lạc và mang nghĩa — cơ chế includeAncestorHeadings của Vertex AI Search cho thấy tiêu đề mục tổ tiên đi kèm đoạn nội dung như metadata, đoạn nội dung giữa bài vẫn \"biết\" mình thuộc mục nào. tiêu đề mục rỗng nghĩa (\"Tổng quan\", \"Kết luận\") làm mất lợi thế này",
+   "muc": "Bắt buộc",
+   "chan": "Có",
+   "bc": "A",
+   "lam": "Audition Đoạn nội dung"
+  },
+  {
+   "n": 18,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Mật độ E-A-V",
+   "tieuchi": "≥3 EAV/100 từ ở L0; câu chứa số phải là câu hoàn chỉnh quotable (S-V-O) — \"không phải con số được trích dẫn, mà là câu bao quanh nó\". ⚠ Có trần: mật độ fact cao quá ngưỡng thì signal-to-noise giảm — cover đủ rồi dừng",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "E-A-V Framework · quy tắc viết"
+  },
+  {
+   "n": 19,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Quote + số liệu + trích dẫn nguồn sau claim",
+   "tieuchi": "3 tactic peer-reviewed mạnh nhất (KDD 2024, đọc primary): quote nguồn liên quan (mạnh nhất) · số liệu định lượng · trích nguồn sau claim (yếu khi đứng một mình, mạnh nhất khi kết hợp).\nChọn theo domain: bài factual → trích dẫn nguồn · opinion/pháp lý → số liệu · kể chuyện/lịch sử → quote. Mỗi con số truy được nguồn + ngày. Ngược lại: nhồi từ khoá còn tệ hơn không làm gì; giọng văn \"authoritative\" không cải thiện đáng kể. ⚠ Đòn bẩy lớn nhất khi trang đang là nguồn yếu trong câu trả lời; trang đã thống trị câu trả lời thì đầu tư chỗ khác",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "A",
+   "lam": "/ · geo-paper-kdd-2024"
+  },
+  {
+   "n": 20,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Non-commodity / Information Gain",
+   "tieuchi": "Bài phải trả lời được: \"cái gì ở đây chỉ có thể đến từ chúng tôi?\" — dữ liệu gốc, test thật, case thật, ảnh/biểu đồ tự làm.\nTest ngược: nếu tóm tắt top SERP rồi chạy qua AI là ra được bài này → commodity, làm lại. Google chính chủ: \"unique, non-commodity content\" (Sullivan 04/2026: unique · specific · authentic)",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "A",
+   "lam": "Non-Commodity Content · Information Gain Score"
+  },
+  {
+   "n": 21,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Đoạn verifiability",
+   "tieuchi": "Mỗi claim quan trọng nằm trong đoạn vừa thứ hạng được vừa khớp câu phát biểu ở mức đoạn.\nCơ chế linkify 2 pha (patent US11769017B1 + US20240289407A1): AI sinh summary từ SRD rồi mới xác minh từng đoạn bằng khoảng cách embedding trước khi gắn link → document nuôi summary ≠ document được trích dẫn",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "A",
+   "lam": "AI Mode"
+  },
+  {
+   "n": 22,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Freshness thật",
+   "tieuchi": "Trang commercial/pricing/so sánh có chu kỳ cập nhật nội dung thật ~30 ngày (freshness window per-query-type). 🔴 KHÔNG date-spoofing, KHÔNG chỉ đổi năm trên title.\nLưu ý mới 08/2026: content năm cũ không chết — ChatGPT search song song \"2026\" và \"2025\" trong cùng chain (multi-year search, kỹ thuật Gemini có trước); unigram year đã rớt khỏi top-5",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "B",
+   "lam": "quy trình cập nhật bài cũ· Freshness"
+  },
+  {
+   "n": 23,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Visual semantic tự soi + Blur Test",
+   "tieuchi": "5 điểm: (1) centerpiece above-the-fold trả đúng intent · (2) visual hierarchy khớp tiêu đề mục hierarchy · (3) DOM order = visual order · (4) info quan trọng không giấu trong tab/accordion · (5) không popup/ads cắt ngang main content.\nChốt bằng Blur Test: screenshot blur 50% vẫn nhận ra topic + function",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "D",
+   "lam": "bảng kiểm liên quan"
+  },
+  {
+   "n": 24,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Page-type fit + phản tác dụng guard",
+   "tieuchi": "Chọn page type theo engine mục tiêu và ghi ngày chạy (mix lượt trích dẫn theo page type đổi theo phiên bản engine). điều phải nói trước listicle: không tự xếp mình #1 khi không có phương pháp chấm công khai · công bố CoI · không scale hàng loạt · ItemList dữ liệu có cấu trúc (schema), cấm AggregateRating trên listicle tự làm. ⚠ trích dẫn ≠ recommend: bài liệt kê đối thủ có thể được trích dẫn mà vẫn recommend đối thủ",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "Best List Page · Page Types"
+  },
+  {
+   "n": 25,
+   "g": "G3",
+   "khi": "cài từ lúc viết, T2 → T9",
+   "viec": "Khối AI trên trang Google phản định vị",
+   "tieuchi": "So content hiện tại với AI answer đang hiển thị: claim khối AI trên trang Google bỏ sót → cover sâu; format khối AI trên trang Google ưa (definition đầu, danh sách có cấu trúc, E-A-V) → align.\nMục tiêu cuối là thành nguồn được trích lặp lại (được trích dẫn lặp lại), không phải 1 lần",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "AI + câu lệnh rà soát trang"
+  },
+  {
+   "n": 26,
+   "g": "G4",
+   "khi": "T4 → T7",
+   "viec": "Backlink độ đồng thuận lens",
+   "tieuchi": "Đợt link T4-T7 ưu tiên nguồn mà AI engines hay trích dẫn trong ngách (xác định khi research).\nKhông viện DR thay cho chất lượng đoạn nội dung — \"DR does not matter much\" ở page-level",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "B",
+   "lam": "nghiên cứu & kế hoạch offsite"
+  },
+  {
+   "n": 27,
+   "g": "G4",
+   "khi": "T4 → T7",
+   "viec": "Bên thứ ba lượt nhắc tên có chủ đích",
+   "tieuchi": "Kênh theo thứ tự tương quan (Ahrefs 75k brands 12/2025, ⚠ correlation): YouTube lượt nhắc tên ~0,737 · branded web lượt nhắc tên 0,66-0,71 · branded anchors 0,51-0,63.\nƯu tiên: 1 video YouTube đúng chủ đề + bài trên blog/báo ngành đang thứ hạng + review platform. thương hiệu xuất hiện cạnh đối thủ, đúng ngữ cảnh dịch vụ",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "B",
+   "lam": "Surround Sound · nội dung PR"
+  },
+  {
+   "n": 28,
+   "g": "G4",
+   "khi": "T4 → T7",
+   "viec": "Surround Sound nodes nằm trong topical map",
+   "tieuchi": "Node off-site cho core thực thể được lên kế hoạch trong topical map, không phải PR rời.\nPhân bổ theo phễu: educational cho giai đoạn chưa nhận thức vấn đề → social proof (listicle/review/forum) cho giai đoạn quyết định",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "bản đồ chủ đề"
+  },
+  {
+   "n": 29,
+   "g": "G4",
+   "khi": "T4 → T7",
+   "viec": "Best-of bên thứ ba",
+   "tieuchi": "Pitch để có mặt ở 1/3 đầu các listicle bên thứ ba đang được trích dẫn trong ngách; giữ thông tin cập nhật (danh sách cũ feed AI thông tin sai về chính mình)",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "C",
+   "lam": "Best List Page"
+  },
+  {
+   "n": 30,
+   "g": "G5",
+   "khi": "T1 · T6 · T10 · mỗi quý",
+   "viec": "Chạy lặp nhiều lần standard",
+   "tieuchi": "Mỗi câu lệnh chạy ≥3 lần (chuẩn nội bộ 5 lần/câu lệnh/engine) rồi báo tỷ lệ, không báo 1 lần chạy.\nLý do: variance nội bộ 1 model 10-34%; sau 3 lần chỉ ~2,2% lượt trích dẫn còn nguyên. Nhịp nội bộ hàng tuần-2 tuần (AI Mode đổi 56% nguồn/tuần, ChatGPT 74%), báo cáo khách theo mốc. Mọi lần đo ghi ngày chạy tên máy AI + phiên bản mô hình",
+   "muc": "Bắt buộc",
+   "chan": "Không",
+   "bc": "B",
+   "lam": "AI + bảng theo dõi"
+  },
+  {
+   "n": 31,
+   "g": "G5",
+   "khi": "T1 · T6 · T10 · mỗi quý",
+   "viec": "Tách theo từng máy AI + topic-level tỷ lệ được nhắc so với đối thủ",
+   "tieuchi": "Báo cáo theo topic, không theo từng câu lệnh.\nTách kênh: khối AI trên trang Google ≠ AI Mode (86% tương đồng nội dung nhưng chỉ 13,7% trùng lượt trích dẫn) ≠ Gemini app ≠ ChatGPT — chỉ 2,37% URL được cả 3 engine cùng trích dẫn, 91% single-engine. Cảnh báo nếu Concentration >70% ở một engine",
+   "muc": "Tuỳ chọn",
+   "chan": "Không",
+   "bc": "B",
+   "lam": "AI Visibility Measurement"
+  },
+  {
+   "n": 32,
+   "g": "G5",
+   "khi": "T1 · T6 · T10 · mỗi quý",
+   "viec": "Evidence bar + version discipline",
+   "tieuchi": "(1) 4 dấu hiệu KHÔNG phải bằng chứng: được crawl · được lập chỉ mục · AI nhắc lại nội dung của bạn · AI nói tactic đó hiệu quả — cả 4 xảy ra với mọi file text trên web mở (thí nghiệm cats.txt). (2) Luật truy-về-primary: mọi \"leak\"/nghiên cứu trước khi vào pitch/deck phải truy về nguồn gốc — case \"LEAKED Google\" 01/2026 là bản viral đã cắt disclaimer của tác giả gốc. (3) Metric AI luôn dán nhãn chỉ mang tính tham khảo xu hướng, đối chiếu referral thật (GA4/server log) trước khi tuyên bố thắng. (4) Mọi số có nguồn + tháng; register refresh theo lint quý",
+   "muc": "Bắt buộc",
+   "chan": "Không",
+   "bc": "A",
+   "lam": "sổ đăng ký số liệu nội bộ · quy tắc báo cáo"
+  }
+ ]
+}
