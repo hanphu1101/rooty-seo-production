@@ -339,8 +339,11 @@ const num = v => (v===null||v===undefined||v==='') ? null : Number(v);
 const pathOf = u => String(u||'').replace(/^https?:\/\/[^/]+/,'') || '/';
 const store = { get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v);}catch{return d;} }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='toast'+(err?' err':''); t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', err?6000:2600); }
+/* Trong Marketing Hub trang nằm ở /m/seo/ và xin Hub không chèn CSS/JS (giữ giao diện riêng),
+   nên tự thêm tiền tố cho đường /api/...; chạy riêng ở / thì BASE rỗng. */
+const BASE = location.pathname.replace(/\/[^\/]*$/, '');
 async function api(method, url, body){
-  const r = await fetch(url, {method, headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):undefined});
+  const r = await fetch(url.startsWith('/') ? BASE + url : url, {method, headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):undefined});
   const d = await r.json().catch(()=>({error:'Phản hồi không hợp lệ'}));
   if(!r.ok || (d && d.error)) throw new Error((d&&d.error) || ('HTTP '+r.status));
   return d;
@@ -692,7 +695,7 @@ VIEWS.khach = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Thu thập dữ liệu thị trường</h2>
       <p class="meta">Chân dung phải dựa trên dữ liệu thật, không phỏng đoán. Mỗi nguồn ghi cách thu, cỡ mẫu và phát hiện chính.
-      <a href="/docs/mau-khao-sat-khach.md" target="_blank" rel="noopener">Mở mẫu khảo sát & kịch bản phỏng vấn ↗</a></p></div>
+      <a href="docs/mau-khao-sat-khach.md" target="_blank" rel="noopener">Mở mẫu khảo sát & kịch bản phỏng vấn ↗</a></p></div>
     <div id="gSrc"></div>
     <div class="sec"><h2><span>2</span> Chân dung khách hàng (Customer Persona)</h2>
       <p class="meta">5 nhóm thông tin: nhân khẩu học · tâm lý & lối sống · nhu cầu & động cơ · điểm đau · hành vi tiêu dùng. Bấm vào thẻ để sửa.</p></div>
@@ -1739,7 +1742,7 @@ function renderViec(){
   $('#vhead').innerHTML = total ? `<div><div class="meta">Dự án bắt đầu ${m}/${y}</div><div class="big">Đang ở tháng T${CFG.currentMonth}</div></div>
     <div class="bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div><b>${done}/${total}</b> <span class="meta">xong</span></div>
     <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>
-    <a class="btn ghost" href="/docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>`
+    <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>`
     : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button>`;
   if(!total){ $('#btnSeed').onclick = async()=>{ try{ const r=await api('POST','/api/viec/seed'); toast(r.message); VIEC=await api('GET','/api/viec'); renderViec(); }catch(e){ toast(e.message,true);} }; $('#phases').innerHTML=''; return; }
   const fm=$('#fMang').value, fs=$('#fVs').value, fn=$('#fNow').checked;
@@ -1770,7 +1773,7 @@ function vRow(r){
         <label>Hạn<input class="field vDue" type="date" value="${toDateInput(f['Hạn'])}"></label>
         <label class="full">Kết quả / link file<input class="field vRes" value="${esc(f['Kết quả / link'])}"></label>
         <label class="full">Ghi chú<textarea class="field vNote">${esc(f['Ghi chú'])}</textarea></label></div>
-      <div class="acts"><button class="btn primary vsave">Lưu</button>${mg.sop?`<a class="btn" href="/docs/${mg.sop}" target="_blank" rel="noopener">Mở SOP ${esc(f['Mảng'])}</a>`:''}
+      <div class="acts"><button class="btn primary vsave">Lưu</button>${mg.sop?`<a class="btn" href="docs/${mg.sop}" target="_blank" rel="noopener">Mở SOP ${esc(f['Mảng'])}</a>`:''}
         <button class="btn" data-copy="${esc(cmd)}">Copy lệnh cho Claude</button></div></div></div>`;
 }
 async function saveViec(id, body){

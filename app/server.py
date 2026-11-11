@@ -2778,6 +2778,9 @@ class Handler(BaseHTTPRequestHandler):
         ctype = {"html": "text/html", "js": "text/javascript", "css": "text/css"}.get(f.suffix.lstrip("."), "application/octet-stream")
         self.send_response(200)
         self.send_header("Content-Type", ctype + "; charset=utf-8")
+        if ctype == "text/html" and os.environ.get("HUB"):
+            # Chạy trong Marketing Hub: xin Hub không chèn bộ CSS/JS dùng chung, giữ giao diện riêng của app
+            self.send_header("X-Hub-Khong-Chen", "1")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
