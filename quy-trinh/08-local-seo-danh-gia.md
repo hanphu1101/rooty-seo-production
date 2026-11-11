@@ -16,7 +16,7 @@ Với công ty tour, khách thường tìm "tour Phú Quốc", "công ty du lị
 - [ ] Hỏi & Đáp: tự đăng 5–10 câu khách hay hỏi + trả lời.
 
 ### Duy trì (hằng tuần)
-- Bài đăng GBP 1–2 lần/tuần (ưu đãi, lịch tour, ảnh khách).
+- Bài đăng GBP 1–2 lần/tuần (ưu đãi, lịch tour, ảnh khách). Lịch, khuôn bài và cách nối bài GBP → blog → tour: `nghien-cuu/google-maps-huong-dan.md`; theo dõi ở tab **Google Maps** (bảng Lark «Lịch đăng GBP»).
 - Trả lời **mọi** đánh giá trong 48h, cả tốt lẫn xấu — nêu tên tour, cảm ơn cụ thể, xử lý vấn đề công khai và lịch sự.
 
 ### Quy trình xin đánh giá sau tour

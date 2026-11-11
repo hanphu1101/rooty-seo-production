@@ -274,6 +274,13 @@ TABLES = {
         F("Đã xác minh", "select", ["Có", "Chưa", "Không áp dụng"]),
         F("Số đánh giá", "num"), F("Điểm", "dec"),
         F("Trạng thái", "select", ["Chưa có", "Đã có", "Cần sửa"]), F("Ghi chú", "long")]},
+    "gbp": {"name": "Lịch đăng GBP", "fields": [
+        F("Chủ đề"), F("STT", "num"), F("Ngày đăng", "date"), F("Loại bài", "select", ["Cập nhật", "Ưu đãi", "Sự kiện"]),
+        F("Link trong bài GBP", "url"), F("Bài blog", "url"), F("Trang tour", "url"), F("Giá từ"), F("Nguồn giá"),
+        F("Blog đã link sang tour", "select", ["Có", "CHƯA – thêm link"]),
+        F("Trạng thái", "select", ["Chưa soạn", "Đã soạn", "Đã duyệt", "Đã đăng", "Bỏ"]),
+        F("Nội dung bài", "long"), F("Ảnh"), F("Người đăng"), F("Link bài đã đăng", "url"),
+        F("Lượt xem", "num"), F("Lượt bấm", "num"), F("Ghi chú", "long")]},
     # ---------------- 4 · PROMOTION
     "lienket": {"name": "Liên kết", "fields": [
         F("Anchor"), F("Loại", "select", ["Nội bộ", "Backlink", "Báo chí", "Hồ sơ/citation", "Guest post"]),
@@ -591,6 +598,24 @@ def _policy_seed():
 
 
 SEEDS["chinhsach"] = _policy_seed()
+
+
+def _gbp_seed():
+    """Lịch đăng bài Google Maps — nghien-cuu/lich-dang-gbp.csv (xem nghien-cuu/google-maps-huong-dan.md)."""
+    import time as _t
+    f = Path(os.path.dirname(os.path.abspath(__file__))).parent / "nghien-cuu" / "lich-dang-gbp.csv"
+    if not f.exists():
+        return []
+    with f.open(encoding="utf-8-sig") as fh:
+        return [{"Chủ đề": r["chu_de"], "STT": int(r["stt"]),
+                 "Ngày đăng": int(_t.mktime(_t.strptime(r["ngay_dang"], "%d/%m/%Y")) * 1000),
+                 "Loại bài": r["loai_bai_gbp"], "Link trong bài GBP": r["link_trong_bai_gbp"], "Bài blog": r["bai_blog"],
+                 "Trang tour": r["trang_tour"], "Giá từ": r["gia_tu"], "Nguồn giá": r["nguon_gia"],
+                 "Blog đã link sang tour": r["blog_da_link_sang_tour"], "Trạng thái": r["trang_thai"]}
+                for r in csv.DictReader(fh) if r.get("chu_de")]
+
+
+SEEDS["gbp"] = _gbp_seed()
 
 
 # ------------------------------------------------------------------ nạp từ crawl

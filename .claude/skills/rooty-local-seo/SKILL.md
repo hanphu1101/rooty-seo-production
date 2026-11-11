@@ -7,6 +7,8 @@ description: Local SEO và đánh giá cho Rooty Trip — chuẩn hoá Google Bu
 
 Làm theo `quy-trinh/08-local-seo-danh-gia.md`. Thông tin gốc lấy từ `00-context/brand.md` — thiếu thì hỏi, không bịa địa chỉ/hotline.
 
+Hướng dẫn SEO Google Maps chi tiết + kết quả kiểm website: `nghien-cuu/google-maps-huong-dan.md`. Lịch đăng bài GBP (mỗi bài dẫn về blog, blog dẫn sang tour): bảng Lark «Lịch đăng GBP» / tab **Google Maps** trên app; bản gốc `nghien-cuu/lich-dang-gbp.csv`. Soạn bài mới thì nối tiếp lịch này, không lập lịch khác.
+
 ## Việc AI làm được
 - **Soạn nội dung GBP:** mô tả 750 ký tự (không nhồi từ khoá), danh sách sản phẩm/dịch vụ + mô tả ngắn + link trang tour, 10 cặp Hỏi & Đáp, lịch 8 bài đăng GBP/tháng.
 - **Mẫu trả lời đánh giá:** 5 sao · 4 sao · 3 sao · 1–2 sao (xin lỗi, nêu cách xử lý, mời liên hệ trực tiếp). Mỗi câu trả lời phải cá nhân hoá theo nội dung đánh giá — không dán cùng một mẫu.

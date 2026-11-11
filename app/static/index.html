@@ -379,6 +379,7 @@ const NAV = [
   {id:'gia', label:'B6 · Giá & dữ kiện', key:'giadukien'},
   {id:'onpage', label:'B7 · Onpage'},
   {id:'entity', label:'B8 · Entity', key:'hoso'},
+  {id:'gmaps', label:'B8 · Google Maps', key:'gbp'},
   {id:'geo', label:'GEO · AI Search', key:'geo'},
   {grp:'4 · Promotion'},
   {id:'link', label:'B9 · Link building', key:'lienket'},
@@ -416,8 +417,8 @@ function wireCommon(root){
 const GRID_STATE = {};
 function chipClass(field, v){
   if(!v) return '';
-  if(/^(Đạt|Khớp|Có|Đã có|Đã sửa|Xong|Đang live|Đã xác nhận|Tốt|Cao|Mua|Đã gán trang)$/.test(v)) return 'c-ok';
-  if(/^(Chưa đạt|Lệch|Mất link|🔴 Cao|Cần viết|Xoá|Chưa có)$/.test(v)) return 'c-bad';
+  if(/^(Đạt|Khớp|Có|Đã có|Đã sửa|Xong|Đang live|Đã xác nhận|Tốt|Cao|Mua|Đã gán trang|Đã đăng)$/.test(v)) return 'c-ok';
+  if(/^(Chưa đạt|Lệch|Mất link|🔴 Cao|Cần viết|Xoá|Chưa có|CHƯA – thêm link)$/.test(v)) return 'c-bad';
   if(/^(🟡 Vừa|Cần sửa|Đang sửa|Đang làm|Đang viết|Vừa|Cân nhắc|Gộp|Cần sửa|Giả định|Kế hoạch)$/.test(v)) return 'c-warn';
   if(/^(Pillar \(trụ cột\)|Nội bộ|Trang tour\/sản phẩm|Trang sản phẩm)$/.test(v)) return 'c-info';
   return '';
@@ -1385,6 +1386,26 @@ VIEWS.algo = async v => {
     chips:[{id:'hi',label:'Quan trọng chưa đọc',fn:f=>f['Mức liên quan']==='Cao'&&f['Đã đọc']!=='Đã'}],
     formActions:[{label:'Mở bài gốc', fn: async rec=>{ window.open(rec.fields['Link'],'_blank','noopener'); }}],
     emptyHint:'bấm “Lấy tin mới từ Google”'});
+};
+
+/* ---------- Google Maps · lịch đăng bài GBP (GBP → blog → tour) ---------- */
+VIEWS.gmaps = async v => {
+  v.innerHTML = `<div class="strip" id="gbSum"></div><div id="gbG"></div>`;
+  const rows = await load('gbp');
+  const now = Date.now(), wk = now + 7*864e5;
+  const n = fn => rows.filter(r=>fn(r.fields)).length;
+  $('#gbSum').innerHTML = rows.length ? `<div class="banner">Đã đăng <b>${n(f=>f['Trạng thái']==='Đã đăng')}/${rows.length}</b> bài ·
+    7 ngày tới cần đăng <b>${n(f=>f['Ngày đăng']>=now-864e5 && f['Ngày đăng']<=wk && f['Trạng thái']!=='Đã đăng')}</b> ·
+    quá hạn chưa đăng <b style="color:var(--bad)">${n(f=>f['Ngày đăng']<now-864e5 && !['Đã đăng','Bỏ'].includes(f['Trạng thái']))}</b> ·
+    bài blog chưa link sang tour <b style="color:var(--bad)">${n(f=>f['Blog đã link sang tour']!=='Có')}</b> (thêm link trước ngày đăng)</div>` : '';
+  await grid($('#gbG'),'gbp',{title:'Lịch đăng GBP', cols:['STT','Ngày đăng','Loại bài','Chủ đề','Trạng thái','Blog đã link sang tour','Bài blog','Trang tour','Giá từ'],
+    filters:['Loại bài','Trạng thái','Blog đã link sang tour'], sort:(a,b)=>(a['Ngày đăng']||0)-(b['Ngày đăng']||0), limit:60,
+    chips:[{id:'week',label:'7 ngày tới',fn:f=>f['Ngày đăng']>=now-864e5 && f['Ngày đăng']<=wk},
+           {id:'late',label:'Quá hạn chưa đăng',fn:f=>f['Ngày đăng']<now-864e5 && !['Đã đăng','Bỏ'].includes(f['Trạng thái'])},
+           {id:'nolink',label:'Blog chưa link tour',fn:f=>f['Blog đã link sang tour']!=='Có'}],
+    formActions:[{label:'Mở bài blog', fn: async rec=>{ window.open(rec.fields['Bài blog'],'_blank','noopener'); }},
+                 {label:'Mở trang tour', fn: async rec=>{ window.open(rec.fields['Trang tour'],'_blank','noopener'); }}],
+    emptyHint:'“Nạp dữ liệu mẫu” lấy 24 bài từ nghien-cuu/lich-dang-gbp.csv'});
 };
 
 /* ---------- Kiểm nhiều website / nhiều trang cùng lúc ---------- */

@@ -221,6 +221,21 @@ window.GUIDES = {
     done: ['Mọi site của công ty ≥ 80%', 'Không còn lỗi 🔴 ở site nào', 'Có bảng so sánh với đối thủ chính'],
     cmd: '/rooty-ky-thuat đọc kết quả tab Kiểm nhiều website và lập danh sách việc cho dev theo từng site'
   },
+  gmaps: {
+    step: 'Bước 8 · Create & Optimize', title: 'SEO Google Maps — hồ sơ GBP & lịch đăng bài nối về website',
+    goal: 'Hồ sơ Rooty Trip trên Google Maps đầy đủ, đúng NAP, có đánh giá thật đều đặn và <b>2 bài đăng/tuần</b>. Mỗi bài GBP dẫn về một bài blog, bài blog dẫn sang trang tour — Google Maps thành một cửa nữa đưa khách vào web. Chi tiết: <code>nghien-cuu/google-maps-huong-dan.md</code>.',
+    steps: [
+      '<b>Chuẩn hoá hồ sơ</b> (một lần): tên đúng "Rooty Trip" — không nhồi từ khoá · danh mục chính Công ty lữ hành, phụ chỉ thêm khi đúng việc đang làm · địa chỉ, hotline, giờ, website giống hệt web và B8 · mô tả ≤ 750 ký tự · mục Sản phẩm: 10 tour/combo kèm giá từ và link · ≥ 20 ảnh thật.',
+      '<b>Đăng bài</b> thứ Ba và thứ Sáu theo bảng dưới. Bấm một dòng → "Mở bài blog" / "Mở trang tour". Khuôn bài: câu đầu trả lời thẳng → 2–3 câu kinh nghiệm HDV → nhắc tour + giá từ → lời mời. Nút "Tìm hiểu thêm" dùng đúng cột "Link trong bài GBP" (có UTM để đo GA4).',
+      '<b>Trước ngày đăng</b>: dòng "CHƯA – thêm link" → thêm link chữ từ bài blog sang trang tour, rồi đổi cột thành "Có". Kiểm giá ở tab B6 · Giá & dữ kiện. Chủ đề có <code>[CẦN KIỂM CHỨNG]</code> (lịch pháo hoa, giờ mở cửa dịp Tết) phải có nguồn mới được đăng.',
+      '<b>Đăng xong</b>: dán nội dung vào "Nội dung bài", link bài vào "Link bài đã đăng", đổi "Đã đăng". Đầu tháng ghi lượt xem / lượt bấm từ GBP → Hiệu suất.',
+      '<b>Đánh giá</b>: trả lời mọi đánh giá trong 48 giờ, cá nhân hoá theo nội dung. Xin đánh giá bằng câu "để lại cảm nhận thật" — <b>không xin 5 sao</b>, không đổi quà (vi phạm chính sách Google).',
+      '<b>Không làm</b>: GeoTag ảnh (Google xoá toạ độ khi tải ảnh lên, không ảnh hưởng xếp hạng) · mua đánh giá · nhồi từ khoá vào tên hoặc câu trả lời đánh giá.',
+      '<b>Website</b> (kiểm 11/11/2026): thống nhất tên trong schema Organization và TravelAgency, trùng tên trên GBP · thay bản đồ trang Liên hệ bằng mã nhúng lấy từ chính hồ sơ GBP.'
+    ],
+    done: ['Hồ sơ đã xác minh, NAP khớp B8', 'Không có bài quá hạn chưa đăng', 'Mọi bài blog trong lịch đã link sang trang tour', '100% đánh giá được trả lời trong 48 giờ', 'Lượt bấm website từ GBP tăng sau 12 tuần'],
+    cmd: '/rooty-local-seo soạn 4 bài GBP tiếp theo trong bảng Lịch đăng GBP'
+  },
   algo: {
     step: 'Bước 10 · Evaluate', title: 'Theo dõi thuật toán Google — lên top bền mà không vi phạm',
     goal: 'Biết ngay khi Google tung đợt cập nhật, đo xem Rooty bị ảnh hưởng không, và giữ mọi cách làm SEO nằm trong chính sách của Google để không bị hạ hạng hay phạt.',
