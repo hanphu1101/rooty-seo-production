@@ -276,6 +276,11 @@ class LarkStore:
         self._token, self._token_exp = None, 0
         self._tables: dict[str, str] = {}
         self.lock = threading.Lock()
+        # Bộ nhớ tạm cho list(): bảng lớn (Từ khoá ~16 nghìn dòng) đọc từ Lark mất ~25 giây,
+        # quá sát mốc 30 giây Marketing Hub cắt yêu cầu. Ghi qua app thì xoá ngay; người sửa
+        # thẳng trên Lark thì thấy sau tối đa CACHE_TTL giây.
+        self._cache: dict[str, tuple[float, list]] = {}
+        self._cache_lock: dict[str, threading.Lock] = {}
 
     # -- HTTP
     def _req(self, method, path, body=None, auth=True):
@@ -371,7 +376,20 @@ class LarkStore:
         return d
 
     # -- bản ghi
+    CACHE_TTL = 600
+
     def list(self, table):
+        with self._cache_lock.setdefault(table, threading.Lock()):  # hai yêu cầu cùng lúc: đọc Lark một lần
+            hit = self._cache.get(table)
+            if hit and time.time() - hit[0] < self.CACHE_TTL:
+                rows = hit[1]
+            else:
+                rows = self._list_lark(table)
+                self._cache[table] = (time.time(), rows)
+        # bản sao từng dòng: nơi gọi sửa fields cũng không làm hỏng bộ nhớ tạm
+        return [{"record_id": r["record_id"], "fields": dict(r["fields"])} for r in rows]
+
+    def _list_lark(self, table):
         tid = self._table_id(table)
         out, page = [], None
         while True:
@@ -384,12 +402,14 @@ class LarkStore:
             page = d.get("page_token")
 
     def create(self, table, fields):
+        self._cache.pop(table, None)
         tid = self._table_id(table)
         d = self._req("POST", f"/open-apis/bitable/v1/apps/{self.base}/tables/{tid}/records", {"fields": self._clean(fields)})
         r = d.get("record", {})
         return {"record_id": r.get("record_id"), "fields": self._flatten(r.get("fields", {}), table)}
 
     def update(self, table, record_id, fields):
+        self._cache.pop(table, None)
         tid = self._table_id(table)
         # khi sửa: chuỗi rỗng → null để xoá giá trị trong Lark
         body = {k: (None if v == "" else v) for k, v in fields.items()}
@@ -398,6 +418,7 @@ class LarkStore:
         return {"record_id": r.get("record_id", record_id), "fields": self._flatten(r.get("fields", {}), table)}
 
     def create_many(self, table, records):
+        self._cache.pop(table, None)
         tid = self._table_id(table)
         out = []
         for i in range(0, len(records), 450):  # Lark giới hạn 500 bản ghi / lần
@@ -408,6 +429,7 @@ class LarkStore:
         return out
 
     def update_many(self, table, updates: dict):
+        self._cache.pop(table, None)
         tid = self._table_id(table)
         items = [{"record_id": rid, "fields": {k: (None if v == "" else v) for k, v in f.items()}} for rid, f in updates.items()]
         for i in range(0, len(items), 450):
@@ -415,6 +437,7 @@ class LarkStore:
         return len(items)
 
     def delete(self, table, record_id):
+        self._cache.pop(table, None)
         tid = self._table_id(table)
         self._req("DELETE", f"/open-apis/bitable/v1/apps/{self.base}/tables/{tid}/records/{record_id}")
         return {"ok": True}
@@ -452,6 +475,19 @@ def make_store():
 
 
 STORE = make_store()
+
+
+def _prewarm():
+    """Đọc sẵn mọi bảng vào bộ nhớ tạm lúc khởi động, để người mở trang đầu tiên không phải chờ."""
+    for t in TB.TABLES.values():
+        try:
+            STORE.list(t["name"])
+        except Exception:
+            pass
+
+
+if STORE.mode == "lark":
+    threading.Thread(target=_prewarm, daemon=True).start()
 GATES = parse_gates()
 ENV = load_env()
 
