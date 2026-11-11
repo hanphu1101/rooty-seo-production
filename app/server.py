@@ -2079,6 +2079,47 @@ def review_import(body):
     return {"ok": True, "kind": kind, "message": msg}
 
 
+import googleapi as GAPI  # noqa: E402
+
+
+def google_ready():
+    """Đủ cấu hình .env để lấy số qua API chưa → (gsc?, ga4?)"""
+    key = ENV.get("GOOGLE_SA_KEY")
+    return bool(key and ENV.get("GSC_SITE")), bool(key and ENV.get("GA4_PROPERTY"))
+
+
+def google_sync():
+    gsc, ga4 = google_ready()
+    if not (gsc or ga4):
+        raise StoreError("Chưa cấu hình — điền GOOGLE_SA_KEY và GSC_SITE / GA4_PROPERTY vào .env rồi chạy lại server (xem app/README.md)")
+
+    def job(say):
+        key = ENV["GOOGLE_SA_KEY"]
+        if not os.path.isabs(key):
+            key = str(ROOT / key)
+        say("Đăng nhập Google bằng service account…")
+        token, email = GAPI.access_token(key)
+        done = []
+        if gsc:
+            say("Lấy Search Console: theo ngày (16 tháng), trang, truy vấn, truy vấn × trang (28 ngày)…")
+            try:
+                period, tables = GAPI.gsc_tables(token, ENV["GSC_SITE"])
+            except GAPI.GoogleError as e:
+                raise GAPI.GoogleError(f"{e} — kiểm GSC_SITE và đã thêm {email} vào Search Console chưa")
+            for kind, rows in tables.items():
+                say(f"Nạp {kind}: {len(rows) - 1} dòng")
+                done.append(review_import({"rows": rows, "name": "GSC API", "period": period})["message"])
+        if ga4:
+            say("Lấy GA4: trang đích, kênh Organic Search (28 ngày)…")
+            try:
+                period, rows = GAPI.ga4_pages(token, ENV["GA4_PROPERTY"])
+            except GAPI.GoogleError as e:
+                raise GAPI.GoogleError(f"{e} — kiểm GA4_PROPERTY và đã thêm {email} vào GA4 (quyền Người xem) chưa")
+            done.append(review_import({"rows": rows, "name": "GA4 API organic", "period": period})["message"])
+        return " · ".join(done)
+    return run_job("google", job)
+
+
 def review_classify():
     rows = [r for r in STORE.list(_tname("trang")) if r["fields"].get("Loại trang") != "Ngôn ngữ khác"]
     h1c = {}
@@ -2587,6 +2628,7 @@ class Handler(BaseHTTPRequestHandler):
                                "intents": INTENTS, "intentFormats": INTENT_FORMATS, "serpFeatures": SERP_FEATURES, "site": site_url(),
                                "mang": QT["mang"], "pha": PHA, "viecStatus": VIEC_STATUS,
                                "projectStart": project_start(), "currentMonth": current_month_index(),
+                               "google": dict(zip(("gsc", "ga4"), google_ready())),
                                "tables": t_meta()})
         m = re.match(r"^/api/t/(\w+)$", path)
         if m:
@@ -2672,6 +2714,8 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/review/import":
             body = self._body()
             return self._guard(lambda: review_import(body))
+        if path == "/api/google/sync":
+            return self._guard(google_sync)
         rv = {"/api/review/classify": review_classify, "/api/review/tasks": review_tasks, "/api/review/remeasure": review_remeasure}
         if path in rv:
             return self._guard(rv[path])

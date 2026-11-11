@@ -1146,6 +1146,7 @@ VIEWS.danhgia = async v => {
       <p class="meta">Xuất CSV rồi bấm “Nhập CSV” — trang tự nhận loại file. <b>GSC</b> (Hiệu suất → Xuất → CSV): <i>Ngày</i> → số liệu tháng & cảnh báo tuần · <i>Trang</i> → số liệu từng URL · <i>Truy vấn</i> → thứ hạng từ khoá. <b>Truy vấn × Trang</b> (Search Analytics for Sheets / Looker Studio) → xung đột từ khoá. <b>GA4</b> (Báo cáo → Tương tác → Trang đích, lọc kênh Organic Search → Chia sẻ → Tải CSV) → phiên, tỷ lệ tương tác, chuyển đổi từng trang.</p></div>
     <div class="vhead"><label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)">Kỳ số liệu <input class="field" id="rvPeriod" placeholder="VD: 3 tháng 08–10/2026" style="width:220px"></label>
       <button class="btn primary" id="rvImp">Nhập CSV (GSC / GA4)</button><span class="meta" id="rvLast"></span></div>
+    <div class="gwrap" style="padding:12px 14px"><b>Hoặc lấy thẳng từ Google</b> <span class="meta" id="gApiSt"></span><div id="gApi"></div></div>
     <div class="sec"><h2><span>2</span> Theo dõi chỉ số</h2></div>
     <div id="wk"></div><div class="cards4" id="kpi"></div>
     <div class="gwrap" style="padding:12px 14px" id="ch"></div><div id="g"></div>
@@ -1159,6 +1160,10 @@ VIEWS.danhgia = async v => {
     <div class="sec"><h2><span>6</span> Lịch review định kỳ</h2><p class="meta">Hàng tuần: biến động traffic, lỗi index. Hàng quý: audit kỹ thuật, audit nội dung, kế hoạch quý tiếp theo.</p></div>
     <div id="lich"></div>`;
   $('#rvImp').onclick = importReviewCSV;
+  const G = CFG.google || {};
+  $('#gApiSt').textContent = G.gsc||G.ga4 ? `— ${[G.gsc&&'Search Console', G.ga4&&'GA4'].filter(Boolean).join(' + ')} đã cấu hình. Lấy 28 ngày gần nhất (GSC theo ngày: 16 tháng), giống hệt nhập CSV.`
+    : '— chưa cấu hình: điền GOOGLE_SA_KEY, GSC_SITE, GA4_PROPERTY vào .env (hướng dẫn trong app/README.md) rồi chạy lại server.';
+  if(G.gsc||G.ga4) jobPanel($('#gApi'),'google','Lấy số từ Google (GSC + GA4)','/api/google/sync',{},['danhgia','trang','tukhoa','cannib']);
   await Promise.all(['danhgia','trang','cannib','changelog','lichreview'].map(k=>load(k).catch(()=>[])));
   // ② KPI
   const months = DATA.danhgia.map(r=>r.fields).filter(f=>f['Tháng']).sort((a,b)=>String(a['Tháng']).localeCompare(String(b['Tháng'])));

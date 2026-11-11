@@ -52,6 +52,27 @@ Các bảng nối với nhau qua **URL trang đích**: cột "Trang đích" (T�
 
 Sau đó mọi thao tác trên trang ghi thẳng vào Lark. Team có thể mở Base để xem, lọc, làm dashboard, hoặc gắn automation (VD báo vào group chat khi có vấn đề 🔴 mới hoặc bài "Chờ duyệt"). Muốn nối bảng bằng trường "Liên kết hai chiều" của Lark thì thêm cột mới trong Lark — đừng đổi tên cột có sẵn.
 
+## Nối Google Search Console + GA4 (tự lấy số, ~15 phút)
+
+Thay cho việc xuất CSV tay ở B10: bấm **Lấy số từ Google (GSC + GA4)** là app kéo về đúng 5 loại số liệu như khi nhập CSV — GSC theo ngày (16 tháng) · theo trang · theo truy vấn · truy vấn × trang (28 ngày) · GA4 trang đích kênh Organic Search (28 ngày) — rồi ghi vào Lark (Đánh giá tháng, Trang đích, Từ khoá, Xung đột từ khoá). Chỉ **đọc** số, không sửa gì trên Google.
+
+1. **Tạo dự án**: https://console.cloud.google.com → chọn/tạo dự án (VD `rooty-seo`).
+2. **Bật 2 API**: APIs & Services → Library → bật **Google Search Console API** và **Google Analytics Data API**.
+3. **Tạo service account**: APIs & Services → Credentials → Create credentials → Service account → đặt tên `rooty-seo-app` → Done (không cần cấp vai trò).
+4. **Tải khoá**: bấm vào service account vừa tạo → Keys → Add key → Create new key → JSON. Lưu file thành `google-key.json` trong thư mục `rooty-seo-production` (đã nằm trong `.gitignore`, không lên GitHub). **Không gửi file này cho ai.**
+5. **Cho đọc Search Console**: search.google.com/search-console → chọn thuộc tính rootytrip.com → Cài đặt → Người dùng và quyền → Thêm người dùng → dán email service account (dạng `rooty-seo-app@….iam.gserviceaccount.com`) → quyền **Bị hạn chế**.
+6. **Cho đọc GA4**: analytics.google.com → Quản trị → Quản lý quyền truy cập thuộc tính → + → dán cùng email → vai trò **Người xem**. Cũng ở Quản trị → Chi tiết thuộc tính: chép **Mã thuộc tính** (dãy số, không phải `G-XXXX`).
+7. **Điền `.env`**:
+   ```
+   GOOGLE_SA_KEY=google-key.json
+   GSC_SITE=sc-domain:rootytrip.com
+   GA4_PROPERTY=123456789
+   ```
+   `GSC_SITE`: thuộc tính **Miền** → `sc-domain:rootytrip.com`; thuộc tính **Tiền tố URL** → `https://rootytrip.com/` (đúng như hiện ở góc trái Search Console).
+8. Chạy lại server → tab **B10 · Đánh giá** → **Lấy số từ Google (GSC + GA4)**.
+
+Số liệu GSC trễ khoảng 2–3 ngày nên app lấy đến 3 ngày trước. Nên bấm 1 lần/tuần (cùng lúc review tuần).
+
 ## Lỗi hay gặp
 
 | Thông báo | Cách sửa |
@@ -62,6 +83,10 @@ Sau đó mọi thao tác trên trang ghi thẳng vào Lark. Team có thể mở 
 | `Chưa có bảng «…»` | Bấm **Khởi tạo bảng Lark** (bấm lại an toàn — chỉ tạo bảng/cột còn thiếu) |
 | `Chưa có báo cáo crawl` | Chạy `scripts/crawl_site.py` trước |
 | Dùng Feishu | `LARK_DOMAIN=https://open.feishu.cn` |
+| `Google báo lỗi 403` … Search Console | Chưa thêm email service account vào Search Console, hoặc `GSC_SITE` sai dạng (Miền ↔ Tiền tố URL) |
+| `Google báo lỗi 403` … GA4 | Chưa thêm email service account vào GA4, hoặc chưa bật Google Analytics Data API |
+| `Google báo lỗi 400` … `GA4_PROPERTY` | Điền mã thuộc tính dạng số, không phải mã đo lường `G-XXXX` |
+| `Không mở được file khoá` | Kiểm `GOOGLE_SA_KEY` — tên file đúng, nằm trong thư mục `rooty-seo-production` |
 
 ## Lưu ý
 - Đừng đổi tên bảng/cột trong Lark — trang tìm theo đúng tên. Thêm cột mới thì thoải mái.
