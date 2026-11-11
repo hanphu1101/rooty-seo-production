@@ -373,7 +373,7 @@ class LarkStore:
             q = "?page_size=500" + (f"&page_token={page}" if page else "")
             d = self._req("GET", f"/open-apis/bitable/v1/apps/{self.base}/tables/{tid}/records{q}")
             for it in d.get("items") or []:
-                out.append({"record_id": it["record_id"], "fields": self._flatten(it.get("fields", {}))})
+                out.append({"record_id": it["record_id"], "fields": self._flatten(it.get("fields", {}), table)})
             if not d.get("has_more"):
                 return out
             page = d.get("page_token")
@@ -382,7 +382,7 @@ class LarkStore:
         tid = self._table_id(table)
         d = self._req("POST", f"/open-apis/bitable/v1/apps/{self.base}/tables/{tid}/records", {"fields": self._clean(fields)})
         r = d.get("record", {})
-        return {"record_id": r.get("record_id"), "fields": self._flatten(r.get("fields", {}))}
+        return {"record_id": r.get("record_id"), "fields": self._flatten(r.get("fields", {}), table)}
 
     def update(self, table, record_id, fields):
         tid = self._table_id(table)
@@ -390,7 +390,7 @@ class LarkStore:
         body = {k: (None if v == "" else v) for k, v in fields.items()}
         d = self._req("PUT", f"/open-apis/bitable/v1/apps/{self.base}/tables/{tid}/records/{record_id}", {"fields": body})
         r = d.get("record", {})
-        return {"record_id": r.get("record_id", record_id), "fields": self._flatten(r.get("fields", {}))}
+        return {"record_id": r.get("record_id", record_id), "fields": self._flatten(r.get("fields", {}), table)}
 
     def create_many(self, table, records):
         tid = self._table_id(table)
@@ -399,7 +399,7 @@ class LarkStore:
             chunk = [{"fields": self._clean(f)} for f in records[i:i + 450]]
             d = self._req("POST", f"/open-apis/bitable/v1/apps/{self.base}/tables/{tid}/records/batch_create", {"records": chunk})
             for r in d.get("records", []):
-                out.append({"record_id": r.get("record_id"), "fields": self._flatten(r.get("fields", {}))})
+                out.append({"record_id": r.get("record_id"), "fields": self._flatten(r.get("fields", {}), table)})
         return out
 
     def update_many(self, table, updates: dict):
@@ -420,12 +420,20 @@ class LarkStore:
         return {k: v for k, v in fields.items() if v not in ("", None)}
 
     @staticmethod
-    def _flatten(fields):
+    def _flatten(fields, table=None):
         # Văn bản có thể trả về dạng [{"type":"text","text":"..."}]
+        # Trường số có định dạng (formatter) Lark trả về chuỗi "44" → đổi lại thành số
+        nums = {n for n, t, _ in SCHEMA.get(table, []) if t == 2}
         out = {}
         for k, v in fields.items():
             if isinstance(v, list) and v and isinstance(v[0], dict) and "text" in v[0]:
                 out[k] = "".join(x.get("text", "") for x in v)
+            elif k in nums and isinstance(v, str):
+                try:
+                    f = float(v.replace(",", ""))
+                    out[k] = int(f) if f.is_integer() else f
+                except ValueError:
+                    out[k] = v
             else:
                 out[k] = v
         return out
