@@ -1167,12 +1167,16 @@ VIEWS.danhgia = async v => {
   await Promise.all(['danhgia','trang','cannib','changelog','lichreview'].map(k=>load(k).catch(()=>[])));
   // ② KPI
   const months = DATA.danhgia.map(r=>r.fields).filter(f=>f['Tháng']).sort((a,b)=>String(a['Tháng']).localeCompare(String(b['Tháng'])));
-  const cur = months[months.length-1], prev = months[months.length-2];
+  // tháng chưa hết (GSC trễ ~3 ngày) không đem so với cả tháng trước — thẻ KPI lấy tháng đủ gần nhất
+  const openM = new Date(Date.now()-4*864e5).toISOString().slice(0,7);
+  const full = months.filter(f=>String(f['Tháng'])<openM), part = months.find(f=>String(f['Tháng'])>=openM);
+  const cur = full[full.length-1] || months[months.length-1], prev = full.length ? full[full.length-2] : months[months.length-2];
   const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ thoát %','GA4',-1],['Tỷ lệ chuyển đổi %','GA4',1],
     ['Khách đăng ký sales@','Mail',1],['Tỷ lệ đăng ký %','Mail',1]];
   $('#kpi').innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
     return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
       <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span></div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
+  if(cur && part) $('#kpi').insertAdjacentHTML('beforeend', `<div class="meta" style="grid-column:1/-1">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</div>`);
   try{ const s = await api('GET','/api/review/summary');
     if(s.lastDay) $('#rvLast').textContent = `Số liệu GSC theo ngày đến ${s.lastDay}`;
     if(s.week){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
