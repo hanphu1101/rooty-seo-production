@@ -236,6 +236,21 @@ window.GUIDES = {
     done: ['Hồ sơ đã xác minh, NAP khớp B8', 'Không có bài quá hạn chưa đăng', 'Mọi bài blog trong lịch đã link sang trang tour', '100% đánh giá được trả lời trong 48 giờ', 'Lượt bấm website từ GBP tăng sau 12 tuần'],
     cmd: '/rooty-local-seo soạn 4 bài GBP tiếp theo trong bảng Lịch đăng GBP'
   },
+  hesinhthai: {
+    step: 'Bước 9 · Promotion', title: 'Hệ sinh thái Google — làm phần có khách thật, bỏ phần dễ bị coi là spam',
+    goal: 'Dùng các nền tảng của Google (YouTube, My Maps, GBP…) như những cửa phụ đưa khách vào rootytrip.com, và <b>nối các bài trên web với nhau bằng link nội bộ</b>. Chi tiết: <code>nghien-cuu/he-sinh-thai-google.md</code>.',
+    steps: [
+      '<b>Làm</b>: Google Business Profile (tab B8 · Google Maps) · YouTube 2 video/tháng từ video phó nháy · 1 bản đồ My Maps 35 ghim dẫn về bài cẩm nang. <b>Không ưu tiên</b>: Google Sites, Docs/Sheets (chỉ khi là tài liệu khách thật dùng), Blogger (chỉ bài mới, không chép bài web). <b>Bỏ</b>: Calendar/Groups, công cụ ép index.',
+      '<b>Không làm</b> (chính sách spam của Google): spin/viết lại một đoạn cho hàng loạt file (nội dung sản xuất hàng loạt) · tạo tài sản chỉ để đặt link về web (link spam) · công cụ ép index, bắn link (link tự động). Thường Google chỉ bỏ qua các link này — mất công không được gì.',
+      '<b>① Link nội bộ trước</b>: bảng mục 2 liệt kê bài điểm đến mà <code>/ban-do-du-lich-phu-quoc/</code> và <code>/dia-diem-du-lich-phu-quoc/</code> chưa link tới. Gắn link chữ ở đúng đoạn nhắc tới điểm đó. Link giữa các bài vệ tinh và về trang tour: tab B9 · Link building → Gợi ý link nội bộ.',
+      '<b>② My Maps</b>: mymaps.google.com (tài khoản công ty) → Tạo bản đồ → Nhập <code>nghien-cuu/my-maps-diem-den.csv</code>, định vị theo cột "Địa điểm", tiêu đề theo "Tên" → kiểm từng ghim (Google dò theo tên, có thể lệch) → kiểu ghim theo "Lớp" → thêm ảnh thật → Chia sẻ công khai → Nhúng vào 2 bài tổng hợp; link bản đồ đưa vào GBP và mô tả kênh YouTube.',
+      '<b>③ YouTube</b>: tên video là câu hỏi thật; mô tả 2–3 câu trả lời + link bài blog (UTM <code>utm_campaign=youtube</code>) + link trang tour; nhúng video ngược vào bài blog. Mỗi video thêm một dòng ở mục 4.',
+      '<b>Trước khi tạo thêm gì</b>: chốt một bộ NAP (tên, địa chỉ, hotline) — hiện schema trang chủ còn 2 tên "Rooty Trip" / "Rooty Trip Phú Quốc".',
+      '<b>Đo</b>: GA4 theo chiến dịch <code>my-maps</code>, <code>youtube</code>, <code>gbp-post</code>. Sau 3 tháng giữ kênh có khách thật, dừng kênh không có.'
+    ],
+    done: ['Hết link nội bộ "Chưa làm" ở mục 2', 'Bản đồ My Maps đã kiểm đủ 35 ghim và nhúng vào 2 bài tổng hợp', 'Mỗi tháng ≥ 2 video YouTube gắn bài blog', 'Không tài sản nào chỉ để đặt link, không dùng công cụ ép index'],
+    cmd: '/rooty-offsite soạn kịch bản 2 video YouTube tháng này, mỗi video gắn một bài blog'
+  },
   algo: {
     step: 'Bước 10 · Evaluate', title: 'Theo dõi thuật toán Google — lên top bền mà không vi phạm',
     goal: 'Biết ngay khi Google tung đợt cập nhật, đo xem Rooty bị ảnh hưởng không, và giữ mọi cách làm SEO nằm trong chính sách của Google để không bị hạ hạng hay phạt.',

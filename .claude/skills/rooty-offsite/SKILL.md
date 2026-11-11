@@ -7,6 +7,8 @@ description: Offsite & PR cho Rooty Trip — kiểm tra cửa quyết định c�
 
 Làm theo `quy-trinh/09-offsite-pr.md`.
 
+Hệ sinh thái Google (YouTube, My Maps, Sites, Docs, Blogger…): quyết định làm/bỏ từng nền tảng và danh sách ghim My Maps ở `nghien-cuu/he-sinh-thai-google.md` + `nghien-cuu/my-maps-diem-den.csv`; việc theo dõi ở bảng Lark «Hệ sinh thái Google» / tab **Hệ sinh thái Google** trên app. Không đề xuất spin nội dung, tài sản chỉ để đặt link hay công cụ ép index.
+
 ## Trước tiên: kiểm cửa ◇25
 Hỏi/kiểm: nội dung lõi xong chưa? trang đích đang vị trí mấy (Search Console)? Nếu nội dung chưa xong hoặc trang ngoài top 30 → **khuyên chưa làm link**, chỉ làm nền offsite (hồ sơ, citation, video). Nói rõ lý do.
 

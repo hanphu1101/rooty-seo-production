@@ -383,6 +383,7 @@ const NAV = [
   {id:'geo', label:'GEO · AI Search', key:'geo'},
   {grp:'4 · Promotion'},
   {id:'link', label:'B9 · Link building', key:'lienket'},
+  {id:'hesinhthai', label:'B9 · Hệ sinh thái Google', key:'hesinhthai'},
   {grp:'5 · Evaluate'},
   {id:'danhgia', label:'B10 · Đánh giá', key:'danhgia'},
   {id:'algo', label:'B10 · Thuật toán Google', key:'thuattoan'},
@@ -1406,6 +1407,30 @@ VIEWS.gmaps = async v => {
     formActions:[{label:'Mở bài blog', fn: async rec=>{ window.open(rec.fields['Bài blog'],'_blank','noopener'); }},
                  {label:'Mở trang tour', fn: async rec=>{ window.open(rec.fields['Trang tour'],'_blank','noopener'); }}],
     emptyHint:'“Nạp dữ liệu mẫu” lấy 24 bài từ nghien-cuu/lich-dang-gbp.csv'});
+};
+
+/* ---------- Hệ sinh thái Google: nền tảng làm/bỏ · ghim My Maps · link nội bộ ---------- */
+VIEWS.hesinhthai = async v => {
+  v.innerHTML = `<div class="strip" id="hsSum"></div>
+    <div class="sec"><h2><span>1</span> Nền tảng — làm, không ưu tiên, bỏ</h2><p class="meta">Không spin nội dung, không tạo tài sản chỉ để đặt link, không dùng công cụ ép index — vi phạm chính sách spam (xem B10 · Thuật toán Google).</p></div><div id="hsP"></div>
+    <div class="sec"><h2><span>2</span> Link nội bộ còn thiếu trên rootytrip.com</h2><p class="meta">Đây mới là thứ nối các bài với nhau. Gắn link chữ ở đoạn nhắc tới điểm đó, xong đổi “Xong”.</p></div><div id="hsL"></div>
+    <div class="sec"><h2><span>3</span> Bản đồ My Maps — 35 ghim dẫn về bài cẩm nang</h2><p class="meta">Nhập <code>nghien-cuu/my-maps-diem-den.csv</code> vào mymaps.google.com, kiểm vị trí từng ghim rồi đổi “Xong”. Dán link bản đồ vào dòng “Nền tảng: Google My Maps”.</p></div><div id="hsM"></div>
+    <div class="sec"><h2><span>4</span> Video YouTube & tài liệu Google</h2><p class="meta">Mỗi video/tài liệu gắn 1 bài blog: “Đến URL” = bài blog, “URL tài sản” = link video/tài liệu.</p></div><div id="hsV"></div>`;
+  const rows = await load('hesinhthai');
+  const cnt = (t, st) => rows.filter(r=>r.fields['Loại']===t && (!st || r.fields['Trạng thái']===st)).length;
+  $('#hsSum').innerHTML = rows.length ? `<div class="banner">Link nội bộ đã gắn <b>${cnt('Link nội bộ','Xong')}/${cnt('Link nội bộ')}</b> ·
+    ghim My Maps đã kiểm <b>${cnt('Ghim My Maps','Xong')}/${cnt('Ghim My Maps')}</b> · video YouTube <b>${cnt('Video YouTube')}</b> · tài liệu Google <b>${cnt('Tài liệu Google')}</b></div>` : '';
+  const qs = {'Làm':0,'Không ưu tiên':1,'Bỏ':2};
+  await grid($('#hsP'),'hesinhthai',{sid:'p', title:'Nền tảng', where:f=>f['Loại']==='Nền tảng', cols:['Nền tảng','Quyết định','Trạng thái','Lý do','URL tài sản'],
+    sort:(a,b)=>(qs[a['Quyết định']]??9)-(qs[b['Quyết định']]??9), defaults:{'Loại':'Nền tảng'}, emptyHint:'“Nạp dữ liệu mẫu” lấy từ nghien-cuu/he-sinh-thai-google-viec.csv'});
+  await grid($('#hsL'),'hesinhthai',{sid:'l', title:'Link nội bộ cần thêm', where:f=>f['Loại']==='Link nội bộ', cols:['Từ URL','Đến URL','Trạng thái','Người làm','Hạn'],
+    filters:['Trạng thái'], chips:[{id:'todo',label:'Chưa xong',fn:f=>f['Trạng thái']!=='Xong'}], defaults:{'Loại':'Link nội bộ','Nền tảng':'Website','Quyết định':'Làm','Trạng thái':'Chưa làm'},
+    formActions:[{label:'Mở bài cần sửa', fn: async rec=>{ window.open(rec.fields['Từ URL'],'_blank','noopener'); }}]});
+  await grid($('#hsM'),'hesinhthai',{sid:'m', title:'Ghim My Maps', where:f=>f['Loại']==='Ghim My Maps', cols:['Việc','Lớp','Tìm địa điểm','Đến URL','Trạng thái'],
+    filters:['Lớp','Trạng thái'], limit:50, defaults:{'Loại':'Ghim My Maps','Nền tảng':'Google My Maps','Quyết định':'Làm','Trạng thái':'Chưa làm'},
+    formActions:[{label:'Mở bài cẩm nang', fn: async rec=>{ window.open(rec.fields['Đến URL'],'_blank','noopener'); }}]});
+  await grid($('#hsV'),'hesinhthai',{sid:'v', title:'Video & tài liệu', where:f=>['Video YouTube','Tài liệu Google'].includes(f['Loại']), cols:['Việc','Loại','Đến URL','URL tài sản','Trạng thái','Người làm','Hạn'],
+    filters:['Loại','Trạng thái'], defaults:{'Loại':'Video YouTube','Nền tảng':'YouTube','Quyết định':'Làm','Trạng thái':'Chưa làm'}, emptyHint:'thêm video/tài liệu khi bắt đầu làm'});
 };
 
 /* ---------- Kiểm nhiều website / nhiều trang cùng lúc ---------- */

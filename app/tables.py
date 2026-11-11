@@ -281,6 +281,14 @@ TABLES = {
         F("Trạng thái", "select", ["Chưa soạn", "Đã soạn", "Đã duyệt", "Đã đăng", "Bỏ"]),
         F("Nội dung bài", "long"), F("Ảnh"), F("Người đăng"), F("Link bài đã đăng", "url"),
         F("Lượt xem", "num"), F("Lượt bấm", "num"), F("Ghi chú", "long")]},
+    "hesinhthai": {"name": "Hệ sinh thái Google", "fields": [
+        F("Việc"), F("Loại", "select", ["Nền tảng", "Ghim My Maps", "Link nội bộ", "Video YouTube", "Tài liệu Google"]),
+        F("Nền tảng", "select", ["Google Business Profile", "YouTube", "Google My Maps", "Google Sites", "Google Docs / Sheets / Slides / Drive",
+                                  "Blogger", "Google Calendar / Groups", "Công cụ ép index / bắn link", "Website"]),
+        F("Quyết định", "select", ["Làm", "Không ưu tiên", "Bỏ"]),
+        F("Trạng thái", "select", ["Chưa làm", "Đang làm", "Xong", "Bỏ"]),
+        F("Lớp"), F("Tìm địa điểm"), F("Từ URL", "url"), F("Đến URL", "url"), F("Link", "url"), F("URL tài sản", "url"),
+        F("Lý do", "long"), F("Người làm"), F("Hạn", "date"), F("Ghi chú", "long")]},
     # ---------------- 4 · PROMOTION
     "lienket": {"name": "Liên kết", "fields": [
         F("Anchor"), F("Loại", "select", ["Nội bộ", "Backlink", "Báo chí", "Hồ sơ/citation", "Guest post"]),
@@ -615,7 +623,20 @@ def _gbp_seed():
                 for r in csv.DictReader(fh) if r.get("chu_de")]
 
 
+
 SEEDS["gbp"] = _gbp_seed()
+
+
+def _hesinhthai_seed():
+    """Hệ sinh thái Google — nghien-cuu/he-sinh-thai-google-viec.csv (xem nghien-cuu/he-sinh-thai-google.md)."""
+    f = Path(os.path.dirname(os.path.abspath(__file__))).parent / "nghien-cuu" / "he-sinh-thai-google-viec.csv"
+    if not f.exists():
+        return []
+    with f.open(encoding="utf-8-sig") as fh:
+        return [{k: v for k, v in r.items() if v} for r in csv.DictReader(fh) if r.get("Việc")]
+
+
+SEEDS["hesinhthai"] = _hesinhthai_seed()
 
 
 # ------------------------------------------------------------------ nạp từ crawl

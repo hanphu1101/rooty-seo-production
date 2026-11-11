@@ -11,6 +11,7 @@
 2. **Citation**: danh bạ doanh nghiệp, danh bạ du lịch uy tín. NAP giống hệt.
 3. **Bài đăng nơi khác** nhắm từ khoá ít cạnh tranh: blog cộng đồng du lịch, Medium/Blogger của Rooty… — nội dung thật, có ích, không spin.
 4. **YouTube**: 1 video đúng chủ đề cho mỗi tour chủ lực (vlog tour thật do phó nháy quay). Video là kênh tương quan mạnh nhất với việc được AI nhắc tên.
+5. **Hệ sinh thái Google** (YouTube, My Maps, Sites, Docs…): làm phần nào, bỏ phần nào, bản đồ My Maps 35 ghim nối về bài blog — `nghien-cuu/he-sinh-thai-google.md`; theo dõi ở tab **Hệ sinh thái Google** (bảng Lark «Hệ sinh thái Google»). Không spin, không tạo tài sản chỉ để đặt link, không dùng công cụ ép index.
 
 ## ◇25 · Cửa quyết định offsite (T6)
 Trả lời trước khi chi tiền:
