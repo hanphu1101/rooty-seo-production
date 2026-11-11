@@ -140,9 +140,14 @@ def load_env() -> dict:
             if line and not line.startswith("#") and "=" in line:
                 k, v = line.split("=", 1)
                 env[k.strip()] = v.strip().strip('"').strip("'")
-    for k in ("LARK_APP_ID", "LARK_APP_SECRET", "LARK_BASE_TOKEN", "LARK_DOMAIN", "PROJECT_START", "SITE_URL", "PAGESPEED_API_KEY"):
+    for k in ("LARK_APP_ID", "LARK_APP_SECRET", "LARK_BASE_TOKEN", "LARK_DOMAIN", "PROJECT_START", "SITE_URL", "PAGESPEED_API_KEY",
+              "GOOGLE_SA_KEY", "GOOGLE_SA_JSON", "GSC_SITE", "GA4_PROPERTY"):
         if os.environ.get(k):
             env[k] = os.environ[k]
+    # Chạy trong Marketing Hub: LARK_BASE_TOKEN là biến chung của các app khác trong Hub,
+    # nên Base của app SEO khai bằng tên riêng SEO_LARK_BASE_TOKEN.
+    if os.environ.get("SEO_LARK_BASE_TOKEN"):
+        env["LARK_BASE_TOKEN"] = os.environ["SEO_LARK_BASE_TOKEN"]
     return env
 
 
@@ -2084,7 +2089,7 @@ import googleapi as GAPI  # noqa: E402
 
 def google_ready():
     """Đủ cấu hình .env để lấy số qua API chưa → (gsc?, ga4?)"""
-    key = ENV.get("GOOGLE_SA_KEY")
+    key = ENV.get("GOOGLE_SA_JSON") or ENV.get("GOOGLE_SA_KEY")
     return bool(key and ENV.get("GSC_SITE")), bool(key and ENV.get("GA4_PROPERTY"))
 
 
@@ -2137,11 +2142,11 @@ def sales_leads():
 def google_sync():
     gsc, ga4 = google_ready()
     if not (gsc or ga4):
-        raise StoreError("Chưa cấu hình — điền GOOGLE_SA_KEY và GSC_SITE / GA4_PROPERTY vào .env rồi chạy lại server (xem app/README.md)")
+        raise StoreError("Chưa cấu hình — điền GOOGLE_SA_KEY (hoặc GOOGLE_SA_JSON) và GSC_SITE / GA4_PROPERTY vào .env rồi chạy lại server (xem app/README.md)")
 
     def job(say):
-        key = ENV["GOOGLE_SA_KEY"]
-        if not os.path.isabs(key):
+        key = ENV.get("GOOGLE_SA_JSON") or ENV["GOOGLE_SA_KEY"]  # nội dung JSON (Render) hoặc đường dẫn file (máy)
+        if not key.lstrip().startswith("{") and not os.path.isabs(key):
             key = str(ROOT / key)
         say("Đăng nhập Google bằng service account…")
         token, email = GAPI.access_token(key)

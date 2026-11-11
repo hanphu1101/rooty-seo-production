@@ -73,6 +73,22 @@ Thay cho việc xuất CSV tay ở B10: bấm **Lấy số từ Google (GSC + GA
 
 Số liệu GSC trễ khoảng 2–3 ngày nên app lấy đến 3 ngày trước. Nên bấm 1 lần/tuần (cùng lúc review tuần).
 
+## Chạy trong Marketing Hub (Render)
+
+App là một module kiểu `local` của Marketing Hub (repo `vanhun1801-art/mkt-hub`): khi build, Render tải repo này về cạnh `lark-mkt-hub`, Hub tự chạy `python3 -X utf8 app/server.py` ở cổng riêng (chỉ nghe 127.0.0.1) và proxy vào `/m/seo/`, dùng chung đăng nhập Lark của Hub.
+
+Biến môi trường khai trên Render (service `mkt-hub` → Environment):
+
+| Biến | Giá trị |
+|---|---|
+| `SEO_LARK_BASE_TOKEN` | Mã Base của app SEO. **Không** dùng `LARK_BASE_TOKEN` — tên đó các app khác trong Hub đang dùng, khai vào là chúng trỏ nhầm Base |
+| `LARK_APP_ID`, `LARK_APP_SECRET` | Hub đã có sẵn, app SEO dùng chung. App Lark của Hub phải có quyền vào Base của app SEO |
+| `GOOGLE_SA_JSON` | Dán nguyên nội dung file khoá service account (ổ đĩa Render là tạm, không để file) |
+| `GSC_SITE`, `GA4_PROPERTY` | Như trên máy |
+| `PROJECT_START` | Tháng bắt đầu dự án, VD `2026-11` |
+
+Ổ đĩa Render bị xoá mỗi lần deploy: báo cáo crawl, số GSC theo ngày sinh ra sau khi deploy sẽ mất (dữ liệu trên Lark vẫn còn). Cập nhật code app SEO lên GitHub xong thì vào Render bấm **Manual Deploy** — Render chỉ tự deploy khi repo Hub đổi.
+
 ## Lỗi hay gặp
 
 | Thông báo | Cách sửa |

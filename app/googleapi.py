@@ -2,7 +2,7 @@
 Lấy số liệu Google Search Console + GA4 qua API bằng tài khoản dịch vụ (service account) — chỉ cần Python, không cài thêm thư viện.
 Kết quả trả về đúng dạng bảng như file CSV xuất tay (dòng tiêu đề + dữ liệu) để đi qua cùng đường nhập ở B10.
 
-.env:  GOOGLE_SA_KEY=đường dẫn file JSON khoá service account
+.env:  GOOGLE_SA_KEY=đường dẫn file JSON khoá service account  (trên Render: GOOGLE_SA_JSON = dán nguyên nội dung file)
        GSC_SITE=sc-domain:rootytrip.com   (hoặc https://rootytrip.com/ nếu là thuộc tính tiền tố URL)
        GA4_PROPERTY=123456789             (Mã thuộc tính GA4 — số, không phải G-XXXX)
 """
@@ -87,12 +87,14 @@ def _post(url, body, token=None, form=False):
         raise GoogleError(f"Google báo lỗi {e.code}: {msg}")
 
 
-def access_token(key_file: str) -> tuple[str, str]:
-    """→ (token, email service account)"""
+def access_token(key: str) -> tuple[str, str]:
+    """key: đường dẫn file JSON khoá, hoặc chính nội dung JSON (biến GOOGLE_SA_JSON trên Render) → (token, email service account)"""
     try:
-        sa = json.loads(open(key_file, encoding="utf-8").read())
+        sa = json.loads(key if key.lstrip().startswith("{") else open(key, encoding="utf-8").read())
     except OSError:
-        raise GoogleError(f"Không mở được file khoá {key_file} — kiểm GOOGLE_SA_KEY trong .env")
+        raise GoogleError(f"Không mở được file khoá {key} — kiểm GOOGLE_SA_KEY trong .env")
+    except ValueError:
+        raise GoogleError("Nội dung khoá Google không phải JSON hợp lệ — kiểm GOOGLE_SA_JSON")
     now = int(time.time())
     head = _b64(json.dumps({"alg": "RS256", "typ": "JWT"}).encode())
     claim = _b64(json.dumps({"iss": sa["client_email"], "scope": SCOPES, "aud": TOKEN_URL, "iat": now, "exp": now + 3600}).encode())
