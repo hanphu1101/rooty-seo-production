@@ -154,3 +154,28 @@ def ga4_pages(token, prop, days=28, today=None):
     for x in r.get("rows") or []:
         rows.append([x["dimensionValues"][0]["value"]] + [v["value"] for v in x["metricValues"]])
     return f"{start:%d/%m}–{end:%d/%m/%Y}", rows
+
+
+def ga4_months(token, prop, months=17, today=None):
+    """Theo tháng (yearMonth): kênh Organic Search + tổng phiên mọi kênh → {"2026-10": {cột Đánh giá tháng: giá trị}}."""
+    today = today or dt.date.today()
+    end = today - dt.timedelta(days=1)
+    start = (end.replace(day=1) - dt.timedelta(days=31 * (months - 1))).replace(day=1)
+    rng = [{"startDate": start.isoformat(), "endDate": end.isoformat()}]
+    org = _post(GA4_URL.format(prop=prop), {
+        "dateRanges": rng, "dimensions": [{"name": "yearMonth"}],
+        "metrics": [{"name": n} for n in ("sessions", "totalUsers", "engagementRate", "bounceRate", "userEngagementDuration", "keyEvents", "sessionKeyEventRate")],
+        "dimensionFilter": {"filter": {"fieldName": "sessionDefaultChannelGroup", "stringFilter": {"value": "Organic Search"}}}}, token)
+    tot = _post(GA4_URL.format(prop=prop), {"dateRanges": rng, "dimensions": [{"name": "yearMonth"}], "metrics": [{"name": "sessions"}]}, token)
+    out = {}
+    for x in org.get("rows") or []:
+        ym = x["dimensionValues"][0]["value"]
+        ses, users, eng, bounce, dur, kev, kevr = (float(v["value"]) for v in x["metricValues"])
+        out[f"{ym[:4]}-{ym[4:]}"] = {"Phiên organic": int(ses), "Người dùng organic": int(users),
+                                     "Tỷ lệ tương tác %": round(eng * 100, 1), "Tỷ lệ thoát %": round(bounce * 100, 1),
+                                     "Thời gian tương tác TB (giây)": round(dur / ses) if ses else None,
+                                     "Chuyển đổi organic": int(kev), "Tỷ lệ chuyển đổi %": round(kevr * 100, 2)}
+    for x in tot.get("rows") or []:
+        ym = x["dimensionValues"][0]["value"]
+        out.setdefault(f"{ym[:4]}-{ym[4:]}", {})["Phiên (mọi kênh)"] = int(float(x["metricValues"][0]["value"]))
+    return out

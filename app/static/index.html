@@ -1168,7 +1168,8 @@ VIEWS.danhgia = async v => {
   // ② KPI
   const months = DATA.danhgia.map(r=>r.fields).filter(f=>f['Tháng']).sort((a,b)=>String(a['Tháng']).localeCompare(String(b['Tháng'])));
   const cur = months[months.length-1], prev = months[months.length-2];
-  const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ chuyển đổi %','GA4',1]];
+  const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ thoát %','GA4',-1],['Tỷ lệ chuyển đổi %','GA4',1],
+    ['Khách đăng ký sales@','Mail',1],['Tỷ lệ đăng ký %','Mail',1]];
   $('#kpi').innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
     return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
       <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span></div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
@@ -1178,7 +1179,7 @@ VIEWS.danhgia = async v => {
       $('#wk').innerHTML = `<div class="banner" style="${bad?'':'background:var(--ok-soft)'}"><b style="color:var(${bad?'--bad':'--ok'})">${bad?'⚠ Traffic tuần giảm mạnh':'Tuần này'}</b> (${esc(w.from)} → ${esc(w.to)}): ${w.clicks.toLocaleString('vi-VN')} lượt nhấp (${w.clicksChange>0?'+':''}${w.clicksChange??'—'}% so tuần trước) · ${w.impr.toLocaleString('vi-VN')} hiển thị (${w.imprChange>0?'+':''}${w.imprChange??'—'}%).${bad?' Kiểm GSC → trang/từ khoá nào giảm, có lỗi index hay cập nhật thuật toán không.':''}</div>`; }
   }catch(e){}
   $('#ch').innerHTML = months.length>=2 ? chart(months) : '<div class="meta">Biểu đồ lượt nhấp & chuyển đổi hiện khi có từ 2 tháng số liệu.</div>';
-  await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Tỷ lệ tương tác %','Tỷ lệ chuyển đổi %','Chuyển đổi organic','Trang lỗi index','Nguồn số liệu'],
+  await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Tỷ lệ tương tác %','Thời gian tương tác TB (giây)','Tỷ lệ thoát %','Tỷ lệ chuyển đổi %','Phiên (mọi kênh)','Khách đăng ký sales@','Tỷ lệ đăng ký %','Nguồn số liệu'],
     sort:(a,b)=>String(b['Tháng']).localeCompare(String(a['Tháng'])), defaults:{'Tháng': new Date().toISOString().slice(0,7)}, limit:24});
   // ③ cannibalization
   await grid($('#gc'),'cannib',{title:'Xung đột từ khoá', cols:['Từ khoá','Số trang','Hiển thị','Lượt nhấp','Trang nên giữ','Các URL','Cách xử lý','Trạng thái'],

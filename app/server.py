@@ -2088,6 +2088,52 @@ def google_ready():
     return bool(key and ENV.get("GSC_SITE")), bool(key and ENV.get("GA4_PROPERTY"))
 
 
+def _month_upsert(by_month, src):
+    """Ghi {"2026-10": {cột: giá trị}} vào bảng Đánh giá tháng (theo cột Tháng), giữ cột khác nguyên."""
+    have = {r["fields"].get("Tháng"): r for r in STORE.list(_tname("danhgia"))}
+    new, ups = [], {}
+    for m, v in sorted(by_month.items()):
+        v = {k: x for k, x in v.items() if x is not None}
+        if m in have:
+            old = have[m]["fields"].get("Nguồn số liệu") or ""
+            ups[have[m]["record_id"]] = {**v, "Nguồn số liệu": old if src in old else (old + " · " if old else "") + src}
+        else:
+            new.append({"Tháng": m, **v, "Nguồn số liệu": src})
+    if new:
+        STORE.create_many(_tname("danhgia"), new)
+    if ups:
+        STORE.update_many(_tname("danhgia"), ups)
+    return f"{src} theo tháng: thêm {len(new)}, cập nhật {len(ups)} tháng"
+
+
+SALES_KINDS = ("Form đặt dịch vụ", "Form tư vấn", "Đơn đặt online", "Email khách trực tiếp")  # bỏ Email đại lý B2B, Đơn thanh toán lỗi
+
+
+def sales_leads():
+    """Đếm khách đăng ký qua sales@rootytrip.com theo tháng từ bảng «Mail khách sales@ — T…» của chị (chỉ đọc)."""
+    if STORE.mode != "lark":
+        return "Mail sales@: chỉ có khi nối Lark"
+    names = [n for n in STORE._list_tables() if n.startswith("Mail khách sales@") and "So sánh" not in n]
+    if not names:
+        return "Mail sales@: không thấy bảng «Mail khách sales@ — …» trong Base"
+    cnt = {}
+    for r in STORE.list(names[0]):
+        f = r["fields"]
+        kind, ts = f.get("Nguồn"), f.get("Ngày gửi")
+        kind = kind[0] if isinstance(kind, list) else kind
+        if kind not in SALES_KINDS or not ts:
+            continue
+        m = time.strftime("%Y-%m", time.localtime(int(ts) / 1000))
+        cnt.setdefault(m, {k: 0 for k in SALES_KINDS})[kind] += 1
+    phien = {r["fields"].get("Tháng"): r["fields"].get("Phiên (mọi kênh)") for r in STORE.list(_tname("danhgia"))}
+    by = {}
+    for m, c in cnt.items():
+        total = sum(c.values())
+        by[m] = {"Khách đăng ký sales@": total, "Đặt dịch vụ / tư vấn / đơn online / email khách": " / ".join(str(c[k]) for k in SALES_KINDS),
+                 "Tỷ lệ đăng ký %": round(total / phien[m] * 100, 2) if phien.get(m) else None}
+    return _month_upsert(by, f"Mail sales@ ({names[0]})")
+
+
 def google_sync():
     gsc, ga4 = google_ready()
     if not (gsc or ga4):
@@ -2116,6 +2162,10 @@ def google_sync():
             except GAPI.GoogleError as e:
                 raise GAPI.GoogleError(f"{e} — kiểm GA4_PROPERTY và đã thêm {email} vào GA4 (quyền Người xem) chưa")
             done.append(review_import({"rows": rows, "name": "GA4 API organic", "period": period})["message"])
+            say("Lấy GA4 theo tháng: phiên, tương tác, tỷ lệ thoát, thời gian, chuyển đổi…")
+            done.append(_month_upsert(GAPI.ga4_months(token, ENV["GA4_PROPERTY"]), "GA4 API"))
+        say("Đếm khách đăng ký qua sales@ theo tháng…")
+        done.append(sales_leads())
         return " · ".join(done)
     return run_job("google", job)
 
