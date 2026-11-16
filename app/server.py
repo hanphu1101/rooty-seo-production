@@ -1426,6 +1426,20 @@ def loi_recheck(body):
     return run_job("loicheck", job)
 
 
+def _span_days(period):
+    """«17/10–13/11/2026 · GSC API (16/11/2026)» → số ngày của kỳ (None nếu không đọc được)."""
+    m = re.search(r"(\d{1,2})/(\d{1,2})[–-](\d{1,2})/(\d{1,2})/(\d{4})", period or "")
+    if not m:
+        return None
+    import datetime as dt
+    d1, m1, d2, m2, y = map(int, m.groups())
+    try:
+        a, b = dt.date(y - (m1 > m2), m1, d1), dt.date(y, m2, d2)
+    except ValueError:
+        return None
+    return (b - a).days + 1
+
+
 def loi_measure():
     """Đo hiệu quả: trang đã sửa ≥ 28 ngày + có số liệu GSC kỳ mới hơn kỳ «trước» → ghi «sau» và Tốt lên / Không đổi / Giảm.
     Trang chưa sửa cũng được ghi «sau» để làm nhóm đối chứng."""
@@ -1444,6 +1458,9 @@ def loi_measure():
             fixed = f.get("Trạng thái") in FX.FIXED
             if fixed and (now - (f.get("Ngày sửa") or now)) / 864e5 < 28:
                 continue
+            a, b = _span_days(f.get("Kỳ số liệu trước")), _span_days(p.get("Kỳ số liệu"))
+            if a and b and abs(a - b) > 3:
+                continue  # kỳ khác độ dài (VD trước 28 ngày, giờ lấy 7 ngày) → so không công bằng, đợi kỳ cùng độ dài
             ch = _gsc_snap(p, "sau")
             if fixed:
                 b0, a0 = f.get("Nhấp trước") or 0, p.get("GSC lượt nhấp") or 0
@@ -2129,6 +2146,8 @@ def review_import(body):
         if ups:
             STORE.update_many(_tname("trang"), ups)
         msg = f"{'GSC' if kind == 'gsc_pages' else 'GA4'} theo trang: cập nhật {len(ups)} trang" + (f" · {miss} URL không có trong bảng Trang đích (chạy crawl để thêm)" if miss else "")
+        if kind == "gsc_pages" and ups:  # có số GSC theo trang mới → tự ghi mốc trước/sau cho Sửa lỗi + Nhật ký thay đổi
+            msg += " · Sửa lỗi — " + loi_measure()["message"] + " · Nhật ký — " + review_remeasure()["message"]
     elif kind == "gsc_queries":
         have = {(r["fields"].get("Từ khoá") or "").strip().lower(): r for r in STORE.list(_tname("tukhoa"))}
         ups, new = {}, []

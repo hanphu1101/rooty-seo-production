@@ -530,8 +530,12 @@ function closeDrawer(){ $('#drawer').classList.remove('on'); $('#scrim').classLi
 $('#dClose').onclick = closeDrawer; $('#scrim').onclick = closeDrawer;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#drawer').classList.contains('on')) closeDrawer(); });
 
+// cột app tự điền — trong form chỉ đọc, đỡ phải gõ tay
+const AUTO_FIELDS = {
+  sualoi: ['Kiểm lại','Lần kiểm lại','Nhấp trước','Hiển thị trước','Vị trí trước','Kỳ số liệu trước','Nhấp sau','Hiển thị sau','Vị trí sau','Kỳ số liệu sau','Hiệu quả'],
+  changelog: ['Lượt nhấp trước','Vị trí trước','Lượt nhấp sau','Vị trí sau','Kết quả']};
 function openForm(key, rec, defaults, onSave, extra){
-  const meta = CFG.tables[key], f = rec ? rec.fields : defaults;
+  const meta = CFG.tables[key], f = rec ? rec.fields : defaults, auto = AUTO_FIELDS[key]||[];
   $('#dTitle').textContent = rec ? (f[meta.fields[0].n] || meta.name) : `Thêm vào «${meta.name}»`;
   $('#dBody').innerHTML = `<div class="grid2">${meta.fields.map((fd,i)=>{
     const v = f[fd.n]; const id = 'ff'+i; const full = ['long','url'].includes(fd.k) || i===0 ? 'full' : '';
@@ -542,7 +546,8 @@ function openForm(key, rec, defaults, onSave, extra){
     else if(fd.k==='num'||fd.k==='dec') input = `<input class="field" type="number" step="${fd.k==='dec'?'0.1':'1'}" id="${id}" value="${v??''}">`;
     else { const dl = fd.k==='url' ? 'list="dlUrl"' : fd.n==='Cụm chủ đề' ? 'list="dlCum"' : '';
       input = `<input class="field" id="${id}" ${dl} value="${esc(v)}">${fd.k==='url'&&v?`<a href="${esc(v)}" target="_blank" rel="noopener" style="font-size:12px">Mở link ↗</a>`:''}`; }
-    return `<label class="${full}">${esc(fd.n)}${i===0?' *':''}${input}</label>`;
+    if(auto.includes(fd.n)) input = input.replace(/^<(input|select|textarea) /, '<$1 disabled title="App tự điền" ');
+    return `<label class="${full}">${esc(fd.n)}${i===0?' *':''}${auto.includes(fd.n)?' <span class="meta">· tự điền</span>':''}${input}</label>`;
   }).join('')}</div>`;
   $('#dFoot').innerHTML = `${rec?'<button class="btn danger" id="fDel">Xoá</button>':''}${rec&&extra?extra.map((a,i)=>`<button class="btn" data-x="${i}">${esc(a.label)}</button>`).join(''):''}<span class="sp"></span><button class="btn" id="fCancel">Huỷ</button><button class="btn primary" id="fSave">${rec?'Lưu':'Thêm'}</button>`;
   if(rec && extra) $('#dFoot').querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{ const t=b.textContent; b.disabled=true; b.textContent='Đang xử lý…';
@@ -986,7 +991,7 @@ const FIX_OPEN = ['Mới','Đã xác nhận','Đang sửa','Sửa chưa đạt',
 async function fixSection(v){
   const box = document.createElement('div');
   box.innerHTML = `<div class="sec"><h2><span>✓</span> Sửa lỗi từng trang — lưu trạng thái đến khi sửa xong, đo thứ hạng trước/sau</h2>
-    <p class="meta note">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b>. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, nhập GSC Trang mới ở B10 → bấm <b>“Đo hiệu quả”</b> để ghi “sau” và kết luận Tốt lên / Không đổi / Giảm. Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
+    <p class="meta note">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b>. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, mỗi lần lấy số GSC ở B10 (bấm “Lấy số từ Google” hoặc nhập CSV Trang) app <b>tự ghi “sau”</b> và kết luận Tốt lên / Không đổi / Giảm — các ô trước/sau/hiệu quả không cần điền tay; nút “Đo hiệu quả” chỉ để đo ngay. So “trước/sau” chỉ khi hai kỳ cùng độ dài (VD cùng 28 ngày). Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
     <div class="vhead"><button class="btn primary" id="fxImp">Nhập báo cáo lỗi (.xlsx)</button><input type="file" id="fxFile" accept=".xlsx" hidden>
       <button class="btn" id="fxMeasure">Đo hiệu quả (sau khi nhập GSC mới)</button><span class="meta">Máy tự kiểm lại được: <b>Link tự thân</b>, <b>Đổi năm giả</b>; loại khác người kiểm.</span></div>
     <div id="fxJob"></div><div class="gwrap" style="padding:12px 14px" id="fxSum"></div><div id="fxG"></div>`;
@@ -1002,11 +1007,11 @@ async function fixSection(v){
   const st = GRID_STATE['sualoi'] ||= {q:'', f:{}, chip:null, limit:100};
   const fmt = (x,unit,goodNeg)=> x==null||x.median==null ? '<span class="meta">—</span>' : `<b style="color:var(${(goodNeg? x.median<0 : x.median>0)?'--ok':x.median===0?'--muted':'--bad'})">${x.median>0?'+':''}${Number(x.median).toLocaleString('vi-VN')}${unit}</b> <span class="meta">(${x.n} trang)</span>`;
   const K = Object.entries(S.kinds).sort((a,b)=>b[1].open-a[1].open);
-  $('#fxSum').innerHTML = K.length ? `<table class="g"><thead><tr><th>Loại lỗi</th><th>Tổng</th><th>Còn mở</th><th>Đã sửa</th><th>Bỏ qua / không phải lỗi</th><th style="min-width:140px">Tiến độ</th><th>Δ lượt nhấp — đã sửa</th><th>Δ lượt nhấp — chưa sửa (đối chứng)</th><th>Δ vị trí — đã sửa</th><th>Δ vị trí — đối chứng</th><th>Kết quả đo</th></tr></thead><tbody>${K.map(([k,d])=>{ const done=d.fixed+d.skip, p=d.total?Math.round(done/d.total*100):0;
+  $('#fxSum').innerHTML = K.length ? `<div class="tscroll"><table class="g"><thead><tr><th>Loại lỗi</th><th>Tổng</th><th>Còn mở</th><th>Đã sửa</th><th>Bỏ qua</th><th style="min-width:110px">Tiến độ</th><th>Δ nhấp · đã sửa</th><th>Δ nhấp · đối chứng</th><th>Δ vị trí · đã sửa</th><th>Δ vị trí · đối chứng</th><th>Kết quả đo</th></tr></thead><tbody>${K.map(([k,d])=>{ const done=d.fixed+d.skip, p=d.total?Math.round(done/d.total*100):0;
       return `<tr data-k="${esc(k)}" style="cursor:pointer" class="${st.f['Loại lỗi']===k?'on':''}"><td><b>${esc(k)}</b></td><td class="num">${d.total}</td><td class="num">${d.open?`<b style="color:var(--bad)">${d.open}</b>`:0}</td><td class="num">${d.fixed}</td><td class="num">${d.skip}</td>
         <td><div class="bar" style="margin:0"><i style="width:${p}%"></i></div><span class="meta">${p}%</span></td>
         <td>${fmt(d.fixClicks,'')}</td><td>${fmt(d.ctlClicks,'')}</td><td>${fmt(d.fixPos,'',true)}</td><td>${fmt(d.ctlPos,'',true)}</td>
-        <td><span class="meta">${Object.entries(d.effect).map(([e,n])=>`${esc(e)} ${n}`).join(' · ')||'chưa đo'}</span></td></tr>`; }).join('')}</tbody></table>
+        <td><span class="meta">${Object.entries(d.effect).map(([e,n])=>`${esc(e)} ${n}`).join(' · ')||'chưa đo'}</span></td></tr>`; }).join('')}</tbody></table></div>
     <p class="meta note" style="margin:8px 0 0">Δ = trung vị thay đổi “sau − trước” (vị trí: số âm là lên hạng). Sửa có tác dụng khi nhóm <b>đã sửa</b> tốt hơn rõ rệt so với nhóm <b>đối chứng</b> cùng kỳ. Bấm một dòng để lọc bảng dưới.</p>`
     : '<span class="meta">Chưa có lỗi nào — bấm “Nhập báo cáo lỗi (.xlsx)”.</span>';
   $('#fxSum').querySelectorAll('tr[data-k]').forEach(tr=>tr.onclick=()=>{ st.f['Loại lỗi'] = st.f['Loại lỗi']===tr.dataset.k ? '' : tr.dataset.k; render(); });
