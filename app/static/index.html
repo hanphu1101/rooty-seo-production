@@ -133,9 +133,14 @@ div.inote{margin:6px 0}
 .rngmore input[type=date]{border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--surface)}
 .chipf{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:600}
 .chipf.on{background:var(--info-soft);color:var(--info);border-color:var(--info)}
-.tscroll{overflow-x:auto}
+.tscroll{overflow:auto;max-height:min(70vh,760px)}
+/* thanh trượt luôn hiện (trong Lark thanh trượt mặc định ẩn) — bảng cao giới hạn nên thanh ngang nằm ngay trong màn hình */
+.tscroll::-webkit-scrollbar{width:10px;height:12px}
+.tscroll::-webkit-scrollbar-track{background:var(--surface-2)}
+.tscroll::-webkit-scrollbar-thumb{background:#b9c0cc;border-radius:8px;border:2px solid var(--surface-2)}
+.tscroll::-webkit-scrollbar-thumb:hover{background:#8d95a3}
 table.g{width:100%;border-collapse:collapse;font-size:13.5px}
-table.g th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2);position:sticky;top:0}
+table.g th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2);position:sticky;top:0;z-index:1}
 table.g td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;max-width:340px}
 table.g tr{cursor:pointer}
 table.g tbody tr:hover td{background:var(--surface-2)}
