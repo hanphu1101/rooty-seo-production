@@ -235,6 +235,7 @@ dialog .df{border-top:1px solid var(--line)}
 .pfold>summary::before{content:"▸";color:var(--muted)}
 .pfold[open]>summary::before{content:"▾"}
 .pfold[open]>summary{border-bottom:1px solid var(--line)}
+.pfold>summary .bar{width:200px}
 .vrow{border-bottom:1px solid var(--line)}
 .vrow:last-child{border-bottom:0}
 .vmain{display:grid;grid-template-columns:44px minmax(0,1fr) 150px 70px 132px;gap:10px;align-items:center;padding:9px 14px;cursor:pointer}
@@ -1599,7 +1600,7 @@ async function linkPlanSection(){
       <div class="lprow">${P.category?node('Danh mục',P.category,'p'):''}${P.pillar?node('Bài trụ: '+P.pillar.title,P.pillar.url,'p'):node('Chưa có bài trụ','', 'p no','Viết 1 bài “Tour … có đáng đi? giá, lịch trình” làm trụ')}</div><div class="lparrow">▲ ▲ ▲</div>
       <div class="lprow">${(P.satellites||[]).map(s=>{ const x=inT(s); return node(s.title,s.url,x&&x.has?'ok':'no',(x&&x.has?'✓ đã link chữ lên đích':'✗ chưa có link chữ lên đích')+` · ${s.inlinks} link vào`); }).join('')}</div>
     </div>
-    <div class="meta">Viền xanh = bài vệ tinh đã có link chữ mô tả lên trang đích · viền đỏ = chưa có / chỉ có “Đặt ngay!”. Anchor đang dùng nhiều nhất: ${(P.top_anchors||[]).map(([a,n])=>`«${esc(a)}» ${n}`).join(' · ')}</div>
+    <p class="meta note">Viền xanh = bài vệ tinh đã có link chữ mô tả lên trang đích · viền đỏ = chưa có / chỉ có “Đặt ngay!”. Anchor đang dùng nhiều nhất: ${(P.top_anchors||[]).map(([a,n])=>`«${esc(a)}» ${n}`).join(' · ')}</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:8px">
       <div>${bar(P.mix_now||{},'Tỉ lệ anchor hiện tại (link trong nội dung)')}</div><div>${bar(P.mix_after||{},'Sau khi làm theo kế hoạch')}</div>
       <div>${bar(Object.fromEntries(kinds.map(k=>[k,Math.round((P.mix_target[k]||0)*100)])),'Mục tiêu an toàn')}<div class="meta">${kinds.map((k,i)=>`<span style="color:var(${['--brand','--info','--warn','--ok'][i]})">■</span> ${esc(k)} ${Math.round(P.mix_target[k]*100)}%`).join(' · ')}</div></div></div>
@@ -1782,8 +1783,9 @@ function renderViec(){
     .sort((a,b)=>(a.fields['Từ tháng']-b.fields['Từ tháng'])||String(a.fields['Mã']).localeCompare(b.fields['Mã']));
   $('#phases').innerHTML = CFG.pha.map(ph=>{ const all=VIEC.filter(r=>r.fields['Pha']===ph), rows=list.filter(r=>r.fields['Pha']===ph); if(!rows.length) return '';
     const d = all.filter(r=>vState(r.fields).done).length;
-    return `<section class="phase"><h3>${esc(ph)}<div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div><span class="meta">${d}/${all.length} xong</span></h3>${rows.map(vRow).join('')}</section>`;
+    return `<details class="phase pfold" data-ph="${esc(ph)}" ${store.get('pha-open-'+ph,false)?'open':''}><summary>${esc(ph)}<div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div><span class="meta">${d}/${all.length} xong</span></summary>${rows.map(vRow).join('')}</details>`;
   }).join('') || '<div class="empty">Không có việc nào khớp bộ lọc.</div>';
+  document.querySelectorAll('#phases details[data-ph]').forEach(d=>d.ontoggle=()=>store.set('pha-open-'+d.dataset.ph, d.open));
   document.querySelectorAll('.vmain').forEach(el=>el.onclick=e=>{ if(e.target.closest('select')) return; const id=el.parentElement.dataset.id; OPEN.has(id)?OPEN.delete(id):OPEN.add(id); el.parentElement.classList.toggle('open'); });
   document.querySelectorAll('.vs').forEach(el=>el.onchange=()=>saveViec(el.closest('.vrow').dataset.id, {'Trạng thái': el.value}));
   document.querySelectorAll('.vsave').forEach(el=>el.onclick=()=>{ const row=el.closest('.vrow');
