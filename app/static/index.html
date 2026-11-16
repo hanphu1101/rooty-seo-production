@@ -491,8 +491,8 @@ async function grid(el, key, opts){
     const chips = (opts.chips||[]).map(c=>`<button class="chipf ${st.chip===c.id?'on':''}" data-chip="${c.id}">${esc(c.label)}</button>`).join('');
     const acts = (opts.actions||[]).map((a,i)=>`<button class="btn sm ${a.cls||''}" data-act="${i}">${esc(a.label)}</button>`).join('');
     const seed = (!rows.length && meta.seed) ? `<button class="btn sm" data-seed>Nạp dữ liệu mẫu</button>` : '';
-    // Bảng dài (> 10 dòng) thu gọn thành một dòng tiêu đề, bấm mới mở; nhớ trạng thái theo bảng
-    const fold = base.length > 10 && !el.parentElement.closest('details');
+    // Bảng có dữ liệu thu gọn thành một dòng tiêu đề, bấm mới mở; nhớ trạng thái theo bảng
+    const fold = base.length > 0 && !el.parentElement.closest('details');
     const title = esc(opts.title||meta.name);
     el.innerHTML = (fold ? `<details class="gwrap tfold" ${st.open?'open':''}><summary>${title}<span class="cnt">${base.length} dòng</span></summary>` : `<div class="gwrap">`) + `
       <div class="gtool"><h3>${esc(opts.title||meta.name)}</h3><span class="cnt">${list.length}/${base.length} dòng</span>
