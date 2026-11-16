@@ -118,6 +118,10 @@ div.inote{margin:6px 0}
 .gtool{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
 .gtool h3{margin:0;font-size:15px;margin-right:4px}
 .gtool .cnt{font-size:12.5px;color:var(--muted);margin-right:auto}
+.tfold>summary{padding:10px 14px;cursor:pointer;font-weight:600}
+.tfold>summary .cnt{font-size:12.5px;color:var(--muted);font-weight:400;margin-left:6px}
+.tfold[open]>summary{border-bottom:1px solid var(--line)}
+.tfold .gtool h3{display:none}
 .gtool input[type=search],.gtool select{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:13.5px;max-width:200px}
 .gtool input[type=search]{width:190px}
 .chipf{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:600}
@@ -226,6 +230,11 @@ dialog .df{border-top:1px solid var(--line)}
 .phase{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
 .phase>h3{margin:0;padding:10px 14px;font-size:14.5px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line);background:var(--surface-2);flex-wrap:wrap}
 .phase>h3 .bar{width:200px}
+.pfold>summary{padding:10px 14px;font-size:14.5px;font-weight:700;display:flex;gap:12px;align-items:center;background:var(--surface-2);flex-wrap:wrap;cursor:pointer;list-style:none}
+.pfold>summary::-webkit-details-marker{display:none}
+.pfold>summary::before{content:"▸";color:var(--muted)}
+.pfold[open]>summary::before{content:"▾"}
+.pfold[open]>summary{border-bottom:1px solid var(--line)}
 .vrow{border-bottom:1px solid var(--line)}
 .vrow:last-child{border-bottom:0}
 .vmain{display:grid;grid-template-columns:44px minmax(0,1fr) 150px 70px 132px;gap:10px;align-items:center;padding:9px 14px;cursor:pointer}
@@ -460,7 +469,8 @@ function cell(f, v){
 /* opts: {title, cols, filters, chips:[{id,label,fn}], actions:[{label,cls,fn}], defaults, sort, limit} */
 async function grid(el, key, opts){
   const meta = CFG.tables[key], fields = meta.fields, F = Object.fromEntries(fields.map(f=>[f.n,f]));
-  const st = GRID_STATE[key+(opts.sid||'')] ||= {q:'', f:{}, chip:null, limit: opts.limit||100};
+  const foldKey = 'tbl-open-'+key+(opts.sid||'');
+  const st = GRID_STATE[key+(opts.sid||'')] ||= {q:'', f:{}, chip:null, limit: opts.limit||100, open: store.get(foldKey, false)};
   const rows = await load(key);
   const cols = (opts.cols||fields.slice(0,6).map(f=>f.n)).map(n=>F[n]).filter(Boolean);
   const draw = () => {
@@ -480,7 +490,10 @@ async function grid(el, key, opts){
     const chips = (opts.chips||[]).map(c=>`<button class="chipf ${st.chip===c.id?'on':''}" data-chip="${c.id}">${esc(c.label)}</button>`).join('');
     const acts = (opts.actions||[]).map((a,i)=>`<button class="btn sm ${a.cls||''}" data-act="${i}">${esc(a.label)}</button>`).join('');
     const seed = (!rows.length && meta.seed) ? `<button class="btn sm" data-seed>Nạp dữ liệu mẫu</button>` : '';
-    el.innerHTML = `<div class="gwrap">
+    // Bảng dài (> 10 dòng) thu gọn thành một dòng tiêu đề, bấm mới mở; nhớ trạng thái theo bảng
+    const fold = base.length > 10 && !el.parentElement.closest('details');
+    const title = esc(opts.title||meta.name);
+    el.innerHTML = (fold ? `<details class="gwrap tfold" ${st.open?'open':''}><summary>${title}<span class="cnt">${base.length} dòng</span></summary>` : `<div class="gwrap">`) + `
       <div class="gtool"><h3>${esc(opts.title||meta.name)}</h3><span class="cnt">${list.length}/${base.length} dòng</span>
         <input type="search" placeholder="Tìm…" value="${esc(st.q)}" aria-label="Tìm trong ${esc(meta.name)}">${filterSel}${chips}${seed}${acts}
         <button class="btn sm primary" data-add>+ Thêm</button></div>
@@ -488,7 +501,8 @@ async function grid(el, key, opts){
         <tbody>${list.slice(0,st.limit).map(r=>`<tr data-id="${r.record_id}">${cols.map(c=>`<td class="${['num','dec'].includes(c.k)?'num':''}">${cell(c, r.fields[c.n])}</td>`).join('')}</tr>`).join('')}</tbody></table>`
         : `<div class="empty">${rows.length?'Không có dòng nào khớp bộ lọc.':'Chưa có dữ liệu. Bấm “+ Thêm”'+(meta.seed?' hoặc “Nạp dữ liệu mẫu”':'')+(opts.emptyHint?' · '+opts.emptyHint:'')+'.'}</div>`}</div>
       ${list.length>st.limit?`<div class="more"><button class="btn sm" data-more>Hiện thêm (${list.length-st.limit} dòng nữa)</button></div>`:''}
-    </div>`;
+    ${fold ? '</details>' : '</div>'}`;
+    el.querySelector('.tfold')?.addEventListener('toggle', e=>{ st.open = e.target.open; store.set(foldKey, st.open); });
     const s = el.querySelector('input[type=search]');
     s.oninput = ()=>{ st.q=s.value; const pos=s.selectionStart; draw(); const n=el.querySelector('input[type=search]'); n.focus(); n.setSelectionRange(pos,pos); };
     el.querySelectorAll('select[data-f]').forEach(x=>x.onchange=()=>{ st.f[x.dataset.f]=x.value; draw(); });
@@ -847,15 +861,15 @@ function drawClusters(){
     const groups = Object.entries(cl[c]).map(([g,rs])=>{ const tv = rs.reduce((s,r)=>s+vol(r.fields),0), url = (rs.find(r=>r.fields['Trang đích'])||{fields:{}}).fields['Trang đích'];
       return {g, rs, tv, url}; }).sort((a,b)=>b.tv-a.tv || b.rs.length-a.rs.length);
     const pil = pillarOf(c), head = groups[0];
-    return `<section class="phase"><h3>${esc(c)} <span class="meta">${groups.length} nhóm · ${groups.reduce((s,x)=>s+x.rs.length,0)} từ khoá</span>
-      <span class="meta" style="margin-left:auto">${pil.length===1?`Pillar: <span class="u">${esc(pathOf(pil[0].fields['URL']))}</span>`:pil.length>1?`<span class="chip c-bad">${pil.length} Pillar — chỉ nên 1</span>`:c.startsWith('(')?'':`<span class="chip c-warn">Chưa có trang Pillar</span>${head?` — gợi ý: “${esc(head.g)}”`:''}`}</span></h3>
+    return `<details class="phase pfold"><summary>${esc(c)} <span class="meta">${groups.length} nhóm · ${groups.reduce((s,x)=>s+x.rs.length,0)} từ khoá</span>
+      <span class="meta" style="margin-left:auto">${pil.length===1?`Pillar: <span class="u">${esc(pathOf(pil[0].fields['URL']))}</span>`:pil.length>1?`<span class="chip c-bad">${pil.length} Pillar — chỉ nên 1</span>`:c.startsWith('(')?'':`<span class="chip c-warn">Chưa có trang Pillar</span>${head?` — gợi ý: “${esc(head.g)}”`:''}`}</span></summary>
       <div class="tscroll"><table class="g"><thead><tr><th>Nhóm URL (1 bài)</th><th>Từ khoá trong nhóm</th><th class="num">Tổng lượng tìm</th><th>Trang đích</th><th>Độ dài gợi ý</th></tr></thead><tbody>
       ${groups.map((x,i)=>`<tr data-g="${esc(x.g)}" data-c="${esc(c)}"><td><b>${esc(x.g)}</b>${i===0&&!c.startsWith('(')?' <span class="chip c-info">Pillar?</span>':''}</td>
         <td><span class="trunc">${x.rs.slice(0,8).map(r=>esc(r.fields['Từ khoá'])).join(' · ')}${x.rs.length>8?` … +${x.rs.length-8}`:''}</span></td>
         <td class="num">${x.tv?x.tv.toLocaleString('vi-VN'):'—'}</td>
         <td>${x.url?`<span class="u">${esc(pathOf(x.url))}</span>`:'<span class="chip c-bad">Cần viết</span>'}</td>
         <td class="meta">${i===0&&!c.startsWith('(')?'3.000–5.000 từ':'1.000–2.000 từ'}</td></tr>`).join('')}
-      </tbody></table></div></section>`;
+      </tbody></table></div></details>`;
   }).join('') : '<div class="banner">Chưa có từ khoá. Làm Bước 2 trước (mở rộng seed hoặc nhập CSV), rồi bấm “Gợi ý gom nhóm tự động”.</div>';
   document.querySelectorAll('#board tbody tr').forEach(tr=>tr.onclick=()=>{
     $('#q2')?.remove(); GRID_STATE['tukhoa'] = {q: tr.dataset.g.startsWith('(')?'':tr.dataset.g, f:{}, chip:null, limit:100};
