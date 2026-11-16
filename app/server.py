@@ -2205,6 +2205,8 @@ def google_sync():
             done.append(review_import({"rows": rows, "name": "GA4 API organic", "period": period})["message"])
             say("Lấy GA4 theo tháng: phiên, tương tác, tỷ lệ thoát, thời gian, chuyển đổi…")
             done.append(_month_upsert(GAPI.ga4_months(token, ENV["GA4_PROPERTY"]), "GA4 API"))
+            say("Lấy GA4: phiên từ trợ lý AI (ChatGPT, Gemini, Perplexity…) theo tháng…")
+            done.append(_month_upsert(GAPI.ga4_ai_months(token, ENV["GA4_PROPERTY"]), "GA4 AI"))
         say("Đếm khách đăng ký qua sales@ theo tháng…")
         done.append(sales_leads())
         return " · ".join(done)

@@ -308,7 +308,7 @@ TABLES = {
         F("Thời gian tương tác TB (giây)", "num"), F("Chuyển đổi organic", "num"), F("Tỷ lệ chuyển đổi %", "dec"),
         F("Tỷ lệ thoát %", "dec"), F("Phiên (mọi kênh)", "num"),
         F("Khách đăng ký sales@", "num"), F("Đặt dịch vụ / tư vấn / đơn online / email khách"), F("Tỷ lệ đăng ký %", "dec"),
-        F("Referral AI", "num"), F("Trang lỗi index", "num"),
+        F("Referral AI", "num"), F("Chuyển đổi từ AI", "num"), F("Phiên AI theo nguồn"), F("Trang lỗi index", "num"),
         F("Từ khoá top 3", "num"), F("Từ khoá top 10", "num"), F("Nguồn số liệu"), F("Nhận xét", "long"), F("Việc tháng sau", "long")]},
     "cannib": {"name": "Xung đột từ khoá", "fields": [
         F("Từ khoá"), F("Số trang", "num"), F("Các URL", "long"), F("Hiển thị", "num"), F("Lượt nhấp", "num"),

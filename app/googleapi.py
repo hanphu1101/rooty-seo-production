@@ -181,3 +181,51 @@ def ga4_months(token, prop, months=17, today=None):
         ym = x["dimensionValues"][0]["value"]
         out.setdefault(f"{ym[:4]}-{ym[4:]}", {})["Phiên (mọi kênh)"] = int(float(x["metricValues"][0]["value"]))
     return out
+
+
+# Nguồn phiên (sessionSource) của trợ lý AI → tên hiển thị. Không tính "bing": đó là Bing tìm kiếm.
+AI_SOURCES = [
+    (r"chatgpt(\.com)?|chat\.openai\.com|openai", "ChatGPT"),
+    (r"gemini(\.google\.com)?|bard\.google\.com", "Gemini"),
+    (r"perplexity(\.ai)?", "Perplexity"),
+    (r"copilot\.(com|microsoft\.com|cloud\.microsoft)", "Copilot"),
+    (r"claude\.ai", "Claude"),
+    (r"(chat\.)?deepseek\.com", "DeepSeek"),
+    (r"grok\.com", "Grok"),
+    (r"meta\.ai", "Meta AI"),
+    (r"chat\.mistral\.ai", "Mistral"),
+    (r"poe\.com", "Poe"),
+]
+AI_REGEX = "|".join(p for p, _ in AI_SOURCES)
+
+
+def ai_name(source):
+    for p, name in AI_SOURCES:
+        if re.fullmatch(p, source):
+            return name
+    return source
+
+
+def ga4_ai_months(token, prop, months=17, today=None):
+    """Phiên + sự kiện chính từ trợ lý AI (ChatGPT, Gemini, Perplexity…) theo tháng → {"2026-10": {cột: giá trị}}."""
+    today = today or dt.date.today()
+    end = today - dt.timedelta(days=1)
+    start = (end.replace(day=1) - dt.timedelta(days=31 * (months - 1))).replace(day=1)
+    r = _post(GA4_URL.format(prop=prop), {
+        "dateRanges": [{"startDate": start.isoformat(), "endDate": end.isoformat()}],
+        "dimensions": [{"name": "yearMonth"}, {"name": "sessionSource"}],
+        "metrics": [{"name": "sessions"}, {"name": "keyEvents"}],
+        "dimensionFilter": {"filter": {"fieldName": "sessionSource", "stringFilter": {"matchType": "FULL_REGEXP", "value": AI_REGEX}}},
+        "limit": 10000}, token)
+    by = {}
+    for x in r.get("rows") or []:
+        ym, src = (v["value"] for v in x["dimensionValues"])
+        ses, kev = (float(v["value"]) for v in x["metricValues"])
+        m = by.setdefault(f"{ym[:4]}-{ym[4:]}", {"ses": 0, "kev": 0, "eng": {}})
+        m["ses"] += ses
+        m["kev"] += kev
+        name = ai_name(src)
+        m["eng"][name] = m["eng"].get(name, 0) + ses
+    return {ym: {"Referral AI": int(m["ses"]), "Chuyển đổi từ AI": int(m["kev"]),
+                 "Phiên AI theo nguồn": " · ".join(f"{k} {int(v)}" for k, v in sorted(m["eng"].items(), key=lambda kv: -kv[1]))}
+            for ym, m in by.items()}
