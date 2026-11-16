@@ -393,6 +393,7 @@ function fillDatalists(){
 /* ================= điều hướng ================= */
 const NAV = [
   {id:'tongquan', label:'Tổng quan'},
+  {id:'chiso', label:'Chỉ số'},
   {id:'chandoan', label:'🩺 Chẩn đoán rớt top'},
   {grp:'1 · Discovery'},
   {id:'khach', label:'B1 · Khách hàng & hành trình', key:'khach'},
@@ -1185,6 +1186,34 @@ function importReviewCSV(){
   };
   inp.click();
 }
+/* Thẻ chỉ số tháng + dòng tuần — dùng ở B10 và tab Chỉ số */
+async function drawKPI(wk, kpi, head){
+  const months = DATA.danhgia.map(r=>r.fields).filter(f=>f['Tháng']).sort((a,b)=>String(a['Tháng']).localeCompare(String(b['Tháng'])));
+  // tháng chưa hết (GSC trễ ~3 ngày) không đem so với cả tháng trước — thẻ KPI lấy tháng đủ gần nhất
+  const openM = new Date(Date.now()-4*864e5).toISOString().slice(0,7);
+  const full = months.filter(f=>String(f['Tháng'])<openM), part = months.find(f=>String(f['Tháng'])>=openM);
+  const cur = full[full.length-1] || months[months.length-1], prev = full.length ? full[full.length-2] : months[months.length-2];
+  const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ thoát %','GA4',-1],['Tỷ lệ chuyển đổi %','GA4',1],
+    ['Khách đăng ký sales@','Mail',1],['Tỷ lệ đăng ký %','Mail',1],['Referral AI','AI',1],['Chuyển đổi từ AI','AI',1],['Hiển thị AI Google','AI',1]];
+  const KL = {'Referral AI':'Phiên từ AI','Hiển thị AI Google':'Hiển thị trên Google AI'};
+  kpi.innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
+    return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(KL[k]||k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
+      <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span>${k==='Referral AI'&&cur['Phiên AI theo nguồn']?`<span class="meta">${esc(cur['Phiên AI theo nguồn'])}</span>`:''}</div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
+  if(cur && part && !head.querySelector('.ibtn') && !head.nextElementSibling) head.insertAdjacentHTML('afterend', `<p class="meta note">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</p>`);
+  let s = {};
+  try{ s = await api('GET','/api/review/summary');
+    if(s.week){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
+      wk.innerHTML = `<div class="banner" style="${bad?'':'background:var(--ok-soft)'}"><b style="color:var(${bad?'--bad':'--ok'})">${bad?'⚠ Traffic tuần giảm mạnh':'Tuần này'}</b> (${esc(w.from)} → ${esc(w.to)}): ${w.clicks.toLocaleString('vi-VN')} lượt nhấp (${w.clicksChange>0?'+':''}${w.clicksChange??'—'}% so tuần trước) · ${w.impr.toLocaleString('vi-VN')} hiển thị (${w.imprChange>0?'+':''}${w.imprChange??'—'}%).${bad?' Kiểm GSC → trang/từ khoá nào giảm, có lỗi index hay cập nhật thuật toán không.':''}</div>`; }
+  }catch(e){}
+  return {months, s};
+}
+VIEWS.chiso = async v => {
+  v.innerHTML = `<div class="sec"><h2 id="kpiH2">Chỉ số SEO tháng gần nhất</h2></div><div id="wk2"></div><div class="cards4" id="kpi2"></div>
+    <div class="meta">Chi tiết, biểu đồ và bảng số liệu theo tháng ở <a href="#" id="toDg">B10 · Đánh giá</a>.</div>`;
+  $('#toDg').onclick = e=>{ e.preventDefault(); go('danhgia'); };
+  await load('danhgia').catch(()=>[]);
+  await drawKPI($('#wk2'), $('#kpi2'), $('#kpiH2'));
+};
 VIEWS.danhgia = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Nhập số liệu Google Search Console & GA4</h2>
@@ -1211,23 +1240,8 @@ VIEWS.danhgia = async v => {
   if(G.gsc||G.ga4) jobPanel($('#gApi'),'google','Lấy số từ Google (GSC + GA4)','/api/google/sync',{},['danhgia','trang','tukhoa','cannib']);
   await Promise.all(['danhgia','trang','cannib','changelog','lichreview'].map(k=>load(k).catch(()=>[])));
   // ② KPI
-  const months = DATA.danhgia.map(r=>r.fields).filter(f=>f['Tháng']).sort((a,b)=>String(a['Tháng']).localeCompare(String(b['Tháng'])));
-  // tháng chưa hết (GSC trễ ~3 ngày) không đem so với cả tháng trước — thẻ KPI lấy tháng đủ gần nhất
-  const openM = new Date(Date.now()-4*864e5).toISOString().slice(0,7);
-  const full = months.filter(f=>String(f['Tháng'])<openM), part = months.find(f=>String(f['Tháng'])>=openM);
-  const cur = full[full.length-1] || months[months.length-1], prev = full.length ? full[full.length-2] : months[months.length-2];
-  const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ thoát %','GA4',-1],['Tỷ lệ chuyển đổi %','GA4',1],
-    ['Khách đăng ký sales@','Mail',1],['Tỷ lệ đăng ký %','Mail',1],['Referral AI','AI',1],['Chuyển đổi từ AI','AI',1],['Hiển thị AI Google','AI',1]];
-  const KL = {'Referral AI':'Phiên từ AI','Hiển thị AI Google':'Hiển thị trên Google AI'};
-  $('#kpi').innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
-    return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(KL[k]||k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
-      <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span>${k==='Referral AI'&&cur['Phiên AI theo nguồn']?`<span class="meta">${esc(cur['Phiên AI theo nguồn'])}</span>`:''}</div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
-  if(cur && part && !$('#kpiH').querySelector('.ibtn') && !$('#kpiH').nextElementSibling) $('#kpiH').insertAdjacentHTML('afterend', `<p class="meta note">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</p>`);
-  try{ const s = await api('GET','/api/review/summary');
-    if(s.lastDay) $('#rvLast').textContent = `Số liệu GSC theo ngày đến ${s.lastDay}`;
-    if(s.week){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
-      $('#wk').innerHTML = `<div class="banner" style="${bad?'':'background:var(--ok-soft)'}"><b style="color:var(${bad?'--bad':'--ok'})">${bad?'⚠ Traffic tuần giảm mạnh':'Tuần này'}</b> (${esc(w.from)} → ${esc(w.to)}): ${w.clicks.toLocaleString('vi-VN')} lượt nhấp (${w.clicksChange>0?'+':''}${w.clicksChange??'—'}% so tuần trước) · ${w.impr.toLocaleString('vi-VN')} hiển thị (${w.imprChange>0?'+':''}${w.imprChange??'—'}%).${bad?' Kiểm GSC → trang/từ khoá nào giảm, có lỗi index hay cập nhật thuật toán không.':''}</div>`; }
-  }catch(e){}
+  const {months, s} = await drawKPI($('#wk'), $('#kpi'), $('#kpiH'));
+  if(s.lastDay) $('#rvLast').textContent = `Số liệu GSC theo ngày đến ${s.lastDay}`;
   $('#ch').innerHTML = months.length>=2 ? chart(months) : '<div class="meta">Biểu đồ lượt nhấp & chuyển đổi hiện khi có từ 2 tháng số liệu.</div>';
   await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Tỷ lệ tương tác %','Thời gian tương tác TB (giây)','Tỷ lệ thoát %','Tỷ lệ chuyển đổi %','Phiên (mọi kênh)','Khách đăng ký sales@','Tỷ lệ đăng ký %','Referral AI','Chuyển đổi từ AI','Phiên AI theo nguồn','Hiển thị AI Google','Nguồn số liệu'],
     sort:(a,b)=>String(b['Tháng']).localeCompare(String(a['Tháng'])), defaults:{'Tháng': new Date().toISOString().slice(0,7)}, limit:24});
@@ -1872,7 +1886,7 @@ $('#btnSetup').onclick = async ()=>{ $('#btnSetup').disabled=true; try{ const r=
     $('#btnSetup').hidden = CFG.mode!=='lark';
     $('#btnMigrate').hidden = CFG.mode!=='lark';
     $('#newForm').type.innerHTML = '<option value="">—</option>' + CFG.pageTypes.map(t=>`<option>${esc(t)}</option>`).join('');
-    VIEW = store.get('rooty-view2','tongquan'); if(!GUIDES[VIEW]) VIEW='tongquan';
+    VIEW = store.get('rooty-view2','tongquan'); if(!GUIDES[VIEW] && !VIEWS[VIEW]) VIEW='tongquan';
     renderNav(); render();
   }catch(e){ $('#main').innerHTML = `<div class="banner">${esc(e.message)}</div>`; }
 })();
