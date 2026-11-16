@@ -139,8 +139,11 @@ div.inote{margin:6px 0}
 .tscroll::-webkit-scrollbar-track{background:var(--surface-2)}
 .tscroll::-webkit-scrollbar-thumb{background:#b9c0cc;border-radius:8px;border:2px solid var(--surface-2)}
 .tscroll::-webkit-scrollbar-thumb:hover{background:#8d95a3}
-/* lớp giao diện iOS của Hub đặt «* { scrollbar-width: thin; scrollbar-color: … transparent }» → trong Lark thanh trượt bảng gần như vô hình; ghi đè riêng cho bảng */
-html body .tscroll{scrollbar-width:auto !important;scrollbar-color:#9aa3b2 #e9ecf1 !important}
+/* Hub (lớp iOS, ios.css 09/10/2026) ẩn MỌI thanh cuộn bằng luật «html[data-skin=ios]:not(#_):not(#__):not(#___) * { scrollbar-width:none !important }».
+   Riêng bảng của app SEO cần thanh ngang để xem cột bị khuất → hiện lại, độ ưu tiên cao hơn luật đó (4 :not(#…)). Chỉ áp cho .tscroll. */
+html:not(#_):not(#__):not(#___):not(#____) body .tscroll{scrollbar-width:auto !important;scrollbar-color:#9aa3b2 #e9ecf1 !important}
+html:not(#_):not(#__):not(#___):not(#____) body .tscroll::-webkit-scrollbar{display:block !important;width:10px !important;height:12px !important;background:#e9ecf1 !important}
+html:not(#_):not(#__):not(#___):not(#____) body .tscroll::-webkit-scrollbar-thumb{background:#9aa3b2 !important;border-radius:8px}
 table.g{width:100%;border-collapse:collapse;font-size:13.5px}
 table.g th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2);position:sticky;top:0;z-index:1}
 table.g td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;max-width:340px}
