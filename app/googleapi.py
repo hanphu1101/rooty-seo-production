@@ -106,11 +106,11 @@ def access_token(key: str) -> tuple[str, str]:
 
 # ------------------------------------------------------------------ Search Console
 
-def _gsc(token, site, start, end, dims):
+def _gsc(token, site, start, end, dims, state="final"):
     url = GSC_URL.format(site=urllib.parse.quote(site, safe=""))
     out, row = [], 0
     while True:
-        r = _post(url, {"startDate": start, "endDate": end, "dimensions": dims, "rowLimit": 25000, "startRow": row, "dataState": "final"}, token)
+        r = _post(url, {"startDate": start, "endDate": end, "dimensions": dims, "rowLimit": 25000, "startRow": row, "dataState": state}, token)
         rows = r.get("rows") or []
         out += rows
         if len(rows) < 25000:
@@ -118,18 +118,29 @@ def _gsc(token, site, start, end, dims):
         row += 25000
 
 
-def gsc_tables(token, site, days=28, today=None):
-    """4 bảng giống CSV xuất từ GSC: Ngày (16 tháng) · Trang · Truy vấn · Truy vấn × Trang (28 ngày)."""
+def _range(days, start, end, lag, today):
+    """Khoảng ngày: start/end (YYYY-MM-DD) nếu có, không thì `days` ngày kết thúc trước hôm nay `lag` ngày."""
     today = today or dt.date.today()
-    end = today - dt.timedelta(days=3)  # số liệu GSC trễ ~2–3 ngày
-    start = end - dt.timedelta(days=days - 1)
+    e = dt.date.fromisoformat(end) if end else today - dt.timedelta(days=lag)
+    s = dt.date.fromisoformat(start) if start else e - dt.timedelta(days=days - 1)
+    if s > e:
+        s, e = e, s
+    return s, e
+
+
+def gsc_tables(token, site, days=28, today=None, start=None, end=None):
+    """4 bảng giống CSV xuất từ GSC: Ngày (16 tháng) · Trang · Truy vấn · Truy vấn × Trang (khoảng đã chọn, mặc định 28 ngày)."""
+    start, end = _range(days, start, end, 3, today)  # số liệu GSC trễ ~2–3 ngày
+    today = today or dt.date.today()
     s, e = start.isoformat(), end.isoformat()
     m = lambda x: [x["clicks"], x["impressions"], f'{x["ctr"] * 100:.2f}%', f'{x["position"]:.1f}']
     cols = ["Clicks", "Impressions", "CTR", "Position"]
-    dates = _gsc(token, site, (end - dt.timedelta(days=480)).isoformat(), e, ["date"])
-    pages = _gsc(token, site, s, e, ["page"])
-    queries = _gsc(token, site, s, e, ["query"])
-    qp = _gsc(token, site, s, e, ["query", "page"])
+    last = today - dt.timedelta(days=3)
+    dates = _gsc(token, site, (last - dt.timedelta(days=480)).isoformat(), last.isoformat(), ["date"])
+    st = "all" if end > last else "final"  # chọn cả ngày gần đây (24 giờ, tuỳ chỉnh tới hôm qua): lấy cả số tạm
+    pages = _gsc(token, site, s, e, ["page"], st)
+    queries = _gsc(token, site, s, e, ["query"], st)
+    qp = _gsc(token, site, s, e, ["query", "page"], st)
     period = f"{start:%d/%m}–{end:%d/%m/%Y}"
     return period, {
         "gsc_dates": [["Date"] + cols] + [[x["keys"][0]] + m(x) for x in dates],
@@ -141,11 +152,9 @@ def gsc_tables(token, site, days=28, today=None):
 
 # ------------------------------------------------------------------ GA4
 
-def ga4_pages(token, prop, days=28, today=None):
+def ga4_pages(token, prop, days=28, today=None, start=None, end=None):
     """Trang đích, chỉ kênh Organic Search: phiên, tỷ lệ tương tác, sự kiện chính — giống CSV GA4 → Tương tác → Trang đích."""
-    today = today or dt.date.today()
-    end = today - dt.timedelta(days=1)
-    start = end - dt.timedelta(days=days - 1)
+    start, end = _range(days, start, end, 1, today)
     body = {"dateRanges": [{"startDate": start.isoformat(), "endDate": end.isoformat()}],
             "dimensions": [{"name": "landingPage"}],
             "metrics": [{"name": "sessions"}, {"name": "engagementRate"}, {"name": "keyEvents"}],

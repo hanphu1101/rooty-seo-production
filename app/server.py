@@ -2222,8 +2222,14 @@ def sales_leads():
     return _month_upsert(by, f"Mail sales@ ({names[0]})")
 
 
-def google_sync():
+def google_sync(body=None):
     gsc, ga4 = google_ready()
+    body = body or {}
+    days = max(1, min(int(body.get("days") or 28), 490))
+    rng = {"days": days, "start": body.get("start") or None, "end": body.get("end") or None}
+    for k in ("start", "end"):
+        if rng[k] and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", rng[k]):
+            raise StoreError("Ngày phải dạng NNNN-TT-NN")
     if not (gsc or ga4):
         raise StoreError("Chưa cấu hình — điền GOOGLE_SA_KEY (hoặc GOOGLE_SA_JSON) và GSC_SITE / GA4_PROPERTY vào .env rồi chạy lại server (xem app/README.md)")
 
@@ -2235,18 +2241,18 @@ def google_sync():
         token, email = GAPI.access_token(key)
         done = []
         if gsc:
-            say("Lấy Search Console: theo ngày (16 tháng), trang, truy vấn, truy vấn × trang (28 ngày)…")
+            say("Lấy Search Console: theo ngày (16 tháng), trang, truy vấn, truy vấn × trang (khoảng đã chọn)…")
             try:
-                period, tables = GAPI.gsc_tables(token, ENV["GSC_SITE"])
+                period, tables = GAPI.gsc_tables(token, ENV["GSC_SITE"], **rng)
             except GAPI.GoogleError as e:
                 raise GAPI.GoogleError(f"{e} — kiểm GSC_SITE và đã thêm {email} vào Search Console chưa")
             for kind, rows in tables.items():
                 say(f"Nạp {kind}: {len(rows) - 1} dòng")
                 done.append(review_import({"rows": rows, "name": "GSC API", "period": period})["message"])
         if ga4:
-            say("Lấy GA4: trang đích, kênh Organic Search (28 ngày)…")
+            say("Lấy GA4: trang đích, kênh Organic Search (khoảng đã chọn)…")
             try:
-                period, rows = GAPI.ga4_pages(token, ENV["GA4_PROPERTY"])
+                period, rows = GAPI.ga4_pages(token, ENV["GA4_PROPERTY"], **rng)
             except GAPI.GoogleError as e:
                 raise GAPI.GoogleError(f"{e} — kiểm GA4_PROPERTY và đã thêm {email} vào GA4 (quyền Người xem) chưa")
             done.append(review_import({"rows": rows, "name": "GA4 API organic", "period": period})["message"])
@@ -2858,7 +2864,8 @@ class Handler(BaseHTTPRequestHandler):
             body = self._body()
             return self._guard(lambda: review_import(body))
         if path == "/api/google/sync":
-            return self._guard(google_sync)
+            body = self._body()
+            return self._guard(lambda: google_sync(body))
         rv = {"/api/review/classify": review_classify, "/api/review/tasks": review_tasks, "/api/review/remeasure": review_remeasure}
         if path in rv:
             return self._guard(rv[path])

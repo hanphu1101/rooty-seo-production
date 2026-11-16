@@ -124,6 +124,13 @@ div.inote{margin:6px 0}
 .tfold .gtool h3{display:none}
 .gtool input[type=search],.gtool select{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:13.5px;max-width:200px}
 .gtool input[type=search]{width:190px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;border-left:1px solid var(--line);background:transparent;padding:6px 12px;font-size:13px}
+.seg button:first-child{border-left:0}
+.seg button.on{background:var(--brand-soft);color:var(--brand);font-weight:700}
+.rngmore{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:13px}
+.rngmore label{display:inline-flex;flex-direction:row;align-items:center;gap:5px;color:var(--ink);font-size:13px}
+.rngmore input[type=date]{border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--surface)}
 .chipf{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:600}
 .chipf.on{background:var(--info-soft);color:var(--info);border-color:var(--info)}
 .tscroll{overflow-x:auto}
@@ -1173,6 +1180,34 @@ VIEWS.link = async v => {
 
 /* ---------- B10 ---------- */
 const PERIOD_DAYS = {'Hàng tuần':7, 'Hàng tháng':31, 'Hàng quý':92};
+/* Chọn khoảng thời gian kiểu Search Console: 24 giờ · 7 ngày · 28 ngày · 3 tháng · Thêm (6/12/16 tháng, tuỳ chỉnh) */
+const RANGES = [['24h','24 giờ'],['7','7 ngày'],['28','28 ngày'],['90','3 tháng']], RANGES_MORE = [['180','6 tháng trước'],['365','12 tháng trước'],['486','16 tháng trước']];
+const isoDay = d => new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+function rangeBody(){ const r = store.get('g-range',{k:'28'});
+  if(r.k==='custom') return {start:r.start, end:r.end};
+  if(r.k==='24h'){ const y = isoDay(new Date(Date.now()-864e5)); return {start:y, end:y}; }
+  return {days:+r.k}; }
+function rangeLabel(){ const r = store.get('g-range',{k:'28'});
+  if(r.k==='custom') return `${r.start} → ${r.end}`;
+  return ([...RANGES,...RANGES_MORE].find(x=>x[0]===r.k)||['','28 ngày'])[1].replace(' trước',''); }
+function rangePicker(el){
+  const draw = (more)=>{ const r = store.get('g-range',{k:'28'}), inMore = r.k==='custom' || RANGES_MORE.some(x=>x[0]===r.k);
+    el.innerHTML = `<div class="seg">${RANGES.map(([k,l])=>`<button data-k="${k}" class="${r.k===k?'on':''}">${r.k===k?'✓ ':''}${l}</button>`).join('')}<button data-more class="${inMore?'on':''}">${inMore?'✓ '+esc(rangeLabel()):'Thêm'} ▾</button></div>
+      ${more?`<div class="rngmore">${RANGES_MORE.map(([k,l])=>`<label><input type="radio" name="rgm" value="${k}" ${r.k===k?'checked':''}> ${l}</label>`).join('')}
+        <label><input type="radio" name="rgm" value="custom" ${r.k==='custom'?'checked':''}> Tuỳ chỉnh</label>
+        <label>Ngày bắt đầu <input type="date" id="rgS" value="${esc(r.start||isoDay(new Date(Date.now()-31*864e5)))}"></label> –
+        <label>Ngày kết thúc <input type="date" id="rgE" value="${esc(r.end||isoDay(new Date(Date.now()-3*864e5)))}"></label>
+        <button class="btn sm ghost" data-cancel>Huỷ</button><button class="btn sm primary" data-apply>Áp dụng</button></div>`:''}`;
+    el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{ store.set('g-range',{k:b.dataset.k}); draw(false); });
+    el.querySelector('[data-more]').onclick=()=>draw(!more);
+    el.querySelectorAll('#rgS,#rgE').forEach(i=>i.onchange=()=>{ const c=el.querySelector('input[value=custom]'); if(c) c.checked=true; });
+    el.querySelector('[data-cancel]')?.addEventListener('click',()=>draw(false));
+    el.querySelector('[data-apply]')?.addEventListener('click',()=>{ const k=(el.querySelector('input[name=rgm]:checked')||{}).value; if(!k){ toast('Chọn một khoảng thời gian',true); return; }
+      if(k==='custom'){ const a=$('#rgS').value, b=$('#rgE').value; if(!a||!b){ toast('Điền ngày bắt đầu và kết thúc',true); return; } store.set('g-range',{k, start:a<=b?a:b, end:a<=b?b:a}); }
+      else store.set('g-range',{k}); draw(false); });
+  };
+  draw(false);
+}
 function importReviewCSV(){
   // nhận cả .zip xuất thẳng từ Search Console (Hiệu suất / AI tạo sinh) — máy chủ tự mở và nhập từng bảng
   const inp=$('#csvFile'); inp.value=''; inp.accept='.csv,.zip,text/csv,application/zip';
@@ -1213,7 +1248,8 @@ VIEWS.danhgia = async v => {
       <p class="meta note">Xuất CSV rồi bấm “Nhập CSV” — trang tự nhận loại file. <b>GSC</b> (Hiệu suất → Xuất → CSV): <i>Ngày</i> → số liệu tháng & cảnh báo tuần · <i>Trang</i> → số liệu từng URL · <i>Truy vấn</i> → thứ hạng từ khoá. Chọn thẳng file <b>.zip</b> GSC tải về cũng được. <b>AI tạo sinh</b> (Hiệu suất → Kết quả Tìm kiếm → AI tạo sinh → chọn 6 tháng → Xuất → Tải xuống CSV, chọn nguyên file .zip) → lượt hiển thị trên AI Overview/AI Mode theo tháng và từng trang; mỗi tháng nhập 1 lần, Google chưa có API cho báo cáo này. <b>Truy vấn × Trang</b> (Search Analytics for Sheets / Looker Studio) → xung đột từ khoá. <b>GA4</b> (Báo cáo → Tương tác → Trang đích, lọc kênh Organic Search → Chia sẻ → Tải CSV) → phiên, tỷ lệ tương tác, chuyển đổi từng trang.</p></div>
     <div class="vhead"><label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)">Kỳ số liệu <input class="field" id="rvPeriod" placeholder="VD: 3 tháng 08–10/2026" style="width:220px"></label>
       <button class="btn primary" id="rvImp">Nhập CSV (GSC / GA4)</button><span class="meta" id="rvLast"></span></div>
-    <div class="gwrap" style="padding:12px 14px"><b>Hoặc lấy thẳng từ Google</b> <span class="meta" id="gApiSt"></span><div id="gApi"></div></div>
+    <div class="gwrap" style="padding:12px 14px"><b>Hoặc lấy thẳng từ Google</b> <span class="meta" id="gApiSt"></span>
+      <div style="margin:10px 0"><div id="gRange"></div></div><div id="gApi"></div></div>
     <div class="sec"><h2 id="kpiH"><span>2</span> Theo dõi chỉ số</h2></div>
     <div id="wk"></div><div class="cards4" id="kpi"></div>
     <div class="gwrap" style="padding:12px 14px" id="ch"></div><div id="g"></div>
@@ -1228,9 +1264,9 @@ VIEWS.danhgia = async v => {
     <div id="lich"></div>`;
   $('#rvImp').onclick = importReviewCSV;
   const G = CFG.google || {};
-  $('#gApiSt').textContent = G.gsc||G.ga4 ? `— ${[G.gsc&&'Search Console', G.ga4&&'GA4'].filter(Boolean).join(' + ')} đã cấu hình. Lấy 28 ngày gần nhất (GSC theo ngày: 16 tháng), giống hệt nhập CSV.`
+  $('#gApiSt').textContent = G.gsc||G.ga4 ? `— ${[G.gsc&&'Search Console', G.ga4&&'GA4'].filter(Boolean).join(' + ')} đã cấu hình. Chọn khoảng thời gian cho số liệu theo trang, truy vấn và GA4 trang đích; số theo ngày/tháng luôn lấy đủ 16 tháng.`
     : '— chưa cấu hình: điền GOOGLE_SA_KEY, GSC_SITE, GA4_PROPERTY vào .env (hướng dẫn trong app/README.md) rồi chạy lại server.';
-  if(G.gsc||G.ga4) jobPanel($('#gApi'),'google','Lấy số từ Google (GSC + GA4)','/api/google/sync',{},['danhgia','trang','tukhoa','cannib']);
+  if(G.gsc||G.ga4){ rangePicker($('#gRange')); jobPanel($('#gApi'),'google','Lấy số từ Google (GSC + GA4)','/api/google/sync',rangeBody,['danhgia','trang','tukhoa','cannib']); }
   await Promise.all(['danhgia','trang','cannib','changelog','lichreview'].map(k=>load(k).catch(()=>[])));
   // ② KPI
   const {months, s} = await drawKPI($('#wk'), $('#kpi'), $('#kpiH'));
@@ -1545,11 +1581,13 @@ VIEWS.chandoan = async v => {
   v.innerHTML = `<div class="gwrap" style="padding:12px 14px">
       <div class="row"><input class="field" id="cdSite" placeholder="Để trống = ${esc(CFG.site||'')} · hoặc nhập website WordPress khác" style="max-width:420px"><div id="cdJob" style="flex:1"></div></div>
       <p class="meta note" style="margin:8px 0 0">Một nút chạy cả 4 bước: <b>①</b> đọc GSC theo ngày tìm ngày bắt đầu rớt · <b>②</b> đối chiếu với các đợt core/spam update chính thức · <b>③</b> quét toàn bộ bài blog mọi ngôn ngữ tìm 8 loại lỗi (đổi năm giả, thiếu trải nghiệm, lạc chủ đề, trùng từ khoá, chèn thương mại, đa ngôn ngữ/mỏng, link tự thân, tác giả) + GEO + chính sách spam · <b>④</b> xếp thứ tự việc sửa theo kiểu rớt. Lỗi của rootytrip.com tự nạp vào <a href="#" data-go="audit">B5 · Sửa lỗi từng trang</a> kèm «Cần sửa gì». Mất 2–3 phút.</p></div>
-    <div class="gwrap" style="padding:14px 18px" id="cdRep"></div>`;
+    <div id="cdRep"></div>`;
   jobPanel($('#cdJob'),'chandoan','Chẩn đoán rớt top','/api/chandoan/run',()=>({site:$('#cdSite').value}),['sualoi','chinhsach']);
   const L = await api('GET','/api/chandoan/last');
-  $('#cdRep').innerHTML = L.md ? `<div class="meta">Báo cáo lần gần nhất · ${new Date(L.at).toLocaleString('vi-VN')} · file <code>${esc(L.file||'')}</code></div>${mdHtml(L.md)}`
-    : '<span class="meta">Chưa chạy lần nào — bấm “Chẩn đoán rớt top”.</span>';
+  $('#cdRep').innerHTML = L.md ? `<details class="gwrap tfold" ${store.get('fold-cdrep',false)?'open':''}><summary>Báo cáo chẩn đoán lần gần nhất<span class="cnt">${new Date(L.at).toLocaleString('vi-VN')}</span></summary>
+      <div style="padding:14px 18px"><div class="meta">File <code>${esc(L.file||'')}</code></div>${mdHtml(L.md)}</div></details>`
+    : '<div class="gwrap" style="padding:14px 18px"><span class="meta">Chưa chạy lần nào — bấm “Chẩn đoán rớt top”.</span></div>';
+  $('#cdRep details')?.addEventListener('toggle', e=>store.set('fold-cdrep', e.target.open));
 };
 
 /* ---------- Giá & dữ kiện ---------- */
