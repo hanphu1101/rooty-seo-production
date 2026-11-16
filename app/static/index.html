@@ -319,7 +319,7 @@ svg.chart text{fill:var(--muted);font-size:11px}
   <span class="sp"></span>
   <button class="btn ghost" id="btnSetup" hidden>Khởi tạo bảng Lark</button>
   <button class="btn ghost" id="btnMigrate" hidden title="Chép toàn bộ dữ liệu đang lưu trên máy (app/demo-data.json) lên Lark — chỉ ghi vào bảng Lark còn trống">Chuyển dữ liệu máy → Lark</button>
-  <button class="btn ghost" id="btnReload">↻ Tải lại</button>
+  <button class="btn ghost" id="btnReload" title="Tải lại" aria-label="Tải lại">↻</button>
 </div></header>
 
 <div class="layout">
@@ -417,7 +417,7 @@ const NAV = [
   {id:'danhgia', label:'B10 · Đánh giá', key:'danhgia'},
   {id:'algo', label:'B10 · Thuật toán Google', key:'thuattoan'},
   {grp:'Quản lý'},
-  {id:'kehoach', label:'Kế hoạch 10 tháng'},
+  {id:'kehoach', label:'Kế hoạch'},
 ];
 function renderNav(){
   const off = $('.layout').classList.contains('navoff');
