@@ -2022,7 +2022,32 @@ import review as RV  # noqa: E402
 DAILY_FILE = ROOT / "reports" / "du-lieu" / "gsc-daily.json"
 
 
+def review_import_zip(body):
+    """File .zip xuất từ GSC (Hiệu suất hoặc AI tạo sinh): nhập từng CSV nhận ra được, bỏ qua Quốc gia/Thiết bị/Bộ lọc."""
+    import base64, csv, io, zipfile
+    try:
+        zf = zipfile.ZipFile(io.BytesIO(base64.b64decode(body.get("zip") or "")))
+    except (ValueError, zipfile.BadZipFile):
+        raise StoreError("File .zip không đọc được — tải lại từ Search Console (Xuất → Tải xuống CSV).")
+    msgs, kinds = [], []
+    for n in zf.namelist():
+        if not n.lower().endswith(".csv"):
+            continue
+        rows = list(csv.reader(io.StringIO(zf.read(n).decode("utf-8-sig", "replace"))))
+        try:
+            r = review_import({"rows": rows, "name": body.get("name") or n, "period": body.get("period") or ""})
+        except StoreError:
+            continue  # file phụ không dùng
+        msgs.append(r["message"])
+        kinds.append(r["kind"])
+    if not msgs:
+        raise StoreError("Trong file .zip không có bảng nào nhận ra được (cần Ngày / Trang / Truy vấn).")
+    return {"ok": True, "kind": ",".join(kinds), "message": " · ".join(msgs)}
+
+
 def review_import(body):
+    if (body or {}).get("zip"):
+        return review_import_zip(body)
     rows = [r for r in (body or {}).get("rows") or [] if r and not str(r[0]).lstrip().startswith("#")]
     name = (body or {}).get("name") or "file"
     period = (body or {}).get("period") or ""
@@ -2055,6 +2080,28 @@ def review_import(body):
         if ups:
             STORE.update_many(_tname("danhgia"), ups)
         msg = f"GSC theo ngày: {len(daily)} ngày → {len(months)} tháng (thêm {len(new)}, cập nhật {len(ups)})"
+    elif kind == "gsc_ai_dates":
+        STORE.setup()  # bảo đảm có trường "Hiển thị AI Google" (chỉ thêm trường còn thiếu)
+        by = {}
+        for r in data:
+            d = RV.parse_date(r[c["date"]]) if c["date"] < len(r) else None
+            if d:
+                by[d[:7]] = by.get(d[:7], 0) + (RV.num(r[c["impr"]]) or 0)
+        _month_upsert({m: {"Hiển thị AI Google": int(v)} for m, v in by.items()}, "GSC AI tạo sinh")
+        msg = f"GSC AI tạo sinh theo ngày: {len(data)} ngày → {len(by)} tháng ({min(by) if by else '—'} → {max(by) if by else '—'})"
+    elif kind == "gsc_ai_pages":
+        STORE.setup()
+        idx = {RV.norm_url(r["fields"].get("URL"), site): r for r in STORE.list(_tname("trang"))}
+        ups, miss = {}, 0
+        for r in data:
+            rec = idx.get(RV.norm_url(r[c["page"]], site)) if c["page"] < len(r) else None
+            if not rec:
+                miss += 1
+                continue
+            ups[rec["record_id"]] = {"AI Google hiển thị": int(RV.num(r[c["impr"]]) or 0)}
+        if ups:
+            STORE.update_many(_tname("trang"), ups)
+        msg = f"GSC AI tạo sinh theo trang: cập nhật {len(ups)} trang" + (f" · {miss} URL không có trong bảng Trang đích" if miss else "")
     elif kind in ("gsc_pages", "ga4_pages"):
         idx = {RV.norm_url(r["fields"].get("URL"), site): r for r in STORE.list(_tname("trang"))}
         ups, miss = {}, 0

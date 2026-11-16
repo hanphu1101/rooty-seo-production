@@ -38,6 +38,12 @@ def detect(header: list[str]) -> tuple[str, dict]:
     }
     if c["sessions"] >= 0 and c["page"] >= 0:
         return "ga4_pages", c
+    # báo cáo "AI tạo sinh" của GSC: chỉ có lượt hiển thị, không nhấp/CTR/vị trí
+    only_impr = c["impr"] >= 0 and c["clicks"] < 0 and c["ctr"] < 0 and c["pos"] < 0
+    if only_impr and c["date"] >= 0:
+        return "gsc_ai_dates", c
+    if only_impr and c["page"] >= 0 and c["query"] < 0:
+        return "gsc_ai_pages", c
     if c["date"] >= 0 and c["clicks"] >= 0:
         return "gsc_dates", c
     if c["query"] >= 0 and c["page"] >= 0 and (c["clicks"] >= 0 or c["impr"] >= 0):

@@ -183,7 +183,7 @@ TABLES = {
         F("Gợi ý Title"), F("Gợi ý Meta", "long"), F("Chi tiết onpage", "long"), F("Lần chấm onpage", "date"),
         # Bước 10 · số liệu & content audit
         F("GSC lượt nhấp", "num"), F("GSC hiển thị", "num"), F("GSC CTR %", "dec"), F("GSC vị trí", "dec"),
-        F("GA4 phiên", "num"), F("GA4 tương tác %", "dec"), F("GA4 chuyển đổi", "num"), F("Kỳ số liệu"),
+        F("GA4 phiên", "num"), F("GA4 tương tác %", "dec"), F("GA4 chuyển đổi", "num"), F("AI Google hiển thị", "num"), F("Kỳ số liệu"),
         F("Đề xuất audit", "select", ["Giữ", "Cập nhật / viết lại", "Gộp", "Xoá / 301", "Noindex", "Theo dõi"]), F("Lý do đề xuất", "long"),
         F("Quyết định", "select", ["Giữ", "Cập nhật / viết lại", "Gộp", "Xoá / 301", "Noindex", "Chưa quyết"]),
         F("Điểm onpage", "num"), F("Onpage", "select", ["Chưa làm", "Đang làm", "Xong"]),
@@ -308,7 +308,7 @@ TABLES = {
         F("Thời gian tương tác TB (giây)", "num"), F("Chuyển đổi organic", "num"), F("Tỷ lệ chuyển đổi %", "dec"),
         F("Tỷ lệ thoát %", "dec"), F("Phiên (mọi kênh)", "num"),
         F("Khách đăng ký sales@", "num"), F("Đặt dịch vụ / tư vấn / đơn online / email khách"), F("Tỷ lệ đăng ký %", "dec"),
-        F("Referral AI", "num"), F("Chuyển đổi từ AI", "num"), F("Phiên AI theo nguồn"), F("Trang lỗi index", "num"),
+        F("Referral AI", "num"), F("Chuyển đổi từ AI", "num"), F("Phiên AI theo nguồn"), F("Hiển thị AI Google", "num"), F("Trang lỗi index", "num"),
         F("Từ khoá top 3", "num"), F("Từ khoá top 10", "num"), F("Nguồn số liệu"), F("Nhận xét", "long"), F("Việc tháng sau", "long")]},
     "cannib": {"name": "Xung đột từ khoá", "fields": [
         F("Từ khoá"), F("Số trang", "num"), F("Các URL", "long"), F("Hiển thị", "num"), F("Lượt nhấp", "num"),

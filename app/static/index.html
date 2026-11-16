@@ -1173,16 +1173,22 @@ VIEWS.link = async v => {
 /* ---------- B10 ---------- */
 const PERIOD_DAYS = {'Hàng tuần':7, 'Hàng tháng':31, 'Hàng quý':92};
 function importReviewCSV(){
-  pickFile(async (rows, fname)=>{
-    try{ toast('Đang nhập…'); const r = await api('POST','/api/review/import',{rows, name: fname, period: ($('#rvPeriod')||{}).value||''});
+  // nhận cả .zip xuất thẳng từ Search Console (Hiệu suất / AI tạo sinh) — máy chủ tự mở và nhập từng bảng
+  const inp=$('#csvFile'); inp.value=''; inp.accept='.csv,.zip,text/csv,application/zip';
+  inp.onchange=async()=>{ const f=inp.files[0]; inp.accept='.csv,text/csv'; if(!f) return;
+    try{ toast('Đang nhập…'); const body = {name: f.name, period: ($('#rvPeriod')||{}).value||''};
+      if(/\.zip$/i.test(f.name)){ const b=new Uint8Array(await f.arrayBuffer()); let s=''; for(let i=0;i<b.length;i+=0x8000) s+=String.fromCharCode(...b.subarray(i,i+0x8000)); body.zip=btoa(s); }
+      else body.rows = parseCSV(await readFileText(f));
+      const r = await api('POST','/api/review/import', body);
       toast(r.message); ['danhgia','trang','tukhoa','cannib'].forEach(k=>delete DATA[k]); renderNav(); render(); }
     catch(e){ toast(e.message, true); }
-  });
+  };
+  inp.click();
 }
 VIEWS.danhgia = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Nhập số liệu Google Search Console & GA4</h2>
-      <p class="meta note">Xuất CSV rồi bấm “Nhập CSV” — trang tự nhận loại file. <b>GSC</b> (Hiệu suất → Xuất → CSV): <i>Ngày</i> → số liệu tháng & cảnh báo tuần · <i>Trang</i> → số liệu từng URL · <i>Truy vấn</i> → thứ hạng từ khoá. <b>Truy vấn × Trang</b> (Search Analytics for Sheets / Looker Studio) → xung đột từ khoá. <b>GA4</b> (Báo cáo → Tương tác → Trang đích, lọc kênh Organic Search → Chia sẻ → Tải CSV) → phiên, tỷ lệ tương tác, chuyển đổi từng trang.</p></div>
+      <p class="meta note">Xuất CSV rồi bấm “Nhập CSV” — trang tự nhận loại file. <b>GSC</b> (Hiệu suất → Xuất → CSV): <i>Ngày</i> → số liệu tháng & cảnh báo tuần · <i>Trang</i> → số liệu từng URL · <i>Truy vấn</i> → thứ hạng từ khoá. Chọn thẳng file <b>.zip</b> GSC tải về cũng được. <b>AI tạo sinh</b> (Hiệu suất → Kết quả Tìm kiếm → AI tạo sinh → chọn 6 tháng → Xuất → Tải xuống CSV, chọn nguyên file .zip) → lượt hiển thị trên AI Overview/AI Mode theo tháng và từng trang; mỗi tháng nhập 1 lần, Google chưa có API cho báo cáo này. <b>Truy vấn × Trang</b> (Search Analytics for Sheets / Looker Studio) → xung đột từ khoá. <b>GA4</b> (Báo cáo → Tương tác → Trang đích, lọc kênh Organic Search → Chia sẻ → Tải CSV) → phiên, tỷ lệ tương tác, chuyển đổi từng trang.</p></div>
     <div class="vhead"><label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)">Kỳ số liệu <input class="field" id="rvPeriod" placeholder="VD: 3 tháng 08–10/2026" style="width:220px"></label>
       <button class="btn primary" id="rvImp">Nhập CSV (GSC / GA4)</button><span class="meta" id="rvLast"></span></div>
     <div class="gwrap" style="padding:12px 14px"><b>Hoặc lấy thẳng từ Google</b> <span class="meta" id="gApiSt"></span><div id="gApi"></div></div>
@@ -1211,9 +1217,10 @@ VIEWS.danhgia = async v => {
   const full = months.filter(f=>String(f['Tháng'])<openM), part = months.find(f=>String(f['Tháng'])>=openM);
   const cur = full[full.length-1] || months[months.length-1], prev = full.length ? full[full.length-2] : months[months.length-2];
   const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ thoát %','GA4',-1],['Tỷ lệ chuyển đổi %','GA4',1],
-    ['Khách đăng ký sales@','Mail',1],['Tỷ lệ đăng ký %','Mail',1],['Referral AI','AI',1],['Chuyển đổi từ AI','AI',1]];
+    ['Khách đăng ký sales@','Mail',1],['Tỷ lệ đăng ký %','Mail',1],['Referral AI','AI',1],['Chuyển đổi từ AI','AI',1],['Hiển thị AI Google','AI',1]];
+  const KL = {'Referral AI':'Phiên từ AI','Hiển thị AI Google':'Hiển thị trên Google AI'};
   $('#kpi').innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
-    return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(k==='Referral AI'?'Phiên từ AI':k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
+    return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(KL[k]||k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
       <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span>${k==='Referral AI'&&cur['Phiên AI theo nguồn']?`<span class="meta">${esc(cur['Phiên AI theo nguồn'])}</span>`:''}</div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
   if(cur && part) $('#kpi').insertAdjacentHTML('beforeend', `<div class="meta" style="grid-column:1/-1">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</div>`);
   try{ const s = await api('GET','/api/review/summary');
@@ -1222,7 +1229,7 @@ VIEWS.danhgia = async v => {
       $('#wk').innerHTML = `<div class="banner" style="${bad?'':'background:var(--ok-soft)'}"><b style="color:var(${bad?'--bad':'--ok'})">${bad?'⚠ Traffic tuần giảm mạnh':'Tuần này'}</b> (${esc(w.from)} → ${esc(w.to)}): ${w.clicks.toLocaleString('vi-VN')} lượt nhấp (${w.clicksChange>0?'+':''}${w.clicksChange??'—'}% so tuần trước) · ${w.impr.toLocaleString('vi-VN')} hiển thị (${w.imprChange>0?'+':''}${w.imprChange??'—'}%).${bad?' Kiểm GSC → trang/từ khoá nào giảm, có lỗi index hay cập nhật thuật toán không.':''}</div>`; }
   }catch(e){}
   $('#ch').innerHTML = months.length>=2 ? chart(months) : '<div class="meta">Biểu đồ lượt nhấp & chuyển đổi hiện khi có từ 2 tháng số liệu.</div>';
-  await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Tỷ lệ tương tác %','Thời gian tương tác TB (giây)','Tỷ lệ thoát %','Tỷ lệ chuyển đổi %','Phiên (mọi kênh)','Khách đăng ký sales@','Tỷ lệ đăng ký %','Referral AI','Chuyển đổi từ AI','Phiên AI theo nguồn','Nguồn số liệu'],
+  await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Tỷ lệ tương tác %','Thời gian tương tác TB (giây)','Tỷ lệ thoát %','Tỷ lệ chuyển đổi %','Phiên (mọi kênh)','Khách đăng ký sales@','Tỷ lệ đăng ký %','Referral AI','Chuyển đổi từ AI','Phiên AI theo nguồn','Hiển thị AI Google','Nguồn số liệu'],
     sort:(a,b)=>String(b['Tháng']).localeCompare(String(a['Tháng'])), defaults:{'Tháng': new Date().toISOString().slice(0,7)}, limit:24});
   // ③ cannibalization
   await grid($('#gc'),'cannib',{title:'Xung đột từ khoá', cols:['Từ khoá','Số trang','Hiển thị','Lượt nhấp','Trang nên giữ','Các URL','Cách xử lý','Trạng thái'],
@@ -1233,7 +1240,7 @@ VIEWS.danhgia = async v => {
   $('#casum').innerHTML = D.map(d=>`<div class="pill"><b>${tr.filter(f=>f['Đề xuất audit']===d).length}</b>${esc(d)}</div>`).join('')
     + `<div class="pill"><b>${tr.filter(f=>f['GSC hiển thị']!=null).length}<span class="meta">/${tr.length}</span></b>trang có số liệu GSC</div>`;
   await grid($('#gca'),'trang',{sid:'ca', title:'Content audit', where:f=>f['Loại trang']!=='Ngôn ngữ khác',
-    cols:['URL','Loại trang','GSC lượt nhấp','GSC hiển thị','GSC CTR %','GSC vị trí','GA4 phiên','GA4 tương tác %','GA4 chuyển đổi','Đề xuất audit','Lý do đề xuất','Quyết định'],
+    cols:['URL','Loại trang','GSC lượt nhấp','GSC hiển thị','GSC CTR %','GSC vị trí','AI Google hiển thị','GA4 phiên','GA4 tương tác %','GA4 chuyển đổi','Đề xuất audit','Lý do đề xuất','Quyết định'],
     filters:['Đề xuất audit','Quyết định','Loại trang','Cụm chủ đề'],
     chips:[{id:'data',label:'Có số liệu GSC',fn:f=>f['GSC hiển thị']!=null},{id:'nodec',label:'Chưa quyết định',fn:f=>f['Đề xuất audit']&&!f['Quyết định']}],
     sort:(a,b)=>(b['GSC hiển thị']||0)-(a['GSC hiển thị']||0),
