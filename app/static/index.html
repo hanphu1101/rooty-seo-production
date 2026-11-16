@@ -80,8 +80,14 @@ details.guide summary::-webkit-details-marker{display:none}
 details.guide .stp{font-size:12px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.4px}
 details.guide h1{font-size:19px;margin:0;line-height:1.3}
 details.guide .tg{margin-left:auto;font-size:12.5px;color:var(--muted)}
-details.guide[open] .tg::after{content:"Thu gọn hướng dẫn ▲"}
-details.guide:not([open]) .tg::after{content:"Xem hướng dẫn ▼"}
+details.guide[open] .tg::after{content:"▲"}
+details.guide:not([open]) .tg::after{content:"▼"}
+.ibtn{display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid var(--muted);border-radius:50%;font:italic 700 11px/1 Georgia,serif;color:var(--muted);cursor:help;vertical-align:middle;margin-left:6px;flex:0 0 auto}
+.ibtn:hover,.ibtn:focus{color:var(--ink);border-color:var(--ink);outline:none}
+div.inote{margin:6px 0}
+#itip{position:fixed;z-index:200;max-width:420px;background:#1f2a44;color:#fff;font-size:13px;line-height:1.5;padding:10px 14px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);display:none}
+#itip a{color:#9cc3ff}
+#itip code{color:#fff}
 .gbody{padding:0 16px 14px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px}
 @media (max-width:900px){.gbody{grid-template-columns:1fr}}
 .gbody p.goal{margin:0 0 8px;color:var(--ink)}
@@ -706,14 +712,14 @@ async function seedBtn(key){ try{ const r=await api('POST',`/api/t/${key}/seed`)
 VIEWS.khach = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Thu thập dữ liệu thị trường</h2>
-      <p class="meta">Chân dung phải dựa trên dữ liệu thật, không phỏng đoán. Mỗi nguồn ghi cách thu, cỡ mẫu và phát hiện chính.
+      <p class="meta note">Chân dung phải dựa trên dữ liệu thật, không phỏng đoán. Mỗi nguồn ghi cách thu, cỡ mẫu và phát hiện chính.
       <a href="docs/mau-khao-sat-khach.md" target="_blank" rel="noopener">Mở mẫu khảo sát & kịch bản phỏng vấn ↗</a></p></div>
     <div id="gSrc"></div>
     <div class="sec"><h2><span>2</span> Chân dung khách hàng (Customer Persona)</h2>
-      <p class="meta">5 nhóm thông tin: nhân khẩu học · tâm lý & lối sống · nhu cầu & động cơ · điểm đau · hành vi tiêu dùng. Bấm vào thẻ để sửa.</p></div>
+      <p class="meta note">5 nhóm thông tin: nhân khẩu học · tâm lý & lối sống · nhu cầu & động cơ · điểm đau · hành vi tiêu dùng. Bấm vào thẻ để sửa.</p></div>
     <div id="personas"></div>
     <div class="sec"><h2><span>3</span> Hành trình mua hàng (Customer Journey)</h2>
-      <p class="meta">5 giai đoạn từ lúc chưa biết Rooty đến khi giới thiệu bạn bè. Mỗi ô là một ghi nhận — bấm để sửa.</p></div>
+      <p class="meta note">5 giai đoạn từ lúc chưa biết Rooty đến khi giới thiệu bạn bè. Mỗi ô là một ghi nhận — bấm để sửa.</p></div>
     <div id="jmap"></div>
     <details class="gwrap" style="padding:0"><summary style="padding:10px 14px;cursor:pointer;font-weight:600">Bảng chi tiết hành trình (lọc, thêm, sửa)</summary><div id="gJr" style="padding:0 0 1px"></div></details>`;
   await Promise.all([load('khach'), load('hanhtrinh'), load('nguondl')]);
@@ -779,12 +785,12 @@ const TOOLS = [
 VIEWS.tukhoa = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Brainstorm từ khoá gốc (seed)</h2>
-      <p class="meta">Từ góc độ người bán: tên sản phẩm · thương hiệu · tính năng/đặc điểm · nhu cầu cốt lõi · địa điểm. Bấm “Mở rộng” để lấy từ khoá dài từ gợi ý tìm kiếm của Google.</p></div>
+      <p class="meta note">Từ góc độ người bán: tên sản phẩm · thương hiệu · tính năng/đặc điểm · nhu cầu cốt lõi · địa điểm. Bấm “Mở rộng” để lấy từ khoá dài từ gợi ý tìm kiếm của Google.</p></div>
     <div id="jobExp"></div><div id="gSeed"></div>
     <div class="sec"><h2><span>2</span> Dùng công cụ chuyên dụng</h2></div>
     <div class="cards4">${TOOLS.map(([n,u,d])=>`<div class="kcard" style="cursor:default"><b>${esc(n)}</b><span class="meta">${esc(d)}</span><a href="${u}" target="_blank" rel="noopener" style="font-size:13px">Mở công cụ ↗</a></div>`).join('')}</div>
     <div class="sec"><h2><span>3</span> Danh sách từ khoá & phân loại theo ý định tìm kiếm</h2>
-      <p class="meta">Informational = <b>Thông tin</b> · Navigational = <b>Điều hướng</b> (tìm thương hiệu) · Commercial = <b>Cân nhắc</b> · Transactional = <b>Mua</b>. Ý định được đoán tự động — kiểm lại.</p></div>
+      <p class="meta note">Informational = <b>Thông tin</b> · Navigational = <b>Điều hướng</b> (tìm thương hiệu) · Commercial = <b>Cân nhắc</b> · Transactional = <b>Mua</b>. Ý định được đoán tự động — kiểm lại.</p></div>
     <div class="strip" id="intents"></div><div id="g"></div>`;
   await Promise.all([load('trang').catch(()=>{}), load('tukhoagoc'), load('tukhoa')]);
   jobPanel($('#jobExp'), 'expand', 'Mở rộng các từ khoá gốc chưa mở rộng (gợi ý Google)', '/api/kw/expand', {}, ['tukhoa','tukhoagoc']);
@@ -809,12 +815,12 @@ async function importCrawl(){
 VIEWS.cum = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Gom từ khoá thành nhóm URL & cụm chủ đề</h2>
-      <p class="meta">Từ khoá có kết quả Google gần giống nhau (cùng ý định) → chung <b>một nhóm URL</b> = một bài. Các nhóm cùng chủ đề → một <b>cụm</b>: 1 <b>Pillar</b> (từ khoá rộng, lượng tìm cao, 3.000–5.000 từ) + nhiều <b>Cluster</b> (từ khoá dài/câu hỏi, 1.000–2.000 từ) link về Pillar.</p></div>
+      <p class="meta note">Từ khoá có kết quả Google gần giống nhau (cùng ý định) → chung <b>một nhóm URL</b> = một bài. Các nhóm cùng chủ đề → một <b>cụm</b>: 1 <b>Pillar</b> (từ khoá rộng, lượng tìm cao, 3.000–5.000 từ) + nhiều <b>Cluster</b> (từ khoá dài/câu hỏi, 1.000–2.000 từ) link về Pillar.</p></div>
     <div class="vhead"><div style="flex:1 1 300px" id="cstat"></div>
       <button class="btn" id="bGroup">Gợi ý gom nhóm tự động</button><button class="btn" id="bPosts">Tạo bài cho nhóm chưa có trang</button><button class="btn" id="bExp">Xuất CSV</button></div>
     <div id="board"></div>
     <div class="sec"><h2><span>2</span> Trang đích & vai trò Pillar / Cluster</h2>
-      <p class="meta">Mỗi cụm đúng 1 trang Pillar. Trang danh mục thường làm Pillar; trang tour gắn “Trang sản phẩm”.</p></div>
+      <p class="meta note">Mỗi cụm đúng 1 trang Pillar. Trang danh mục thường làm Pillar; trang tour gắn “Trang sản phẩm”.</p></div>
     <div id="g"></div>`;
   await Promise.all([load('trang'), load('tukhoa')]);
   $('#bGroup').onclick = ()=>act('/api/kw/group', ['tukhoa']);
@@ -860,10 +866,10 @@ function drawClusters(){
 VIEWS.doithu = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Đánh giá điểm mạnh & điểm yếu đối thủ</h2>
-      <p class="meta">Điểm mạnh: nội dung · backlink & uy tín · UX/UI & tốc độ · thương hiệu, giá, chính sách. Điểm yếu: khoảng trống nội dung · bài cũ, heading/title chưa tối ưu · chuyển đổi & chăm sóc khách. Bấm “Soi website” để đo nhanh kỹ thuật.</p></div>
+      <p class="meta note">Điểm mạnh: nội dung · backlink & uy tín · UX/UI & tốc độ · thương hiệu, giá, chính sách. Điểm yếu: khoảng trống nội dung · bài cũ, heading/title chưa tối ưu · chuyển đổi & chăm sóc khách. Bấm “Soi website” để đo nhanh kỹ thuật.</p></div>
     <div id="jobScan"></div><div id="g"></div>
     <div class="sec"><h2><span>2</span> Từ khoá đối thủ đang xếp hạng</h2>
-      <p class="meta">Xuất “Organic keywords” của đối thủ từ Ahrefs/Semrush (CSV) → nhập ở đây → “Phân loại” so với bảng Từ khoá của Rooty: <b>Gap</b> = đối thủ có, Rooty chưa · <b>Common</b> = cả hai cùng có (ai đứng cao hơn). Chuyển Gap sang Bước 2.</p></div>
+      <p class="meta note">Xuất “Organic keywords” của đối thủ từ Ahrefs/Semrush (CSV) → nhập ở đây → “Phân loại” so với bảng Từ khoá của Rooty: <b>Gap</b> = đối thủ có, Rooty chưa · <b>Common</b> = cả hai cùng có (ai đứng cao hơn). Chuyển Gap sang Bước 2.</p></div>
     <div class="strip" id="kwsum"></div><div id="g2"></div>`;
   await Promise.all([load('doithu'), load('dtkw')]);
   jobPanel($('#jobScan'), 'scan', 'Soi website tất cả đối thủ', '/api/doithu/scan', {}, ['doithu']);
@@ -955,7 +961,7 @@ const FIX_OPEN = ['Mới','Đã xác nhận','Đang sửa','Sửa chưa đạt',
 async function fixSection(v){
   const box = document.createElement('div');
   box.innerHTML = `<div class="sec"><h2><span>✓</span> Sửa lỗi từng trang — lưu trạng thái đến khi sửa xong, đo thứ hạng trước/sau</h2>
-    <p class="meta">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b>. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, nhập GSC Trang mới ở B10 → bấm <b>“Đo hiệu quả”</b> để ghi “sau” và kết luận Tốt lên / Không đổi / Giảm. Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
+    <p class="meta note">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b>. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, nhập GSC Trang mới ở B10 → bấm <b>“Đo hiệu quả”</b> để ghi “sau” và kết luận Tốt lên / Không đổi / Giảm. Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
     <div class="vhead"><button class="btn primary" id="fxImp">Nhập báo cáo lỗi (.xlsx)</button><input type="file" id="fxFile" accept=".xlsx" hidden>
       <button class="btn" id="fxMeasure">Đo hiệu quả (sau khi nhập GSC mới)</button><span class="meta">Máy tự kiểm lại được: <b>Link tự thân</b>, <b>Đổi năm giả</b>; loại khác người kiểm.</span></div>
     <div id="fxJob"></div><div class="gwrap" style="padding:12px 14px" id="fxSum"></div><div id="fxG"></div>`;
@@ -976,7 +982,7 @@ async function fixSection(v){
         <td><div class="bar" style="margin:0"><i style="width:${p}%"></i></div><span class="meta">${p}%</span></td>
         <td>${fmt(d.fixClicks,'')}</td><td>${fmt(d.ctlClicks,'')}</td><td>${fmt(d.fixPos,'',true)}</td><td>${fmt(d.ctlPos,'',true)}</td>
         <td><span class="meta">${Object.entries(d.effect).map(([e,n])=>`${esc(e)} ${n}`).join(' · ')||'chưa đo'}</span></td></tr>`; }).join('')}</tbody></table>
-    <p class="meta" style="margin:8px 0 0">Δ = trung vị thay đổi “sau − trước” (vị trí: số âm là lên hạng). Sửa có tác dụng khi nhóm <b>đã sửa</b> tốt hơn rõ rệt so với nhóm <b>đối chứng</b> cùng kỳ. Bấm một dòng để lọc bảng dưới.</p>`
+    <p class="meta note" style="margin:8px 0 0">Δ = trung vị thay đổi “sau − trước” (vị trí: số âm là lên hạng). Sửa có tác dụng khi nhóm <b>đã sửa</b> tốt hơn rõ rệt so với nhóm <b>đối chứng</b> cùng kỳ. Bấm một dòng để lọc bảng dưới.</p>`
     : '<span class="meta">Chưa có lỗi nào — bấm “Nhập báo cáo lỗi (.xlsx)”.</span>';
   $('#fxSum').querySelectorAll('tr[data-k]').forEach(tr=>tr.onclick=()=>{ st.f['Loại lỗi'] = st.f['Loại lỗi']===tr.dataset.k ? '' : tr.dataset.k; render(); });
   const lv = {'🔴 Cao':0,'🟡 Vừa':1,'🟢 Thấp':2}, so = s=>{ const i=['Tái phát','Sửa chưa đạt','Đang sửa','Đã xác nhận','Mới','Đã sửa','Hết lỗi (quét lại)','Không phải lỗi','Bỏ qua'].indexOf(s); return i<0?9:i; };
@@ -1025,17 +1031,17 @@ VIEWS.onpage = async v => {
 VIEWS.entity = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Thông tin thương hiệu chuẩn (NAP gốc)</h2>
-      <p class="meta">Tên · Địa chỉ · Hotline · Website phải trùng khớp 100% ở mọi nơi. Đây là bản gốc để so mọi hồ sơ và để sinh schema.</p></div>
+      <p class="meta note">Tên · Địa chỉ · Hotline · Website phải trùng khớp 100% ở mọi nơi. Đây là bản gốc để so mọi hồ sơ và để sinh schema.</p></div>
     <div id="nap"></div>
     <div class="sec"><h2><span>2</span> Social profiles & liên kết chéo</h2>
-      <p class="meta">Website ↔ mạng xã hội phải trỏ qua lại: icon/link trên web tới từng hồ sơ, link trong bio hồ sơ về web, và khai báo trong <code>sameAs</code>.</p></div>
+      <p class="meta note">Website ↔ mạng xã hội phải trỏ qua lại: icon/link trên web tới từng hồ sơ, link trong bio hồ sơ về web, và khai báo trong <code>sameAs</code>.</p></div>
     <div class="vhead"><div class="strip" id="hsum" style="margin:0;flex:1 1 400px"></div>
       <button class="btn" id="bScan">Quét liên kết chéo (website ↔ hồ sơ)</button><button class="btn" id="bNap">Kiểm NAP các hồ sơ</button></div>
     <div id="g1"></div>
     <div class="sec"><h2><span>3</span> Schema Markup (JSON-LD)</h2>
-      <p class="meta">Mã chuẩn sinh từ NAP gốc + các hồ sơ “Đã có”: TravelAgency (một loại LocalBusiness) + Organization, logo, hotline, địa chỉ, giờ mở cửa, sameAs, kèm WebSite và WebPage. So với schema đang có trên trang chủ.</p></div>
+      <p class="meta note">Mã chuẩn sinh từ NAP gốc + các hồ sơ “Đã có”: TravelAgency (một loại LocalBusiness) + Organization, logo, hotline, địa chỉ, giờ mở cửa, sameAs, kèm WebSite và WebPage. So với schema đang có trên trang chủ.</p></div>
     <div id="schema" class="gwrap" style="padding:12px 14px"><span class="meta">Đang đọc schema trang chủ…</span></div>
-    <div class="sec"><h2><span>4</span> Thực thể & dữ kiện</h2><p class="meta">Điểm đến, tour, HDV/tác giả — thuộc tính có nguồn, dùng chung cho mọi bài viết.</p></div>
+    <div class="sec"><h2><span>4</span> Thực thể & dữ kiện</h2><p class="meta note">Điểm đến, tour, HDV/tác giả — thuộc tính có nguồn, dùng chung cho mọi bài viết.</p></div>
     <div id="g2"></div>`;
   await Promise.all([load('brand'), load('hoso'), load('thucthe')]);
   // ① NAP gốc
@@ -1070,7 +1076,7 @@ VIEWS.entity = async v => {
         <a class="btn sm" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" href="https://search.google.com/test/rich-results?url=${encodeURIComponent(CFG.site||'https://rootytrip.com')}">Rich Results Test ↗</a>
         <a class="btn sm" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" href="https://validator.schema.org/">Schema Validator ↗</a></div>
       <pre class="cmd" style="white-space:pre;overflow:auto;max-height:340px;display:block;margin-top:8px">${esc('<script type="application/ld+json">\n'+s.jsonld+'\n<\/script>')}</pre>
-      <p class="hint" style="margin:6px 0 0">Dán vào Rank Math → Schema (hoặc plugin chèn mã vào &lt;head&gt; trang chủ). Ô nào trong NAP gốc còn “thiếu” thì mã sẽ không có thuộc tính đó — điền NAP gốc trước.</p>`;
+      <p class="hint note" style="margin:6px 0 0">Dán vào Rank Math → Schema (hoặc plugin chèn mã vào &lt;head&gt; trang chủ). Ô nào trong NAP gốc còn “thiếu” thì mã sẽ không có thuộc tính đó — điền NAP gốc trước.</p>`;
     $('#bCopyLd').onclick = ()=>copy('<script type="application/ld+json">\n'+s.jsonld+'\n<\/script>');
   }catch(e){ $('#schema').innerHTML = `<span class="meta">${esc(e.message)}</span>`; }
 };
@@ -1081,16 +1087,16 @@ const anchorClass = a => { a=(a||'').trim().toLowerCase(); if(!a) return 'Trốn
 VIEWS.link = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>0</span> Kế hoạch link cho một trang cần lên top — silo kim tự tháp</h2>
-      <p class="meta">Chọn trang cần đẩy (VD trang tour 3 đảo) + từ khoá → trang dựng <b>kim tự tháp nội bộ</b>: các <b>bài vệ tinh</b> (mỗi bài một câu hỏi con: Hòn Móng Tay, lặn san hô…) link lên <b>bài trụ</b> và <b>trang đích</b>; bài trụ + danh mục link lên trang đích; vệ tinh nối ngang có chọn lọc (bánh xe <i>nhỏ trong cụm</i>). Mỗi link có anchor theo tỉ lệ an toàn và câu đặt link. ⛔ Không làm “bánh xe / kim tự tháp link” bằng site vệ tinh bên ngoài (Web 2.0, PBN, tier 2–3) — Google xếp vào <b>link spam</b>.</p></div>
+      <p class="meta note">Chọn trang cần đẩy (VD trang tour 3 đảo) + từ khoá → trang dựng <b>kim tự tháp nội bộ</b>: các <b>bài vệ tinh</b> (mỗi bài một câu hỏi con: Hòn Móng Tay, lặn san hô…) link lên <b>bài trụ</b> và <b>trang đích</b>; bài trụ + danh mục link lên trang đích; vệ tinh nối ngang có chọn lọc (bánh xe <i>nhỏ trong cụm</i>). Mỗi link có anchor theo tỉ lệ an toàn và câu đặt link. ⛔ Không làm “bánh xe / kim tự tháp link” bằng site vệ tinh bên ngoài (Web 2.0, PBN, tier 2–3) — Google xếp vào <b>link spam</b>.</p></div>
     <div class="gwrap" style="padding:12px 14px" id="lpBox"></div>
     <div class="sec"><h2><span>1</span> Liên kết nội bộ (Internal link)</h2>
-      <p class="meta">Dẫn người đọc và Googlebot theo tầng Trang chủ → Danh mục → Trang chi tiết, dồn sức mạnh về trang tour/danh mục cần đẩy top. Anchor tự nhiên, chứa từ khoá của trang đích; không trỏ lan man.</p></div>
+      <p class="meta note">Dẫn người đọc và Googlebot theo tầng Trang chủ → Danh mục → Trang chi tiết, dồn sức mạnh về trang tour/danh mục cần đẩy top. Anchor tự nhiên, chứa từ khoá của trang đích; không trỏ lan man.</p></div>
     <div class="strip" id="istat"></div><div id="iweak"></div><div id="jobSug"></div><div id="gi"></div>
     <div class="sec"><h2><span>2</span> Backlink — liên kết từ website khác</h2>
-      <p class="meta">“Lá phiếu tín nhiệm”: ưu tiên site uy tín, cùng chủ đề du lịch, link nằm trong nội dung chính. Chiến lược: Guest post · Digital PR/báo chí · Broken link · Linkable asset.</p></div>
+      <p class="meta note">“Lá phiếu tín nhiệm”: ưu tiên site uy tín, cùng chủ đề du lịch, link nằm trong nội dung chính. Chiến lược: Guest post · Digital PR/báo chí · Broken link · Linkable asset.</p></div>
     <div class="strip" id="bstat"></div><div id="jobChk"></div><div id="gb"></div>
     <div class="sec"><h2><span>3</span> Tìm link gãy (Broken link building)</h2>
-      <p class="meta">Dán URL một trang tài nguyên/bài tổng hợp du lịch Phú Quốc của website khác → trang kiểm các link ra ngoài, liệt kê link gãy để đề xuất chủ site thay bằng bài của Rooty.</p></div>
+      <p class="meta note">Dán URL một trang tài nguyên/bài tổng hợp du lịch Phú Quốc của website khác → trang kiểm các link ra ngoài, liệt kê link gãy để đề xuất chủ site thay bằng bài của Rooty.</p></div>
     <div class="gwrap" style="padding:12px 14px"><div class="row" style="margin-top:0"><input class="field" id="brUrl" placeholder="https://blog-du-lich.com/kinh-nghiem-phu-quoc/" style="flex:1 1 300px">
       <button class="btn primary" id="brGo">Tìm link gãy</button></div><div id="brRes"></div></div>`;
   await Promise.all([load('lienket'), load('trang').catch(()=>{})]);
@@ -1159,21 +1165,21 @@ function importReviewCSV(){
 VIEWS.danhgia = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Nhập số liệu Google Search Console & GA4</h2>
-      <p class="meta">Xuất CSV rồi bấm “Nhập CSV” — trang tự nhận loại file. <b>GSC</b> (Hiệu suất → Xuất → CSV): <i>Ngày</i> → số liệu tháng & cảnh báo tuần · <i>Trang</i> → số liệu từng URL · <i>Truy vấn</i> → thứ hạng từ khoá. <b>Truy vấn × Trang</b> (Search Analytics for Sheets / Looker Studio) → xung đột từ khoá. <b>GA4</b> (Báo cáo → Tương tác → Trang đích, lọc kênh Organic Search → Chia sẻ → Tải CSV) → phiên, tỷ lệ tương tác, chuyển đổi từng trang.</p></div>
+      <p class="meta note">Xuất CSV rồi bấm “Nhập CSV” — trang tự nhận loại file. <b>GSC</b> (Hiệu suất → Xuất → CSV): <i>Ngày</i> → số liệu tháng & cảnh báo tuần · <i>Trang</i> → số liệu từng URL · <i>Truy vấn</i> → thứ hạng từ khoá. <b>Truy vấn × Trang</b> (Search Analytics for Sheets / Looker Studio) → xung đột từ khoá. <b>GA4</b> (Báo cáo → Tương tác → Trang đích, lọc kênh Organic Search → Chia sẻ → Tải CSV) → phiên, tỷ lệ tương tác, chuyển đổi từng trang.</p></div>
     <div class="vhead"><label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)">Kỳ số liệu <input class="field" id="rvPeriod" placeholder="VD: 3 tháng 08–10/2026" style="width:220px"></label>
       <button class="btn primary" id="rvImp">Nhập CSV (GSC / GA4)</button><span class="meta" id="rvLast"></span></div>
     <div class="gwrap" style="padding:12px 14px"><b>Hoặc lấy thẳng từ Google</b> <span class="meta" id="gApiSt"></span><div id="gApi"></div></div>
     <div class="sec"><h2><span>2</span> Theo dõi chỉ số</h2></div>
     <div id="wk"></div><div class="cards4" id="kpi"></div>
     <div class="gwrap" style="padding:12px 14px" id="ch"></div><div id="g"></div>
-    <div class="sec"><h2><span>3</span> Xung đột từ khoá (cannibalization)</h2><p class="meta">Một từ khoá có ≥ 2 trang Rooty cùng nhận hiển thị → Google phân vân, cả hai cùng yếu. Giữ 1 trang chính; trang còn lại gộp + 301, đổi từ khoá, hoặc link nội bộ về trang chính.</p></div>
+    <div class="sec"><h2><span>3</span> Xung đột từ khoá (cannibalization)</h2><p class="meta note">Một từ khoá có ≥ 2 trang Rooty cùng nhận hiển thị → Google phân vân, cả hai cùng yếu. Giữ 1 trang chính; trang còn lại gộp + 301, đổi từ khoá, hoặc link nội bộ về trang chính.</p></div>
     <div id="gc"></div>
     <div class="sec"><h2><span>4</span> Content audit hàng quý — giữ · cập nhật · gộp · xoá/noindex</h2>
-      <p class="meta">Gom số liệu GSC + GA4 + crawl cho từng URL → bấm “Phân loại” để có đề xuất kèm lý do → chị duyệt ở cột “Quyết định” → “Tạo việc cập nhật” đưa bài sang tab Content.</p></div>
+      <p class="meta note">Gom số liệu GSC + GA4 + crawl cho từng URL → bấm “Phân loại” để có đề xuất kèm lý do → chị duyệt ở cột “Quyết định” → “Tạo việc cập nhật” đưa bài sang tab Content.</p></div>
     <div class="strip" id="casum"></div><div id="gca"></div>
-    <div class="sec"><h2><span>5</span> Nhật ký thay đổi (change log)</h2><p class="meta">Mỗi lần sửa bài/onpage/kỹ thuật ghi 1 dòng. “Đo lại” ghi số liệu trước (trong 7 ngày đầu) và sau (từ tuần thứ 4) để biết thay đổi có hiệu quả không.</p></div>
+    <div class="sec"><h2><span>5</span> Nhật ký thay đổi (change log)</h2><p class="meta note">Mỗi lần sửa bài/onpage/kỹ thuật ghi 1 dòng. “Đo lại” ghi số liệu trước (trong 7 ngày đầu) và sau (từ tuần thứ 4) để biết thay đổi có hiệu quả không.</p></div>
     <div id="gl"></div>
-    <div class="sec"><h2><span>6</span> Lịch review định kỳ</h2><p class="meta">Hàng tuần: biến động traffic, lỗi index. Hàng quý: audit kỹ thuật, audit nội dung, kế hoạch quý tiếp theo.</p></div>
+    <div class="sec"><h2><span>6</span> Lịch review định kỳ</h2><p class="meta note">Hàng tuần: biến động traffic, lỗi index. Hàng quý: audit kỹ thuật, audit nội dung, kế hoạch quý tiếp theo.</p></div>
     <div id="lich"></div>`;
   $('#rvImp').onclick = importReviewCSV;
   const G = CFG.google || {};
@@ -1260,13 +1266,13 @@ const GEO_GATE = new Set([14,15,16,17]);
 VIEWS.geo = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Checklist GEO — 6 điểm chạm, 32 việc (GTV v2026.08)</h2>
-      <p class="meta">Làm theo thứ tự G0 → G5. Việc gắn 🔒 <b>cửa chặn</b> phải xong trước — chưa qua thì công sức các bước sau gần như không có tác dụng vì AI chưa đọc được hoặc chưa coi Rooty là ứng viên. Bấm <b>“Tự kiểm từ dữ liệu”</b> để lấy kết quả từ B5, chấm bài và đo AI; việc thủ công chị tự đổi trạng thái.</p></div>
+      <p class="meta note">Làm theo thứ tự G0 → G5. Việc gắn 🔒 <b>cửa chặn</b> phải xong trước — chưa qua thì công sức các bước sau gần như không có tác dụng vì AI chưa đọc được hoặc chưa coi Rooty là ứng viên. Bấm <b>“Tự kiểm từ dữ liệu”</b> để lấy kết quả từ B5, chấm bài và đo AI; việc thủ công chị tự đổi trạng thái.</p></div>
     <div class="areas" id="gp"></div><div id="gck"></div>
     <div class="sec"><h2><span>2</span> Chấm GEO từng bài — điểm chạm G3 “cấu trúc đoạn”</h2>
-      <p class="meta">Máy đọc bài đã đăng và chấm 11 tiêu chí đo được (#8, #13–20, #22, #24); 3 tiêu chí còn lại (#21 đoạn kiểm chứng được, #23 Blur Test, #25 so với AI Overview) kiểm tay khi duyệt. Bấm một dòng để xem chi tiết từng tiêu chí và chấm lại.</p></div>
+      <p class="meta note">Máy đọc bài đã đăng và chấm 11 tiêu chí đo được (#8, #13–20, #22, #24); 3 tiêu chí còn lại (#21 đoạn kiểm chứng được, #23 Blur Test, #25 so với AI Overview) kiểm tay khi duyệt. Bấm một dòng để xem chi tiết từng tiêu chí và chấm lại.</p></div>
     <div id="jobGeo"></div><div class="areas" id="gcr"></div><div id="gpg"></div>
     <div class="sec"><h2><span>3</span> Đo hiện diện trên AI — G0 #3 (số nền) & G5 #30–32</h2>
-      <p class="meta">Hỏi đúng câu trong bộ câu hỏi trên ChatGPT / Gemini / AI Overview / Perplexity (cửa sổ ẩn danh, không đăng nhập nếu được) → copy <b>toàn bộ</b> câu trả lời → dán vào ô dưới. Trang tự nhận ra Rooty có được nhắc tên, có trích link, đứng thứ mấy, đối thủ nào xuất hiện. Mỗi câu chạy <b>≥ 3 lần</b> mỗi máy; báo cáo theo chủ đề, không theo từng câu. Số đo AI chỉ mang tính tham khảo xu hướng — đối chiếu referral thật trong GA4 trước khi kết luận.</p></div>
+      <p class="meta note">Hỏi đúng câu trong bộ câu hỏi trên ChatGPT / Gemini / AI Overview / Perplexity (cửa sổ ẩn danh, không đăng nhập nếu được) → copy <b>toàn bộ</b> câu trả lời → dán vào ô dưới. Trang tự nhận ra Rooty có được nhắc tên, có trích link, đứng thứ mấy, đối thủ nào xuất hiện. Mỗi câu chạy <b>≥ 3 lần</b> mỗi máy; báo cáo theo chủ đề, không theo từng câu. Số đo AI chỉ mang tính tham khảo xu hướng — đối chiếu referral thật trong GA4 trước khi kết luận.</p></div>
     <div class="gwrap" style="padding:12px 14px" id="ansBox"></div>
     <div class="cards4" id="pres"></div><div class="gwrap" style="padding:12px 14px" id="presT"></div>
     <div id="gai"></div><div id="gq"></div>`;
@@ -1379,19 +1385,19 @@ VIEWS.algo = async v => {
       <a class="btn" href="https://status.search.google.com/" target="_blank" rel="noopener">Google Search Status Dashboard ↗</a>
       <a class="btn" href="https://developers.google.com/search/docs/essentials/spam-policies" target="_blank" rel="noopener">Chính sách spam ↗</a><span class="meta" id="alLast"></span></div>
     <div class="sec"><h2><span>1</span> Các đợt cập nhật thuật toán & ảnh hưởng tới Rooty</h2>
-      <p class="meta">Nguồn chính thức duy nhất là Google Search Status Dashboard. Trang tự lấy lại mỗi 24 giờ khi mở app. Ảnh hưởng = lượt nhấp TB/ngày 14 ngày trước khi đợt bắt đầu so với 14 ngày sau khi đợt xong (cần nhập GSC file <i>Ngày</i> ở B10). Mỗi đợt core/spam: đọc “Việc cần làm”, xem ảnh hưởng, ghi “Kết luận”, chọn “Đã review”.</p></div>
+      <p class="meta note">Nguồn chính thức duy nhất là Google Search Status Dashboard. Trang tự lấy lại mỗi 24 giờ khi mở app. Ảnh hưởng = lượt nhấp TB/ngày 14 ngày trước khi đợt bắt đầu so với 14 ngày sau khi đợt xong (cần nhập GSC file <i>Ngày</i> ở B10). Mỗi đợt core/spam: đọc “Việc cần làm”, xem ảnh hưởng, ghi “Kết luận”, chọn “Đã review”.</p></div>
     <div id="gUp"></div>
     <div class="sec"><h2><span>2</span> Lên top nhanh mà không vi phạm</h2></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px" id="fast"></div>
     <div class="sec"><h2><span>3</span> Chính sách spam của Google — Rooty có đang dính không?</h2>
-      <p class="meta">Vi phạm chính sách spam có thể bị hạ hạng hoặc gỡ khỏi Google (thuật toán SpamBrain tự động, hoặc “thao tác thủ công” báo trong Search Console). Bấm “Tự kiểm” để chấm từ dữ liệu app (B5 lỗi từng trang, GEO, B9 backlink); mục còn lại kiểm tay theo cột “Cách kiểm”.</p></div>
+      <p class="meta note">Vi phạm chính sách spam có thể bị hạ hạng hoặc gỡ khỏi Google (thuật toán SpamBrain tự động, hoặc “thao tác thủ công” báo trong Search Console). Bấm “Tự kiểm” để chấm từ dữ liệu app (B5 lỗi từng trang, GEO, B9 backlink); mục còn lại kiểm tay theo cột “Cách kiểm”.</p></div>
     <div id="gPol"></div>
-    <div class="sec"><h2><span>4</span> Tin chính thức từ Google Search Central</h2><p class="meta">Đọc tin mức liên quan “Cao” trong tuần; ghi việc cần làm cho Rooty nếu có, rồi chọn “Đã đọc”.</p></div>
+    <div class="sec"><h2><span>4</span> Tin chính thức từ Google Search Central</h2><p class="meta note">Đọc tin mức liên quan “Cao” trong tuần; ghi việc cần làm cho Rooty nếu có, rồi chọn “Đã đọc”.</p></div>
     <div id="gBlog"></div>`;
   $('#alRef').onclick = ()=>act('/api/algo/refresh',['thuattoan','tinseo']);
   $('#fast').innerHTML = `<div class="gwrap" style="padding:12px 14px"><h4 style="margin:0 0 8px;color:var(--ok)">✅ Nên làm (nhanh nhất trước)</h4><ol style="margin:0;padding-left:20px">${FAST_DO.map(([t,d,tab])=>`<li style="margin-bottom:8px"><b>${esc(t)}</b> — <span class="meta">${esc(d)}</span> <button class="btn sm" data-go="${tab}">Mở tab</button></li>`).join('')}</ol></div>
     <div class="gwrap" style="padding:12px 14px"><h4 style="margin:0 0 8px;color:var(--bad)">⛔ Không làm (dễ bị phạt, mất nhiều hơn được)</h4><ul style="margin:0;padding-left:20px">${FAST_DONT.map(t=>`<li style="margin-bottom:6px">${esc(t)}</li>`).join('')}</ul>
-      <p class="meta" style="margin:10px 0 0">Thời gian thật: trang mới thường cần vài tuần đến vài tháng để ổn định thứ hạng. Không có cách “lên top ngay” nào an toàn — ai hứa vậy thường là mua link hoặc thủ thuật bị Google phạt.</p></div>`;
+      <p class="meta note" style="margin:10px 0 0">Thời gian thật: trang mới thường cần vài tuần đến vài tháng để ổn định thứ hạng. Không có cách “lên top ngay” nào an toàn — ai hứa vậy thường là mua link hoặc thủ thuật bị Google phạt.</p></div>`;
   await Promise.all(['thuattoan','tinseo','chinhsach'].map(k=>load(k).catch(()=>[])));
   try{ const S = await api('GET','/api/algo/summary');
     $('#alLast').textContent = S.last ? `Lấy lần cuối: ${new Date(S.last).toLocaleString('vi-VN')}` : 'Chưa lấy lần nào';
@@ -1438,10 +1444,10 @@ VIEWS.gmaps = async v => {
 /* ---------- Hệ sinh thái Google: nền tảng làm/bỏ · ghim My Maps · link nội bộ ---------- */
 VIEWS.hesinhthai = async v => {
   v.innerHTML = `<div class="strip" id="hsSum"></div>
-    <div class="sec"><h2><span>1</span> Nền tảng — làm, không ưu tiên, bỏ</h2><p class="meta">Không spin nội dung, không tạo tài sản chỉ để đặt link, không dùng công cụ ép index — vi phạm chính sách spam (xem B10 · Thuật toán Google).</p></div><div id="hsP"></div>
-    <div class="sec"><h2><span>2</span> Link nội bộ còn thiếu trên rootytrip.com</h2><p class="meta">Đây mới là thứ nối các bài với nhau. Gắn link chữ ở đoạn nhắc tới điểm đó, xong đổi “Xong”.</p></div><div id="hsL"></div>
-    <div class="sec"><h2><span>3</span> Bản đồ My Maps — 35 ghim dẫn về bài cẩm nang</h2><p class="meta">Nhập <code>nghien-cuu/my-maps-diem-den.csv</code> vào mymaps.google.com, kiểm vị trí từng ghim rồi đổi “Xong”. Dán link bản đồ vào dòng “Nền tảng: Google My Maps”.</p></div><div id="hsM"></div>
-    <div class="sec"><h2><span>4</span> Video YouTube & tài liệu Google</h2><p class="meta">Mỗi video/tài liệu gắn 1 bài blog: “Đến URL” = bài blog, “URL tài sản” = link video/tài liệu.</p></div><div id="hsV"></div>`;
+    <div class="sec"><h2><span>1</span> Nền tảng — làm, không ưu tiên, bỏ</h2><p class="meta note">Không spin nội dung, không tạo tài sản chỉ để đặt link, không dùng công cụ ép index — vi phạm chính sách spam (xem B10 · Thuật toán Google).</p></div><div id="hsP"></div>
+    <div class="sec"><h2><span>2</span> Link nội bộ còn thiếu trên rootytrip.com</h2><p class="meta note">Đây mới là thứ nối các bài với nhau. Gắn link chữ ở đoạn nhắc tới điểm đó, xong đổi “Xong”.</p></div><div id="hsL"></div>
+    <div class="sec"><h2><span>3</span> Bản đồ My Maps — 35 ghim dẫn về bài cẩm nang</h2><p class="meta note">Nhập <code>nghien-cuu/my-maps-diem-den.csv</code> vào mymaps.google.com, kiểm vị trí từng ghim rồi đổi “Xong”. Dán link bản đồ vào dòng “Nền tảng: Google My Maps”.</p></div><div id="hsM"></div>
+    <div class="sec"><h2><span>4</span> Video YouTube & tài liệu Google</h2><p class="meta note">Mỗi video/tài liệu gắn 1 bài blog: “Đến URL” = bài blog, “URL tài sản” = link video/tài liệu.</p></div><div id="hsV"></div>`;
   const rows = await load('hesinhthai');
   const cnt = (t, st) => rows.filter(r=>r.fields['Loại']===t && (!st || r.fields['Trạng thái']===st)).length;
   $('#hsSum').innerHTML = rows.length ? `<div class="banner">Link nội bộ đã gắn <b>${cnt('Link nội bộ','Xong')}/${cnt('Link nội bộ')}</b> ·
@@ -1464,7 +1470,7 @@ VIEWS.kiemweb = async v => {
   v.innerHTML = `<div class="gwrap" style="padding:12px 14px">
       <label>Danh sách cần kiểm — mỗi dòng một địa chỉ (tối đa 50/lần)
         <textarea class="field" id="kwList" style="min-height:130px" placeholder="rootytrip.com&#10;klook.com/vi&#10;https://rootytrip.com/dia-trung-hai-phu-quoc/"></textarea></label>
-      <p class="meta" style="margin:6px 0">Chỉ tên miền (VD <code>rootytrip.com</code>) → kiểm <b>toàn site</b>: 34 mục kỹ thuật, bot AI, sitemap, HTTPS, tốc độ, schema, NAP, ảnh… như tab B5. Link có đường dẫn (VD <code>…/dia-trung-hai-phu-quoc/</code>) → kiểm <b>một trang</b>: chấm GEO + onpage. Chạy song song 4 địa chỉ một lúc, ~30–40 giây mỗi site.</p>
+      <p class="meta note" style="margin:6px 0">Chỉ tên miền (VD <code>rootytrip.com</code>) → kiểm <b>toàn site</b>: 34 mục kỹ thuật, bot AI, sitemap, HTTPS, tốc độ, schema, NAP, ảnh… như tab B5. Link có đường dẫn (VD <code>…/dia-trung-hai-phu-quoc/</code>) → kiểm <b>một trang</b>: chấm GEO + onpage. Chạy song song 4 địa chỉ một lúc, ~30–40 giây mỗi site.</p>
       <div class="row"><input class="field" id="kwGroup" placeholder="Nhóm (VD: Website công ty · Đối thủ · Khách)" style="max-width:320px"><div id="kwJob" style="flex:1"></div></div></div>
     <div class="strip" id="kwSum"></div><div id="kwG"></div>`;
   const $l = $('#kwList'); $l.value = store.get('kiemweb-list','');
@@ -1507,7 +1513,7 @@ function mdHtml(md){
 VIEWS.chandoan = async v => {
   v.innerHTML = `<div class="gwrap" style="padding:12px 14px">
       <div class="row"><input class="field" id="cdSite" placeholder="Để trống = ${esc(CFG.site||'')} · hoặc nhập website WordPress khác" style="max-width:420px"><div id="cdJob" style="flex:1"></div></div>
-      <p class="meta" style="margin:8px 0 0">Một nút chạy cả 4 bước: <b>①</b> đọc GSC theo ngày tìm ngày bắt đầu rớt · <b>②</b> đối chiếu với các đợt core/spam update chính thức · <b>③</b> quét toàn bộ bài blog mọi ngôn ngữ tìm 8 loại lỗi (đổi năm giả, thiếu trải nghiệm, lạc chủ đề, trùng từ khoá, chèn thương mại, đa ngôn ngữ/mỏng, link tự thân, tác giả) + GEO + chính sách spam · <b>④</b> xếp thứ tự việc sửa theo kiểu rớt. Lỗi của rootytrip.com tự nạp vào <a href="#" data-go="audit">B5 · Sửa lỗi từng trang</a> kèm «Cần sửa gì». Mất 2–3 phút.</p></div>
+      <p class="meta note" style="margin:8px 0 0">Một nút chạy cả 4 bước: <b>①</b> đọc GSC theo ngày tìm ngày bắt đầu rớt · <b>②</b> đối chiếu với các đợt core/spam update chính thức · <b>③</b> quét toàn bộ bài blog mọi ngôn ngữ tìm 8 loại lỗi (đổi năm giả, thiếu trải nghiệm, lạc chủ đề, trùng từ khoá, chèn thương mại, đa ngôn ngữ/mỏng, link tự thân, tác giả) + GEO + chính sách spam · <b>④</b> xếp thứ tự việc sửa theo kiểu rớt. Lỗi của rootytrip.com tự nạp vào <a href="#" data-go="audit">B5 · Sửa lỗi từng trang</a> kèm «Cần sửa gì». Mất 2–3 phút.</p></div>
     <div class="gwrap" style="padding:14px 18px" id="cdRep"></div>`;
   jobPanel($('#cdJob'),'chandoan','Chẩn đoán rớt top','/api/chandoan/run',()=>({site:$('#cdSite').value}),['sualoi','chinhsach']);
   const L = await api('GET','/api/chandoan/last');
@@ -1519,7 +1525,7 @@ VIEWS.chandoan = async v => {
 const overdue = f => f['Ngày kiểm'] && (Date.now() - f['Ngày kiểm']) / 864e5 > (f['Kiểm lại sau (ngày)'] || 30);
 VIEWS.gia = async v => {
   v.innerHTML = `<div class="gwrap" style="padding:12px 14px">
-      <p class="meta" style="margin:0 0 8px">Một chỗ lưu <b>giá và dữ kiện chuẩn</b> (giá tour/combo/vé, giờ mở cửa, lịch show, khoảng cách…) kèm <b>nguồn + ngày kiểm</b>. <b>Đổi giá</b>: bấm dòng → sửa ô “Giá trị” → Lưu — trang tự giữ giá cũ và ghi lịch sử. Sau đó bấm <b>“Dò bài”</b>: trang đọc toàn bộ blog, tìm câu nhắc sản phẩm đó kèm giá; bài ghi khác giá hiện tại thành việc <b>“Giá cũ”</b> ở <a href="#" data-go="audit">B5 · Sửa lỗi từng trang</a> (có sẵn “Cần sửa gì”: đổi số nào thành số nào, ở câu nào).</p>
+      <p class="meta note" style="margin:0 0 8px">Một chỗ lưu <b>giá và dữ kiện chuẩn</b> (giá tour/combo/vé, giờ mở cửa, lịch show, khoảng cách…) kèm <b>nguồn + ngày kiểm</b>. <b>Đổi giá</b>: bấm dòng → sửa ô “Giá trị” → Lưu — trang tự giữ giá cũ và ghi lịch sử. Sau đó bấm <b>“Dò bài”</b>: trang đọc toàn bộ blog, tìm câu nhắc sản phẩm đó kèm giá; bài ghi khác giá hiện tại thành việc <b>“Giá cũ”</b> ở <a href="#" data-go="audit">B5 · Sửa lỗi từng trang</a> (có sẵn “Cần sửa gì”: đổi số nào thành số nào, ở câu nào).</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px"><div id="gJob1"></div><div id="gJob2"></div></div></div>
     <div class="strip" id="gSum"></div><div id="gG"></div>`;
   jobPanel($('#gJob1'),'giasite','Lấy giá từ trang sản phẩm Rooty (tự phát hiện đổi giá)','/api/gia/from-site',{},['giadukien']);
@@ -1669,12 +1675,12 @@ function drawBai(){
     <button class="btn sm" id="bQs" style="margin-top:6px">Lấy câu hỏi từ gợi ý Google</button>
 
     <h4>③ Chấm bài đã đăng theo intent ${f['Điểm nội dung']!=null?`<span class="chip ${f['Điểm nội dung']>=80?'c-ok':f['Điểm nội dung']>=60?'c-warn':'c-bad'}">${f['Điểm nội dung']}/100</span>`:''}</h4>
-    <p class="hint" style="margin:0 0 6px">Đọc trang ở “Link bài”: trả lời ngay đầu bài, cấu trúc H2/H3, danh sách, bảng, ảnh, video và tiêu chí riêng của ý định (giá + nút đặt cho trang bán, bảng so sánh cho bài cân nhắc…).</p>
+    <p class="hint note" style="margin:0 0 6px">Đọc trang ở “Link bài”: trả lời ngay đầu bài, cấu trúc H2/H3, danh sách, bảng, ảnh, video và tiêu chí riêng của ý định (giá + nút đặt cho trang bán, bảng so sánh cho bài cân nhắc…).</p>
     <button class="btn sm" id="bCheck">Chấm bài</button>
     ${f['Kiểm nội dung']?`<pre class="cmd" style="white-space:pre-wrap;margin-top:8px;display:block">${esc(f['Kiểm nội dung'])}</pre>`:''}
 
     <h4>④ Chấm GEO (Checklist GEO của GTV — để AI trích dẫn) ${f['Điểm GEO']!=null?`<span class="chip ${f['Điểm GEO']>=80?'c-ok':f['Điểm GEO']>=60?'c-warn':'c-bad'}">${f['Điểm GEO']}/100</span>`:''}</h4>
-    <p class="hint" style="margin:0 0 6px">Mở đầu = câu trả lời · H2 = câu hỏi thật · câu đầu sau H2 trả lời 40–50 từ · đoạn tự đứng · dữ kiện có số & nguồn · thông tin chỉ Rooty có · tác giả thật · độ mới. 🔒 = cửa chặn phải đạt.</p>
+    <p class="hint note" style="margin:0 0 6px">Mở đầu = câu trả lời · H2 = câu hỏi thật · câu đầu sau H2 trả lời 40–50 từ · đoạn tự đứng · dữ kiện có số & nguồn · thông tin chỉ Rooty có · tác giả thật · độ mới. 🔒 = cửa chặn phải đạt.</p>
     <button class="btn sm" id="bGeo">Chấm GEO</button>
     ${f['Chấm GEO']?`<pre class="cmd" style="white-space:pre-wrap;margin-top:8px;display:block">${esc(f['Chấm GEO'])}</pre>`:''}
 
@@ -1801,6 +1807,32 @@ function setNav(off){
   renderNav();
 }
 $('.layout').classList.toggle('navoff', store.get('nav-off', false));
+// Đoạn ghi chú (p.note) → nút ⓘ, rà chuột/bấm mới hiện nội dung
+function noteify(){
+  document.querySelectorAll('p.note').forEach(p=>{
+    const i = document.createElement('i');
+    i.className = 'ibtn'; i.tabIndex = 0; i.textContent = 'i'; i.setAttribute('aria-label', p.textContent.trim());
+    i.dataset.tip = p.innerHTML;
+    const h = p.previousElementSibling;
+    if(h && /^H[1-6]$/.test(h.tagName)) { h.appendChild(i); p.remove(); }
+    else { const d = document.createElement('div'); d.className = 'inote'; d.appendChild(i); p.replaceWith(d); }
+  });
+}
+new MutationObserver(noteify).observe(document.body, {childList:true, subtree:true});
+const itip = document.createElement('div'); itip.id = 'itip'; document.body.appendChild(itip);
+let itipT = 0, itipFor = null;
+function showTip(b){
+  clearTimeout(itipT); itipFor = b; itip.innerHTML = b.dataset.tip; itip.style.display = 'block';
+  const r = b.getBoundingClientRect(), w = itip.offsetWidth, h = itip.offsetHeight;
+  itip.style.left = Math.max(8, Math.min(r.left - 12, innerWidth - w - 8)) + 'px';
+  itip.style.top = (r.bottom + 8 + h > innerHeight ? r.top - h - 8 : r.bottom + 8) + 'px';
+}
+const hideTip = ()=>{ itipT = setTimeout(()=>{ itip.style.display = 'none'; itipFor = null; }, 150); };
+document.addEventListener('mouseover', e=>{ const b = e.target.closest('.ibtn'); if(b) showTip(b); else if(e.target.closest('#itip')) clearTimeout(itipT); });
+document.addEventListener('mouseout', e=>{ if(e.target.closest('.ibtn,#itip')) hideTip(); });
+document.addEventListener('focusin', e=>{ if(e.target.classList.contains('ibtn')) showTip(e.target); });
+document.addEventListener('focusout', e=>{ if(e.target.classList.contains('ibtn')) hideTip(); });
+document.addEventListener('click', e=>{ const b = e.target.closest('.ibtn'); if(b){ e.stopPropagation(); itipFor===b && itip.style.display==='block' ? hideTip() : showTip(b); } else if(!e.target.closest('#itip')) itip.style.display='none'; }, true);
 $('#btnReload').onclick = async ()=>{ Object.keys(DATA).forEach(k=>delete DATA[k]); renderNav(); render(); };
 $('#btnMigrate').onclick = async ()=>{ if(!confirm('Chép toàn bộ dữ liệu đang lưu trên máy lên Lark? Chỉ ghi vào bảng Lark còn trống, không ghi đè.')) return;
   $('#btnMigrate').disabled=true; try{ const r=await api('POST','/api/migrate'); toast(r.message);
