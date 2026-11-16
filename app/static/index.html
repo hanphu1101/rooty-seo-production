@@ -1192,7 +1192,7 @@ VIEWS.danhgia = async v => {
     <div class="vhead"><label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)">Kỳ số liệu <input class="field" id="rvPeriod" placeholder="VD: 3 tháng 08–10/2026" style="width:220px"></label>
       <button class="btn primary" id="rvImp">Nhập CSV (GSC / GA4)</button><span class="meta" id="rvLast"></span></div>
     <div class="gwrap" style="padding:12px 14px"><b>Hoặc lấy thẳng từ Google</b> <span class="meta" id="gApiSt"></span><div id="gApi"></div></div>
-    <div class="sec"><h2><span>2</span> Theo dõi chỉ số</h2></div>
+    <div class="sec"><h2 id="kpiH"><span>2</span> Theo dõi chỉ số</h2></div>
     <div id="wk"></div><div class="cards4" id="kpi"></div>
     <div class="gwrap" style="padding:12px 14px" id="ch"></div><div id="g"></div>
     <div class="sec"><h2><span>3</span> Xung đột từ khoá (cannibalization)</h2><p class="meta note">Một từ khoá có ≥ 2 trang Rooty cùng nhận hiển thị → Google phân vân, cả hai cùng yếu. Giữ 1 trang chính; trang còn lại gộp + 301, đổi từ khoá, hoặc link nội bộ về trang chính.</p></div>
@@ -1222,7 +1222,7 @@ VIEWS.danhgia = async v => {
   $('#kpi').innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
     return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(KL[k]||k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
       <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span>${k==='Referral AI'&&cur['Phiên AI theo nguồn']?`<span class="meta">${esc(cur['Phiên AI theo nguồn'])}</span>`:''}</div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
-  if(cur && part) $('#kpi').insertAdjacentHTML('beforeend', `<div class="meta" style="grid-column:1/-1">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</div>`);
+  if(cur && part) $('#kpiH').insertAdjacentHTML('afterend', `<p class="meta note">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</p>`);
   try{ const s = await api('GET','/api/review/summary');
     if(s.lastDay) $('#rvLast').textContent = `Số liệu GSC theo ngày đến ${s.lastDay}`;
     if(s.week){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
