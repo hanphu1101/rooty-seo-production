@@ -393,7 +393,6 @@ function fillDatalists(){
 /* ================= điều hướng ================= */
 const NAV = [
   {id:'tongquan', label:'Tổng quan'},
-  {id:'chiso', label:'Chỉ số'},
   {id:'chandoan', label:'🩺 Chẩn đoán rớt top'},
   {grp:'1 · Discovery'},
   {id:'khach', label:'B1 · Khách hàng & hành trình', key:'khach'},
@@ -692,6 +691,7 @@ VIEWS.tongquan = async v => {
   const vDone = cnt(viec.map(r=>r.fields), f=>['Xong','Không áp dụng'].includes(f['Trạng thái']));
   const card = (go, stp, big, line, p) => `<button class="kcard" data-go="${go}"><span class="stp">${stp}</span><b class="big">${big}</b><span class="meta">${line}</span>${p!=null?`<div class="bar"><i style="width:${p}%"></i></div>`:''}</button>`;
   v.innerHTML = `
+    <h3 class="ph" id="kpiH0">Chỉ số SEO tháng gần nhất</h3><div id="wk0"></div><div class="cards4" id="kpi0"></div>
     <div class="ph">1 · Discovery</div><div class="cards4">
       ${card('khach','B1 · Khách hàng', `${kh.length} chân dung`, `${cnt(kh,f=>f['Xác nhận']==='Đã xác nhận')} đã xác nhận · ${cnt(D('nguondl'),f=>f['Trạng thái']==='Đã phân tích')}/${D('nguondl').length} nguồn dữ liệu đã phân tích · ${ht.length} ghi nhận hành trình`, pct(cnt(kh,f=>f['Xác nhận']==='Đã xác nhận'), Math.max(kh.length,3)))}
       ${card('tukhoa','B2 · Từ khoá', `${tk.length} từ khoá`, `${cnt(tk,f=>f['Trang đích'])} đã có trang đích · ${cnt(tk,f=>f['Vị trí']>=8&&f['Vị trí']<=30)} cơ hội nhanh`, pct(cnt(tk,f=>f['Trang đích']), tk.length))}
@@ -715,7 +715,7 @@ VIEWS.tongquan = async v => {
       ${card('kehoach','Kế hoạch 10 tháng', `${vDone}/${viec.length||37}`, `công đoạn xong · đang ở tháng T${CFG.currentMonth}`, pct(vDone, viec.length||37))}
     </div>
     <section class="logs"><h2>Nhật ký</h2><div class="loglist" id="logs"></div></section>`;
-  api('GET','/api/log').then(renderLogs).catch(()=>{});
+  api('GET','/api/log').then(renderLogs).catch(()=>{});  drawKPI($('#wk0'), $('#kpi0'), $('#kpiH0'));
 };
 function renderLogs(logs){
   const el = $('#logs'); if(!el) return;
@@ -1199,7 +1199,7 @@ async function drawKPI(wk, kpi, head){
   kpi.innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
     return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(KL[k]||k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
       <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span>${k==='Referral AI'&&cur['Phiên AI theo nguồn']?`<span class="meta">${esc(cur['Phiên AI theo nguồn'])}</span>`:''}</div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
-  if(cur && part && !head.querySelector('.ibtn') && !head.nextElementSibling) head.insertAdjacentHTML('afterend', `<p class="meta note">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</p>`);
+  if(cur && part && !head.querySelector('.ibtn') && !head.nextElementSibling?.matches('p.note')) head.insertAdjacentHTML('afterend', `<p class="meta note">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</p>`);
   let s = {};
   try{ s = await api('GET','/api/review/summary');
     if(s.week){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
@@ -1207,13 +1207,6 @@ async function drawKPI(wk, kpi, head){
   }catch(e){}
   return {months, s};
 }
-VIEWS.chiso = async v => {
-  v.innerHTML = `<div class="sec"><h2 id="kpiH2">Chỉ số SEO tháng gần nhất</h2></div><div id="wk2"></div><div class="cards4" id="kpi2"></div>
-    <div class="meta">Chi tiết, biểu đồ và bảng số liệu theo tháng ở <a href="#" id="toDg">B10 · Đánh giá</a>.</div>`;
-  $('#toDg').onclick = e=>{ e.preventDefault(); go('danhgia'); };
-  await load('danhgia').catch(()=>[]);
-  await drawKPI($('#wk2'), $('#kpi2'), $('#kpiH2'));
-};
 VIEWS.danhgia = async v => {
   v.innerHTML = `
     <div class="sec"><h2><span>1</span> Nhập số liệu Google Search Console & GA4</h2>
