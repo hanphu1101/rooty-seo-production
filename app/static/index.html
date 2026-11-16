@@ -732,15 +732,17 @@ VIEWS.khach = async v => {
     <div id="gSrc"></div>
     <div class="sec"><h2><span>2</span> Chân dung khách hàng (Customer Persona)</h2>
       <p class="meta note">5 nhóm thông tin: nhân khẩu học · tâm lý & lối sống · nhu cầu & động cơ · điểm đau · hành vi tiêu dùng. Bấm vào thẻ để sửa.</p></div>
-    <div id="personas"></div>
+    <details class="gwrap tfold" data-k="personas"><summary>Thẻ chân dung khách<span class="cnt" id="cntPersona"></span></summary><div id="personas" style="padding:12px 12px 0"></div></details>
     <div class="sec"><h2><span>3</span> Hành trình mua hàng (Customer Journey)</h2>
       <p class="meta note">5 giai đoạn từ lúc chưa biết Rooty đến khi giới thiệu bạn bè. Mỗi ô là một ghi nhận — bấm để sửa.</p></div>
-    <div id="jmap"></div>
+    <details class="gwrap tfold" data-k="jmap"><summary>Bản đồ hành trình 5 giai đoạn<span class="cnt" id="cntJr"></span></summary><div id="jmap" style="padding:12px 12px 0"></div></details>
     <details class="gwrap" style="padding:0"><summary style="padding:10px 14px;cursor:pointer;font-weight:600">Bảng chi tiết hành trình (lọc, thêm, sửa)</summary><div id="gJr" style="padding:0 0 1px"></div></details>`;
   await Promise.all([load('khach'), load('hanhtrinh'), load('nguondl')]);
   await grid($('#gSrc'),'nguondl',{title:'Nguồn dữ liệu khách', cols:['Nguồn','Cách thu thập','Cỡ mẫu','Phát hiện chính','Trạng thái'], filters:['Loại','Trạng thái'],
     defaults:{'Trạng thái':'Kế hoạch'}});
   drawPersonas(); drawJourney();
+  $('#cntPersona').textContent = DATA.khach.length+' chân dung'; $('#cntJr').textContent = DATA.hanhtrinh.length+' ghi nhận';
+  v.querySelectorAll('details[data-k]').forEach(d=>{ d.open = store.get('fold-'+d.dataset.k, false); d.ontoggle=()=>store.set('fold-'+d.dataset.k, d.open); });
   await grid($('#gJr'),'hanhtrinh',{title:'Hành trình khách', cols:['Câu hỏi / nhu cầu','Giai đoạn','Nhóm khách','Điểm chạm','Cảm xúc','Loại nội dung','Trang đáp ứng'],
     filters:['Giai đoạn','Nhóm khách','Cảm xúc','Loại nội dung'],
     sort:(a,b)=>CFG.tables.hanhtrinh.fields[1].o.indexOf(a['Giai đoạn'])-CFG.tables.hanhtrinh.fields[1].o.indexOf(b['Giai đoạn'])});
