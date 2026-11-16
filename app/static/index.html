@@ -139,6 +139,8 @@ div.inote{margin:6px 0}
 .tscroll::-webkit-scrollbar-track{background:var(--surface-2)}
 .tscroll::-webkit-scrollbar-thumb{background:#b9c0cc;border-radius:8px;border:2px solid var(--surface-2)}
 .tscroll::-webkit-scrollbar-thumb:hover{background:#8d95a3}
+/* lớp giao diện iOS của Hub đặt «* { scrollbar-width: thin; scrollbar-color: … transparent }» → trong Lark thanh trượt bảng gần như vô hình; ghi đè riêng cho bảng */
+html body .tscroll{scrollbar-width:auto !important;scrollbar-color:#9aa3b2 #e9ecf1 !important}
 table.g{width:100%;border-collapse:collapse;font-size:13.5px}
 table.g th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2);position:sticky;top:0;z-index:1}
 table.g td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;max-width:340px}
@@ -552,7 +554,7 @@ function openForm(key, rec, defaults, onSave, extra){
     else { const dl = fd.k==='url' ? 'list="dlUrl"' : fd.n==='Cụm chủ đề' ? 'list="dlCum"' : '';
       input = `<input class="field" id="${id}" ${dl} value="${esc(v)}">${fd.k==='url'&&v?`<a href="${esc(v)}" target="_blank" rel="noopener" style="font-size:12px">Mở link ↗</a>`:''}`; }
     if(auto.includes(fd.n)) input = input.replace(/^<(input|select|textarea) /, '<$1 disabled title="App tự điền" ');
-    return `<label class="${full}">${esc(fd.n)}${i===0?' *':''}${auto.includes(fd.n)?' <span class="meta">· tự điền</span>':''}${input}</label>`;
+    return `<label class="${full}"><span>${esc(fd.n)}${i===0?' *':''}${auto.includes(fd.n)?' <span class="meta">· tự điền</span>':''}</span>${input}</label>`;
   }).join('')}</div>`;
   $('#dFoot').innerHTML = `${rec?'<button class="btn danger" id="fDel">Xoá</button>':''}${rec&&extra?extra.map((a,i)=>`<button class="btn" data-x="${i}">${esc(a.label)}</button>`).join(''):''}<span class="sp"></span><button class="btn" id="fCancel">Huỷ</button><button class="btn primary" id="fSave">${rec?'Lưu':'Thêm'}</button>`;
   if(rec && extra) $('#dFoot').querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{ const t=b.textContent; b.disabled=true; b.textContent='Đang xử lý…';
@@ -996,7 +998,7 @@ const FIX_OPEN = ['Mới','Đã xác nhận','Đang sửa','Sửa chưa đạt',
 async function fixSection(v){
   const box = document.createElement('div');
   box.innerHTML = `<div class="sec"><h2><span>✓</span> Sửa lỗi từng trang — lưu trạng thái đến khi sửa xong, đo thứ hạng trước/sau</h2>
-    <p class="meta note">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b>. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, mỗi lần lấy số GSC ở B10 (bấm “Lấy số từ Google” hoặc nhập CSV Trang) app <b>tự ghi “sau”</b> và kết luận Tốt lên / Không đổi / Giảm — các ô trước/sau/hiệu quả không cần điền tay; nút “Đo hiệu quả” chỉ để đo ngay. So “trước/sau” chỉ khi hai kỳ cùng độ dài (VD cùng 28 ngày). Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
+    <p class="meta note">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b> — hoặc chỉ cần ghi ô <b>“Đã sửa gì”</b> rồi Lưu, trang tự chuyển “Đã sửa”. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, mỗi lần lấy số GSC ở B10 (bấm “Lấy số từ Google” hoặc nhập CSV Trang) app <b>tự ghi “sau”</b> và kết luận Tốt lên / Không đổi / Giảm — các ô trước/sau/hiệu quả không cần điền tay; nút “Đo hiệu quả” chỉ để đo ngay. So “trước/sau” chỉ khi hai kỳ cùng độ dài (VD cùng 28 ngày). Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
     <div class="vhead"><button class="btn primary" id="fxImp">Nhập báo cáo lỗi (.xlsx)</button><input type="file" id="fxFile" accept=".xlsx" hidden>
       <button class="btn" id="fxMeasure">Đo hiệu quả (sau khi nhập GSC mới)</button><span class="meta">Máy tự kiểm lại được: <b>Link tự thân</b>, <b>Đổi năm giả</b>; loại khác người kiểm.</span></div>
     <div id="fxJob"></div><div class="gwrap" style="padding:12px 14px" id="fxSum"></div><div id="fxG"></div>`;

@@ -1372,18 +1372,24 @@ def loi_fill_hints():
 
 
 def loi_on_update(rid, f):
-    """Đổi trạng thái sang «Đã sửa» → ghi ngày sửa + chụp số liệu GSC lúc sửa làm mốc «trước»."""
+    """Đổi trạng thái sang «Đã sửa» → ghi ngày sửa + chụp số liệu GSC lúc sửa làm mốc «trước».
+    Ghi «Đã sửa gì» mà để nguyên trạng thái đang mở → hiểu là đã sửa xong."""
+    cur = next((r["fields"] for r in STORE.list(_tname("sualoi")) if r["record_id"] == rid), {})
+    if ((f.get("Đã sửa gì") or "").strip() and not (cur.get("Đã sửa gì") or "").strip()
+            and f.get("Trạng thái", cur.get("Trạng thái")) in FX.OPEN and f.get("Trạng thái", cur.get("Trạng thái")) == cur.get("Trạng thái")):
+        f = {**f, "Trạng thái": "Đã sửa"}
     if f.get("Trạng thái") not in FX.FIXED:
         return f
-    cur = next((r["fields"] for r in STORE.list(_tname("sualoi")) if r["record_id"] == rid), {})
     if cur.get("Trạng thái") in FX.FIXED:
         return f
     out = dict(f)
-    out.setdefault("Ngày sửa", now_ms())
+    if not out.get("Ngày sửa"):  # form gửi ô trống là None → vẫn tự ghi
+        out["Ngày sửa"] = now_ms()
     snap = _gsc_snap(_pages_by_path().get(FX.norm_path(cur.get("URL") or "")), "trước")
     if snap:
         out.update(snap)
-    out.setdefault("Hiệu quả", "Chờ đo")
+    if not out.get("Hiệu quả"):
+        out["Hiệu quả"] = "Chờ đo"
     return out
 
 
