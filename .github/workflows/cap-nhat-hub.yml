@@ -1,0 +1,25 @@
+# Đẩy lên main → gọi Deploy Hook của Render để Marketing Hub tải bản SEO mới nhất.
+# Bài viết (các trạm 00–08, mẫu, log) không đổi app nên không dựng lại Hub.
+# Link hook nằm ở secret RENDER_DEPLOY_HOOK (Render → Settings → Deploy Hook).
+name: Cập nhật Marketing Hub
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '0[0-8]-*/**'
+      - 'mau/**'
+      - 'index.md'
+      - 'log.md'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gọi Deploy Hook của Render
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "Chưa có secret RENDER_DEPLOY_HOOK"; exit 1; fi
+          curl -fsS -X POST "$HOOK" -o /dev/null -w "Render trả %{http_code}\n"
