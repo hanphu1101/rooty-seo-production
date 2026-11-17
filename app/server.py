@@ -1444,7 +1444,7 @@ def loi_apply(items, overview, batch, close_kinds=None):
             cnt["new"] += 1
         else:
             f = r["fields"]
-            ch = {"Chi tiết lỗi": it["detail"], "Đợt quét": batch}
+            ch = {"Chi tiết lỗi": it["detail"], "Đợt quét": batch, "Ngôn ngữ": it["lang"]}
             # gợi ý tự động chưa ai sửa tay → làm mới theo chi tiết mới
             if not f.get("Cần sửa gì") or f.get("Cần sửa gì") == FX.fix_hint(it["type"], f.get("Chi tiết lỗi") or ""):
                 ch["Cần sửa gì"] = FX.fix_hint(it["type"], it["detail"])
@@ -1616,6 +1616,65 @@ def loi_measure():
         STORE.update_many(_tname("sualoi"), ups)
     return {"ok": True, "message": ("Đo lại: " + " · ".join(f"{k} {v}" for k, v in cnt.items())) if cnt else
             "Chưa có dòng nào đủ điều kiện đo — cần nhập GSC Trang ở B10 (mỗi kỳ một lần), trang đã sửa ≥ 28 ngày"}
+
+
+ONPAGE_COLS = ("Title", "Meta", "Heading", "URL chuẩn", "Hình ảnh")
+
+
+def _nhom_vi_tri(pos, impr):
+    """Nhóm cơ hội theo vị trí GSC trung bình + trọng số điểm ưu tiên."""
+    if not impr:
+        return "Chưa có hiển thị", 0
+    if pos is None:
+        return "Chưa rõ vị trí", 0.2
+    if pos <= 3:
+        return "Đang top 3 · giữ", 0.25
+    if pos <= 10:
+        return "Vị trí 4–10 · sắp top 3", 1.0
+    if pos <= 20:
+        return "Trang 2 (11–20)", 0.8
+    if pos <= 30:
+        return "Trang 3 (21–30)", 0.4
+    return "Xa (> 30)", 0.15
+
+
+def uu_tien():
+    """Thứ tự sửa theo từ khoá: mỗi trang có lỗi chưa sửa + số GSC của chính trang đó (hiển thị, vị trí, từ khoá).
+    Điểm = hiển thị × trọng số vị trí → trang đang ở vị trí 4–20 với nhiều hiển thị lên đầu: sửa là dễ lên top nhất."""
+    site = site_url()
+    loi = {}
+    for r in STORE.list(_tname("sualoi")):
+        f = r["fields"]
+        if f.get("Trạng thái") not in FX.OPEN:
+            continue
+        loi.setdefault(RV.norm_url(f.get("URL"), site), []).append({"loai": f.get("Loại lỗi") or "", "sua": f.get("Cần sửa gì") or "", "muc": f.get("Mức độ") or ""})
+    out, khong_so = [], 0
+    for r in STORE.list(_tname("trang")):
+        f = r["fields"]
+        if f.get("Loại trang") == "Ngôn ngữ khác":
+            continue
+        u = RV.norm_url(f.get("URL"), site)
+        ds = list(loi.get(u, []))
+        onp = [k for k in ONPAGE_COLS if f.get(k) == "Chưa đạt"]
+        if onp:
+            ds.append({"loai": "Onpage", "sua": "Chưa đạt: " + ", ".join(onp) + (f" · gợi ý title: {f['Gợi ý Title']}" if f.get("Gợi ý Title") else ""), "muc": ""})
+        if f.get("Link vào") is not None and f["Link vào"] <= 1 and f.get("Loại trang") not in ("Trang chủ",):
+            ds.append({"loai": "Ít link nội bộ", "sua": f"Chỉ {f['Link vào']} link nội bộ trỏ vào — thêm link chữ từ bài cùng chủ đề (tab B9)", "muc": ""})
+        if not ds:
+            continue
+        impr, pos = f.get("GSC hiển thị") or 0, f.get("GSC vị trí")
+        nhom, w = _nhom_vi_tri(pos, impr)
+        khong_so += not impr
+        out.append({"url": f.get("URL"), "tieuDe": f.get("Tiêu đề") or "", "loaiTrang": f.get("Loại trang") or "",
+                    "tuKhoa": f.get("Từ khoá GSC") or f.get("Từ khoá chính") or "", "viTri": pos, "hienThi": impr,
+                    "nhap": f.get("GSC lượt nhấp") or 0, "nhom": nhom, "diem": round(impr * w), "loi": ds,
+                    "kySoLieu": f.get("Kỳ số liệu") or ""})
+    out.sort(key=lambda x: (-x["diem"], -len(x["loi"])))
+    nhom = {}
+    for x in out:
+        nhom[x["nhom"]] = nhom.get(x["nhom"], 0) + 1
+    return {"site": site, "trang": out[:300], "tong": len(out), "nhom": nhom, "khongSo": khong_so,
+            "coTuKhoa": any(x["tuKhoa"] for x in out)}
 
 
 def loi_summary():
@@ -2180,6 +2239,32 @@ def DAILY_FILE_F():
     return du_lieu("gsc-daily.json")
 
 
+def _page_top_queries(data, c, site, top=5):
+    """Truy vấn × Trang → mỗi trang ghi 5 từ khoá GSC nhiều hiển thị nhất (kèm vị trí) vào cột «Từ khoá GSC»
+    của bảng Trang đích — để biết sửa trang nào thì đẩy được từ khoá nào."""
+    STORE.setup()  # bảo đảm có cột «Từ khoá GSC» (chỉ thêm cột còn thiếu)
+    by = {}
+    for r in data:
+        if max(c["query"], c["page"]) >= len(r):
+            continue
+        q, im = (r[c["query"]] or "").strip(), RV.num(r[c["impr"]]) if c["impr"] >= 0 else 0
+        pos = RV.num(r[c["pos"]], True) if c["pos"] >= 0 else None
+        if q and im:
+            by.setdefault(RV.norm_url(r[c["page"]], site), []).append((im, q, pos))
+    idx = {RV.norm_url(r["fields"].get("URL"), site): r for r in STORE.list(_tname("trang"))}
+    ups = {}
+    for u, qs in by.items():
+        if u in idx:
+            qs.sort(reverse=True)
+            so = lambda n: f"{int(n):,}".replace(",", ".")
+            ups[idx[u]["record_id"]] = {"Từ khoá GSC": " · ".join(
+                (f"{q} (vị trí {pos:g} – {so(im)} hiển thị)".replace(f"{pos:g} –", f"{pos:g}".replace(".", ",") + " –") if pos else f"{q} ({so(im)} hiển thị)")
+                for im, q, pos in qs[:top])}
+    if ups:
+        STORE.update_many(_tname("trang"), ups)
+    return f"Từ khoá GSC chính: ghi cho {len(ups)} trang"
+
+
 def review_import_zip(body):
     """File .zip xuất từ GSC (Hiệu suất hoặc AI tạo sinh): nhập từng CSV nhận ra được, bỏ qua Quốc gia/Thiết bị/Bộ lọc."""
     import base64, csv, io, zipfile
@@ -2323,6 +2408,7 @@ def review_import(body):
         if ups:
             STORE.update_many(_tname("cannib"), ups)
         msg = f"Xung đột từ khoá: {len(found)} từ khoá có ≥ 2 trang Rooty cùng cạnh tranh (thêm {len(new)}, cập nhật {len(ups)})"
+        msg += " · " + _page_top_queries(data, c, site)
     log("Nhập số liệu: " + msg)
     return {"ok": True, "kind": kind, "message": msg}
 
@@ -2958,6 +3044,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._guard(chandoan_last)
         if path == "/api/algo/summary":
             return self._guard(algo_summary)
+        if path == "/api/uutien":
+            return self._guard(uu_tien)
         if path == "/api/loi/summary":
             return self._guard(loi_summary)
         if path == "/api/geo/summary":

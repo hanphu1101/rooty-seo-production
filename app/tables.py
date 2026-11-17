@@ -183,7 +183,7 @@ TABLES = {
         F("Gợi ý Title"), F("Gợi ý Meta", "long"), F("Chi tiết onpage", "long"), F("Lần chấm onpage", "date"),
         # Bước 10 · số liệu & content audit
         F("GSC lượt nhấp", "num"), F("GSC hiển thị", "num"), F("GSC CTR %", "dec"), F("GSC vị trí", "dec"),
-        F("GA4 phiên", "num"), F("GA4 tương tác %", "dec"), F("GA4 chuyển đổi", "num"), F("AI Google hiển thị", "num"), F("Kỳ số liệu"),
+        F("GA4 phiên", "num"), F("GA4 tương tác %", "dec"), F("GA4 chuyển đổi", "num"), F("AI Google hiển thị", "num"), F("Từ khoá GSC", "long"), F("Kỳ số liệu"),
         F("Đề xuất audit", "select", ["Giữ", "Cập nhật / viết lại", "Gộp", "Xoá / 301", "Noindex", "Theo dõi"]), F("Lý do đề xuất", "long"),
         F("Quyết định", "select", ["Giữ", "Cập nhật / viết lại", "Gộp", "Xoá / 301", "Noindex", "Chưa quyết"]),
         F("Điểm onpage", "num"), F("Onpage", "select", ["Chưa làm", "Đang làm", "Xong"]),

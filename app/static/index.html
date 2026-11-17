@@ -985,8 +985,36 @@ VIEWS.kythuat = async v => {
 };
 
 /* ---------- B5 · Audit ---------- */
+/* Thứ tự sửa theo từ khoá: trang có lỗi chưa sửa, xếp theo cơ hội lên top (hiển thị × vị trí GSC của chính trang) */
+async function uuTien(box){
+  let U; try{ U = await api('GET','/api/uutien'); }catch(e){ box.innerHTML = `<div class="banner">${esc(e.message)}</div>`; return; }
+  const open = store.get('fold-uutien', true), n0 = store.get('uutien-n', 30);
+  const nhomMau = {'Vị trí 4–10 · sắp top 3':'c-ok','Trang 2 (11–20)':'c-info','Đang top 3 · giữ':'c-info','Trang 3 (21–30)':'c-warn','Xa (> 30)':'c-warn'};
+  const draw = n => {
+    const rows = U.trang.slice(0, n);
+    box.innerHTML = `<details class="gwrap tfold" ${open?'open':''}><summary>Thứ tự sửa theo từ khoá<span class="cnt">${U.tong} trang có việc cần sửa · ${esc(U.site.replace(/^https?:\/\//,''))}</span></summary>
+      <div style="padding:10px 14px">
+        <p class="meta note">Mục tiêu là đẩy thứ hạng từ khoá, nên trang nào <b>đang có từ khoá ở vị trí 4–20 và nhiều hiển thị</b> thì sửa trước — sửa xong dễ lên top 3 nhất. Điểm = lượt hiển thị GSC × trọng số vị trí (4–10: ×1 · 11–20: ×0,8 · 21–30: ×0,4 · top 3: ×0,25 giữ · xa hơn: ×0,15). Lỗi lấy từ «Sửa lỗi từng trang» (chưa sửa), chấm onpage (B7) và số link nội bộ trỏ vào. Số GSC theo trang + từ khoá của trang cập nhật mỗi lần bấm «Lấy số từ Google» ở B10.</p>
+        <div class="strip">${Object.entries(U.nhom).map(([k,c])=>`<div class="pill"><b>${c}</b>${esc(k)}</div>`).join('')}</div>
+        ${U.coTuKhoa?'':'<div class="banner">Chưa có từ khoá theo trang — vào B10 bấm «Lấy số từ Google (GSC + GA4)» một lần để app ghi từ khoá GSC của từng trang.</div>'}
+        <div class="tscroll"><table class="g"><thead><tr><th>#</th><th>Trang</th><th>Từ khoá đang nhận (GSC)</th><th class="num">Vị trí</th><th class="num">Hiển thị</th><th class="num">Nhấp</th><th>Cơ hội</th><th>Việc cần sửa trên trang này</th></tr></thead><tbody>
+        ${rows.map((x,i)=>`<tr><td class="num">${i+1}</td>
+          <td style="min-width:200px"><a class="u" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(pathOf(x.url))}</a>${x.tieuDe?`<div class="meta">${esc(x.tieuDe.slice(0,70))}</div>`:''}</td>
+          <td style="min-width:220px;font-size:13px">${x.tuKhoa?esc(x.tuKhoa).split(' · ').slice(0,3).join('<br>'):'<span class="meta">—</span>'}</td>
+          <td class="num">${x.viTri!=null?Number(x.viTri).toLocaleString('vi-VN'):'—'}</td><td class="num">${Number(x.hienThi||0).toLocaleString('vi-VN')}</td><td class="num">${Number(x.nhap||0).toLocaleString('vi-VN')}</td>
+          <td><span class="chip ${nhomMau[x.nhom]||''}">${esc(x.nhom)}</span></td>
+          <td style="min-width:300px;font-size:13px">${x.loi.slice(0,4).map(l=>`<div><b>${esc(l.loai)}</b>${l.sua?': '+esc(l.sua.slice(0,150)):''}</div>`).join('')}${x.loi.length>4?`<div class="meta">+${x.loi.length-4} việc nữa</div>`:''}</td></tr>`).join('')}
+        </tbody></table></div>
+        ${U.trang.length>n?`<div class="more"><button class="btn sm" data-more>Hiện thêm (${U.trang.length-n} trang nữa)</button></div>`:''}
+      </div></details>`;
+    box.querySelector('details').ontoggle = e=>store.set('fold-uutien', e.target.open);
+    box.querySelector('[data-more]')?.addEventListener('click', ()=>{ store.set('uutien-n', n+50); draw(n+50); });
+  };
+  draw(n0);
+}
 VIEWS.audit = async v => {
-  v.innerHTML = '<div id="cp"></div><div class="strip" id="sum"></div><div id="g"></div>';
+  v.innerHTML = '<div id="uu"></div><div id="cp"></div><div class="strip" id="sum"></div><div id="g"></div>';
+  uuTien($('#uu'));
   crawlPanel($('#cp'));
   const lv = {'🔴 Cao':0,'🟡 Vừa':1,'🟢 Thấp':2};
   await grid($('#g'),'audit',{cols:['Vấn đề','Hạng mục','Mức độ','Số trang','Người sửa','Hạn','Trạng thái'],

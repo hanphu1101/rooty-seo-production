@@ -76,6 +76,53 @@ class LinkParser(HTMLParser):
             self._a["anchor"] += data
 
 
+def robots_rules(start: str) -> list[tuple[bool, str]]:
+    """Luật Allow/Disallow cho Googlebot (hoặc *) trong robots.txt → [(cho_phep, mẫu)].
+    Tự đọc vì urllib.robotparser không hiểu dấu * và $ như Google."""
+    try:
+        status, body, headers, _ = fetch(urllib.parse.urljoin(start, "/robots.txt"), follow=True)
+        if status != 200:
+            return []
+        txt = decode(body, headers)
+    except Exception:
+        return []
+    groups, cur, last_ua = {}, [], False
+    for line in txt.splitlines():
+        line = line.split("#", 1)[0].strip()
+        if ":" not in line:
+            continue
+        k, v = (x.strip() for x in line.split(":", 1))
+        k = k.lower()
+        if k == "user-agent":
+            if not last_ua:
+                cur = []
+            groups.setdefault(v.lower(), cur)
+            groups[v.lower()] = cur
+            last_ua = True
+            continue
+        last_ua = False
+        if k in ("allow", "disallow") and v:
+            cur.append((k == "allow", v))
+    return groups.get("googlebot") or groups.get("*") or []
+
+
+def robots_ok(url: str, rules) -> bool:
+    """Google: luật khớp dài nhất thắng, bằng nhau thì Allow thắng."""
+    if not rules:
+        return True
+    sp = urllib.parse.urlsplit(url)
+    path = (sp.path or "/") + ("?" + sp.query if sp.query else "")
+    best = None
+    for allow, pat in rules:
+        rx = "^" + re.escape(pat).replace(r"\*", ".*")
+        if rx.endswith(r"\$"):
+            rx = rx[:-2] + "$"
+        if re.match(rx, path):
+            if best is None or len(pat) > len(best[1]) or (len(pat) == len(best[1]) and allow):
+                best = (allow, pat)
+    return best is None or best[0]
+
+
 def norm(url: str) -> str:
     p = urllib.parse.urlsplit(url)
     path = p.path or "/"
@@ -100,7 +147,9 @@ def main() -> int:
     rows: dict[str, dict] = {}
     edges: list[dict] = []   # bản đồ link nội bộ: từ → đến, anchor, rel, vùng
 
-    print(f"→ Crawl {start} (tối đa {args.max_pages} trang)")
+    rules = robots_rules(start)
+    blocked = 0
+    print(f"→ Crawl {start} (tối đa {args.max_pages} trang)" + (f" · theo {len(rules)} luật robots.txt" if rules else ""))
     while queue and len(rows) < args.max_pages:
         url, d = queue.popleft()
         if url in rows:
@@ -144,6 +193,10 @@ def main() -> int:
                     continue
                 if u != url:
                     inlinks[u].add(url)
+                if u not in depth and not robots_ok(u, rules):
+                    depth[u] = -1          # robots.txt chặn → Google không thu thập, không crawl (VD trang lọc ?filter_month=)
+                    blocked += 1
+                    continue
                 if u not in depth:
                     depth[u] = d + 1
                     queue.append((u, d + 1))

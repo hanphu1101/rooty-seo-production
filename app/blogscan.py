@@ -90,9 +90,21 @@ def detect_langs(site):
         return DEFAULT_LANGS
 
 
+def root_lang(site):
+    """Ngôn ngữ của bài ở thư mục gốc, đọc thẻ <html lang> trang chủ (rootytrip.vn viết tiếng Anh ở gốc;
+    rootytrip.com tiếng Việt ở gốc, tiếng Anh ở /en/). Không đọc được thì coi là tiếng Việt như trước."""
+    try:
+        body, _ = _get(site.rstrip("/") + "/")
+        m = re.search(r'<html[^>]*\blang=["\']([a-zA-Z]{2})', body.decode("utf-8", "replace")[:3000])
+        return m.group(1).lower() if m else "vi"
+    except Exception:
+        return "vi"
+
+
 def fetch_posts(site, say=lambda m: None):
     site = site.rstrip("/")
     posts = []
+    root = root_lang(site)
     for lang in detect_langs(site):
         base = f"{site}/{lang}" if lang else site
         page = 1
@@ -108,11 +120,11 @@ def fetch_posts(site, say=lambda m: None):
             for p in data:
                 if lang and f"/{lang}/" not in p.get("link", ""):
                     continue   # plugin trả lại bài tiếng Việt khi ngôn ngữ không có
-                posts.append({"id": p["id"], "lang": (lang or "vi").upper().split("-")[0], "link": p["link"], "slug": p.get("slug", ""),
+                posts.append({"id": p["id"], "lang": (lang or root).upper().split("-")[0], "link": p["link"], "slug": p.get("slug", ""),
                               "date": p.get("date", "")[:10], "modified": p.get("modified", "")[:10], "author": p.get("author"),
                               "title": html.unescape(re.sub(r"<[^>]+>", "", p["title"]["rendered"])), "html": p["content"]["rendered"]})
             total_pages = int(hd.get("X-WP-TotalPages") or hd.get("x-wp-totalpages") or 1)
-            say(f"Đọc bài {lang.upper() or 'VI'}: trang {page}/{total_pages}")
+            say(f"Đọc bài {(lang or root).upper()}: trang {page}/{total_pages}")
             if page >= total_pages:
                 break
             page += 1
