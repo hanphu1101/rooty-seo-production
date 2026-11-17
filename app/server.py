@@ -367,6 +367,18 @@ class LarkStore:
                 msg.append("Đã thêm trường: " + ", ".join(added))
             return {"ok": True, "message": "; ".join(msg) or "Base đã đủ bảng và trường."}
 
+    def ensure_table(self, name, fields):
+        """Tạo bảng (chỉ khi chưa có) — dùng cho bảng cấu hình ngoài SCHEMA như «Danh sách website»."""
+        if name in self._tables:
+            return
+        with self.lock:
+            existing = self._list_tables()
+            if name not in existing:
+                d = self._req("POST", f"/open-apis/bitable/v1/apps/{self.base}/tables",
+                              {"table": {"name": name, "default_view_name": "Tất cả", "fields": [self._field_def(f) for f in fields]}})
+                existing[name] = (d.get("table_id") or (d.get("table") or {}).get("table_id"))
+            self._tables = existing
+
     @staticmethod
     def _field_def(f):
         name, ftype, prop = f
@@ -474,7 +486,101 @@ def make_store():
     return LocalStore(APP_DIR / "demo-data.json")
 
 
-STORE = make_store()
+# ------------------------------------------------------------------ Nhiều website
+# Web chính (SITE_URL, Base, GSC_SITE, GA4_PROPERTY trong .env) chạy như cũ. Web khác khai ở bảng
+# «Danh sách website» trong Base chính: mỗi web một Base riêng + GSC + GA4 riêng, số không lẫn nhau.
+# Mỗi yêu cầu mang tiêu đề X-Seo-Site; việc chạy nền giữ web của lúc bấm.
+T_SITES = "Danh sách website"
+SITE_FIELDS = [("Tên", 1, None), ("Website", 1, None), ("Mã Base", 1, None), ("GSC", 1, None), ("GA4", 1, None),
+               ("Bật", 3, {"options": [{"name": "Có"}, {"name": "Không"}]}), ("Ghi chú", 1, None)]
+MAIN_STORE = make_store()
+_SITE = threading.local()
+_SITES_CACHE = {"at": 0, "list": []}
+
+
+def _host(url):
+    return urllib.parse.urlparse(url if "://" in (url or "") else "https://" + (url or "")).netloc.lower().removeprefix("www.")
+
+
+def _main_site():
+    env = load_env()
+    url = (env.get("SITE_URL") or "https://rootytrip.com").rstrip("/")
+    return {"id": "chinh", "name": _host(url), "url": url, "gsc": env.get("GSC_SITE", ""), "ga4": env.get("GA4_PROPERTY", ""),
+            "store": MAIN_STORE, "main": True}
+
+
+MAIN_SITE = _main_site()
+
+
+def other_sites(fresh=False):
+    """Web khác đọc từ bảng «Danh sách website» (Bật khác Không, có Mã Base). Đọc lại tối đa 1 phút một lần."""
+    if MAIN_STORE.mode != "lark":
+        return []
+    if not fresh and time.time() - _SITES_CACHE["at"] < 60:
+        return _SITES_CACHE["list"]
+    try:
+        MAIN_STORE.ensure_table(T_SITES, SITE_FIELDS)
+        rows = MAIN_STORE.list(T_SITES)
+    except Exception:
+        return _SITES_CACHE["list"]
+    old = {x["id"]: x for x in _SITES_CACHE["list"]}
+    out = []
+    for r in rows:
+        f = r["fields"]
+        url, base = str(f.get("Website") or "").strip(), str(f.get("Mã Base") or "").strip()
+        m = re.search(r"/base/([A-Za-z0-9]+)", base)
+        base = m.group(1) if m else base
+        if not url or not base or f.get("Bật") == "Không" or _host(url) == MAIN_SITE["name"]:
+            continue
+        sid = _host(url)
+        o = old.get(sid)
+        store = o["store"] if o and o["store"].base == base else LarkStore({**load_env(), "LARK_BASE_TOKEN": base})
+        url = url if "://" in url else "https://" + url
+        out.append({"id": sid, "name": str(f.get("Tên") or sid), "url": url.rstrip("/"), "gsc": str(f.get("GSC") or "").strip(),
+                    "ga4": re.sub(r"\D", "", str(f.get("GA4") or "")), "store": store, "main": False})
+    _SITES_CACHE.update(at=time.time(), list=out)
+    return out
+
+
+def cur_site():
+    return getattr(_SITE, "s", None) or MAIN_SITE
+
+
+def use_site(sid):
+    """Chọn web cho luồng hiện tại (mỗi yêu cầu / việc chạy nền)."""
+    _SITE.s = next((x for x in other_sites() if x["id"] == sid), MAIN_SITE) if sid and sid != "chinh" else MAIN_SITE
+    return _SITE.s
+
+
+def in_site(fn, site=None):
+    """Bọc hàm chạy ở luồng khác để giữ đúng web của lúc bấm."""
+    site = site or cur_site()
+
+    def run(*a, **k):
+        _SITE.s = site
+        return fn(*a, **k)
+    return run
+
+
+def site_dir():
+    """Thư mục báo cáo của web: web chính giữ reports/ như cũ, web khác reports/web/<tên miền>/."""
+    s = cur_site()
+    d = ROOT / "reports" if s["main"] else ROOT / "reports" / "web" / s["id"]
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def du_lieu(name):
+    return site_dir() / "du-lieu" / name
+
+
+class _SiteStore:
+    """STORE dùng chung ở mọi chỗ trong app → trỏ tới Base của web đang chọn."""
+    def __getattr__(self, n):
+        return getattr(cur_site()["store"], n)
+
+
+STORE = _SiteStore()
 
 
 def _prewarm():
@@ -486,7 +592,7 @@ def _prewarm():
             pass
 
 
-if STORE.mode == "lark":
+if MAIN_STORE.mode == "lark":
     threading.Thread(target=_prewarm, daemon=True).start()
 GATES = parse_gates()
 ENV = load_env()
@@ -739,7 +845,7 @@ def t_seed(key):
 
 
 def import_crawl():
-    rows, src = TB.crawl_rows(ROOT / "reports")
+    rows, src = TB.crawl_rows(site_dir())
     have = {r["fields"].get("URL") for r in STORE.list(_tname("trang"))}
     recs = TB.trang_from_crawl(rows, have)
     if recs:
@@ -751,9 +857,9 @@ def import_crawl():
 def import_audit():
     """Đồng bộ Audit với báo cáo mới nhất: thêm vấn đề mới, cập nhật số trang,
     mở lại vấn đề 'Đã sửa' nếu vẫn còn, tự đóng vấn đề từ crawl không còn xuất hiện."""
-    rows, src = TB.crawl_rows(ROOT / "reports")
+    rows, src = TB.crawl_rows(site_dir())
     existing = {r["fields"].get("Vấn đề"): r for r in STORE.list(_tname("audit"))}
-    found = TB.audit_from_reports(rows, src, ROOT / "reports", set())
+    found = TB.audit_from_reports(rows, src, site_dir(), set())
     found_names = {f["Vấn đề"] for f in found}
     today = time.strftime("%d/%m/%Y")
     new, upd, reopened, closed = [], 0, 0, 0
@@ -769,7 +875,7 @@ def import_audit():
             reopened += 1
         STORE.update(_tname("audit"), old["record_id"], ch)
         upd += 1
-    complete = TB.crawl_complete(ROOT / "reports")  # crawl dừng giữa chừng thì không tự đóng
+    complete = TB.crawl_complete(site_dir())  # crawl dừng giữa chừng thì không tự đóng
     for name, old in existing.items():
         fo = old["fields"]
         if complete and name not in found_names and str(fo.get("Nguồn", "")).startswith("crawl-") and fo.get("Trạng thái") not in ("Đã sửa", "Bỏ qua"):
@@ -791,7 +897,7 @@ import techcheck  # noqa: E402
 
 
 def site_url():
-    return (ENV.get("SITE_URL") or "https://rootytrip.com").rstrip("/")
+    return cur_site()["url"]
 
 
 def sync_checklist():
@@ -831,10 +937,10 @@ def tech_check():
     key = ENV.get("PAGESPEED_API_KEY")
     results = techcheck.check_site(site_url(), key)
     try:
-        rows, _ = TB.crawl_rows(ROOT / "reports")
+        rows, _ = TB.crawl_rows(site_dir())
     except FileNotFoundError:
         rows = []
-    results.update(techcheck.check_crawl(rows, ROOT / "reports"))
+    results.update(techcheck.check_crawl(rows, site_dir()))
     results.update(techcheck.check_extra(site_url(), rows, key))
     results.update(techcheck.check_tables({k: [r["fields"] for r in STORE.list(_tname(k))] for k in ("trang", "tukhoa", "hoso", "lienket")}))
     ok, bad, n = _apply_tech(results)
@@ -843,12 +949,31 @@ def tech_check():
     return {"ok": True, "message": msg}
 
 
-CRAWL = {"running": False, "lines": [], "started": 0, "finished": 0, "rc": None, "result": ""}
+CRAWLS: dict[str, dict] = {}
+
+
+def crawl_state():
+    return CRAWLS.setdefault(cur_site()["id"], {"running": False, "lines": [], "started": 0, "finished": 0, "rc": None, "result": ""})
+
+
+class _CrawlProxy:
+    """CRAWL cũ → trạng thái crawl của web đang chọn."""
+    def __getitem__(self, k):
+        return crawl_state()[k]
+
+    def __setitem__(self, k, v):
+        crawl_state()[k] = v
+
+    def update(self, **kw):
+        crawl_state().update(**kw)
+
+
+CRAWL = _CrawlProxy()
 
 
 def _crawl_worker(max_pages):
     cmd = [sys.executable, "-X", "utf8", str(ROOT / "scripts" / "crawl_site.py"), site_url(),
-           "--max-pages", str(max_pages), "--delay", "0.15"]
+           "--max-pages", str(max_pages), "--delay", "0.15", "--out-dir", str(site_dir())]
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
                              encoding="utf-8", errors="replace", cwd=str(ROOT))
@@ -857,8 +982,8 @@ def _crawl_worker(max_pages):
         CRAWL["rc"] = p.wait()
         if CRAWL["rc"] == 0:
             parts = [import_crawl()["message"], import_audit()["message"]]
-            rows, _ = TB.crawl_rows(ROOT / "reports")
-            _apply_tech(techcheck.check_crawl(rows, ROOT / "reports"))
+            rows, _ = TB.crawl_rows(site_dir())
+            _apply_tech(techcheck.check_crawl(rows, site_dir()))
             parts.append("đã chấm lại các mục kiểm từ crawl trong Checklist audit")
             parts.append(onpage_rescore()["message"].split(" (")[0])
             CRAWL["result"] = " · ".join(parts)
@@ -878,7 +1003,13 @@ import kwtools as KW  # noqa: E402
 JOBS: dict[str, dict] = {}
 
 
+def job_key(name):
+    s = cur_site()
+    return name if s["main"] else f"{name}@{s['id']}"
+
+
 def run_job(name, fn):
+    name = job_key(name)
     if JOBS.get(name, {}).get("running"):
         raise StoreError("Việc này đang chạy, đợi xong đã.")
     st = JOBS[name] = {"running": True, "lines": [], "result": "", "started": now_ms(), "finished": 0}
@@ -895,7 +1026,7 @@ def run_job(name, fn):
             st["running"] = False
             st["finished"] = now_ms()
             log(f"{name}: {st['result'][:300]}")
-    threading.Thread(target=work, daemon=True).start()
+    threading.Thread(target=in_site(work), daemon=True).start()
     return {"ok": True, "message": "Đã bắt đầu — chạy nền, trang tự cập nhật khi xong."}
 
 
@@ -1525,7 +1656,8 @@ def loi_summary():
 # ------------------------------------------------------------------ Thuật toán Google (nguồn chính thức) + chính sách spam
 import algo as AL  # noqa: E402
 
-ALGO_STATE = ROOT / "reports" / "du-lieu" / "algo-last.json"
+def ALGO_STATE_F():
+    return du_lieu("algo-last.json")
 
 
 def _iso_ms(d):
@@ -1545,7 +1677,7 @@ def algo_refresh():
         posts = AL.fetch_blog()
     except Exception:
         posts = []
-    daily = json.loads(DAILY_FILE.read_text(encoding="utf-8")) if DAILY_FILE.exists() else []
+    daily = json.loads(DAILY_FILE_F().read_text(encoding="utf-8")) if DAILY_FILE_F().exists() else []
     t = _tname("thuattoan")
     have = {r["fields"].get("Tên đợt"): r for r in STORE.list(t)}
     new, upd, fresh = [], {}, []
@@ -1575,8 +1707,8 @@ def algo_refresh():
               "Mức liên quan": p["rel"], "Đã đọc": "Chưa"} for p in posts if p["title"] not in have_p]
     if new_p:
         STORE.create_many(tb, new_p)
-    ALGO_STATE.parent.mkdir(parents=True, exist_ok=True)
-    ALGO_STATE.write_text(json.dumps({"at": now_ms(), "updates": len(ups), "posts": len(posts)}), encoding="utf-8")
+    ALGO_STATE_F().parent.mkdir(parents=True, exist_ok=True)
+    ALGO_STATE_F().write_text(json.dumps({"at": now_ms(), "updates": len(ups), "posts": len(posts)}), encoding="utf-8")
     active = [u["name"] for u in ups if not u["done"]]
     msg = (f"Google Search Status: {len(ups)} đợt · mới {len(new)}" + (f" ({', '.join(fresh[:3])})" if fresh else "")
            + (f" · ⚠ ĐANG TRIỂN KHAI: {', '.join(active)}" if active else " · không có đợt nào đang triển khai")
@@ -1589,7 +1721,7 @@ def algo_refresh():
 def algo_auto_refresh():
     """Tự lấy lại nếu lần trước đã quá 24 giờ (chạy nền khi mở app)."""
     try:
-        last = json.loads(ALGO_STATE.read_text(encoding="utf-8")).get("at", 0) if ALGO_STATE.exists() else 0
+        last = json.loads(ALGO_STATE_F().read_text(encoding="utf-8")).get("at", 0) if ALGO_STATE_F().exists() else 0
         if now_ms() - last > 24 * 3600 * 1000:
             algo_refresh()
     except Exception as e:
@@ -1637,12 +1769,12 @@ def policy_check():
 
 
 def algo_summary():
-    last = json.loads(ALGO_STATE.read_text(encoding="utf-8")) if ALGO_STATE.exists() else {}
+    last = json.loads(ALGO_STATE_F().read_text(encoding="utf-8")) if ALGO_STATE_F().exists() else {}
     ups = [r["fields"] for r in STORE.list(_tname("thuattoan"))]
     return {"last": last.get("at"), "active": [u["Tên đợt"] for u in ups if u.get("Trạng thái") == "Đang triển khai"],
             "unreviewed": sum(1 for u in ups if u.get("Đã review") != "Đã" and u.get("Loại") in ("Core update", "Spam update")),
             "unread": sum(1 for r in STORE.list(_tname("tinseo")) if r["fields"].get("Đã đọc") != "Đã" and r["fields"].get("Mức liên quan") == "Cao"),
-            "hasDaily": DAILY_FILE.exists()}
+            "hasDaily": DAILY_FILE_F().exists()}
 
 
 
@@ -1739,7 +1871,7 @@ def multi_check(body):
             done[0] += 1
             say(f"[{done[0]}/{len(targets)}] xong {x}" + (f" · {ch.get('Điểm %')}%" if ch.get("Điểm %") is not None else " · lỗi"))
         with ThreadPoolExecutor(max_workers=4) as ex:
-            list(ex.map(one, targets))
+            list(ex.map(in_site(one), targets))
         return f"Kiểm xong {len(targets) - len(errs)}/{len(targets)} địa chỉ" + (f" · không kiểm được: {', '.join(errs[:5])}" if errs else "")
     return run_job("kiemweb", job)
 
@@ -1749,7 +1881,8 @@ def multi_check(body):
 import blogscan as BS  # noqa: E402
 import chandoan as CD  # noqa: E402
 
-CD_LAST = ROOT / "reports" / "du-lieu" / "chandoan-last.json"
+def CD_LAST_F():
+    return du_lieu("chandoan-last.json")
 
 
 def chandoan_run(body):
@@ -1761,7 +1894,7 @@ def chandoan_run(body):
 
     def job(say):
         say("① Đọc số liệu GSC theo ngày…")
-        daily = json.loads(DAILY_FILE.read_text(encoding="utf-8")) if (own and DAILY_FILE.exists()) else []
+        daily = json.loads(DAILY_FILE_F().read_text(encoding="utf-8")) if (own and DAILY_FILE_F().exists()) else []
         tr = CD.trend(daily)
         say("② Lấy các đợt cập nhật thuật toán từ Google Search Status…")
         try:
@@ -1800,8 +1933,8 @@ def chandoan_run(body):
         host = urllib.parse.urlsplit(site).netloc.replace("www.", "")
         out = ROOT / "reports" / f"chan-doan-rot-top-{host}-{time.strftime('%Y-%m-%d')}.md"
         out.write_text(md, encoding="utf-8")
-        CD_LAST.parent.mkdir(parents=True, exist_ok=True)
-        CD_LAST.write_text(json.dumps({"md": md, "at": now_ms(), "site": site, "file": str(out.relative_to(ROOT)), "counts": st["counts"]},
+        CD_LAST_F().parent.mkdir(parents=True, exist_ok=True)
+        CD_LAST_F().write_text(json.dumps({"md": md, "at": now_ms(), "site": site, "file": str(out.relative_to(ROOT)), "counts": st["counts"]},
                                       ensure_ascii=False), encoding="utf-8")
         top = ", ".join(f"{r['kind']} {r['count']}" for r in ranked[:3])
         return (f"Chẩn đoán xong {site}: {st['posts']} bài · " + ("RỚT từ " + tr["start"] if tr.get("drop") else ("chưa có GSC" if not tr["ok"] else "không thấy rớt mạnh"))
@@ -1811,7 +1944,7 @@ def chandoan_run(body):
 
 
 def chandoan_last():
-    return json.loads(CD_LAST.read_text(encoding="utf-8")) if CD_LAST.exists() else {}
+    return json.loads(CD_LAST_F().read_text(encoding="utf-8")) if CD_LAST_F().exists() else {}
 
 
 
@@ -1943,7 +2076,8 @@ def gia_usage(body):
 # ------------------------------------------------------------------ Kế hoạch link cho một trang đích (silo kim tự tháp)
 import linkplan as LP  # noqa: E402
 
-LP_LAST = ROOT / "reports" / "du-lieu" / "linkplan-last.json"
+def LP_LAST_F():
+    return du_lieu("linkplan-last.json")
 
 
 def _vi_texts(say):
@@ -1974,7 +2108,7 @@ def linkplan_run(body):
     extra = [x.strip() for x in re.split(r"[,\n;]", b.get("terms") or "") if x.strip()]
 
     def job(say):
-        edges = LB.load_edges(ROOT / "reports")
+        edges = LB.load_edges(site_dir())
         if not edges:
             return "Chưa có bản đồ link nội bộ — chạy crawl ở tab B5 trước."
         pages = [r["fields"] for r in STORE.list(_tname("trang"))]
@@ -1986,8 +2120,8 @@ def linkplan_run(body):
         say("Dựng kim tự tháp & tìm câu đặt link…")
         plan = LP.build(t, kw, pages, edges, kw_rows, texts, extra)
         plan["at"] = now_ms()
-        LP_LAST.parent.mkdir(parents=True, exist_ok=True)
-        LP_LAST.write_text(json.dumps(plan, ensure_ascii=False), encoding="utf-8")
+        LP_LAST_F().parent.mkdir(parents=True, exist_ok=True)
+        LP_LAST_F().write_text(json.dumps(plan, ensure_ascii=False), encoding="utf-8")
         have = {(r["fields"].get("Từ URL"), r["fields"].get("Đến URL")) for r in STORE.list(_tname("lienket"))}
         recs = [{"Anchor": L["anchor"], "Loại": "Nội bộ", "Chiến lược": "Liên kết nội bộ", "Từ URL": L["from"], "Đến URL": L["to"],
                  "Thuộc tính": "Dofollow", "Vị trí đặt": "Trong nội dung", "Trạng thái": "Kế hoạch", "Câu gắn link": L.get("sentence", ""),
@@ -2003,7 +2137,7 @@ def linkplan_run(body):
 
 
 def linkplan_last():
-    return json.loads(LP_LAST.read_text(encoding="utf-8")) if LP_LAST.exists() else {}
+    return json.loads(LP_LAST_F().read_text(encoding="utf-8")) if LP_LAST_F().exists() else {}
 
 
 
@@ -2042,7 +2176,8 @@ def migrate_to_lark():
 # ------------------------------------------------------------------ Bước 10 · Review
 import review as RV  # noqa: E402
 
-DAILY_FILE = ROOT / "reports" / "du-lieu" / "gsc-daily.json"
+def DAILY_FILE_F():
+    return du_lieu("gsc-daily.json")
 
 
 def review_import_zip(body):
@@ -2087,8 +2222,8 @@ def review_import(body):
     site = site_url()
     if kind == "gsc_dates":
         months, daily = RV.months_from_dates(data, c)
-        DAILY_FILE.parent.mkdir(parents=True, exist_ok=True)
-        DAILY_FILE.write_text(json.dumps(daily), encoding="utf-8")
+        DAILY_FILE_F().parent.mkdir(parents=True, exist_ok=True)
+        DAILY_FILE_F().write_text(json.dumps(daily), encoding="utf-8")
         have = {r["fields"].get("Tháng"): r for r in STORE.list(_tname("danhgia"))}
         new, ups = [], {}
         for m, v in months.items():
@@ -2198,7 +2333,7 @@ import googleapi as GAPI  # noqa: E402
 def google_ready():
     """Đủ cấu hình .env để lấy số qua API chưa → (gsc?, ga4?)"""
     key = ENV.get("GOOGLE_SA_JSON") or ENV.get("GOOGLE_SA_KEY")
-    return bool(key and ENV.get("GSC_SITE")), bool(key and ENV.get("GA4_PROPERTY"))
+    return bool(key and cur_site()["gsc"]), bool(key and cur_site()["ga4"])
 
 
 def _month_upsert(by_month, src):
@@ -2268,7 +2403,7 @@ def google_sync(body=None):
         if gsc:
             say("Lấy Search Console: theo ngày (16 tháng), trang, truy vấn, truy vấn × trang (khoảng đã chọn)…")
             try:
-                period, tables = GAPI.gsc_tables(token, ENV["GSC_SITE"], **rng)
+                period, tables = GAPI.gsc_tables(token, cur_site()["gsc"], **rng)
             except GAPI.GoogleError as e:
                 raise GAPI.GoogleError(f"{e} — kiểm GSC_SITE và đã thêm {email} vào Search Console chưa")
             for kind, rows in tables.items():
@@ -2277,14 +2412,14 @@ def google_sync(body=None):
         if ga4:
             say("Lấy GA4: trang đích, kênh Organic Search (khoảng đã chọn)…")
             try:
-                period, rows = GAPI.ga4_pages(token, ENV["GA4_PROPERTY"], **rng)
+                period, rows = GAPI.ga4_pages(token, cur_site()["ga4"], **rng)
             except GAPI.GoogleError as e:
                 raise GAPI.GoogleError(f"{e} — kiểm GA4_PROPERTY và đã thêm {email} vào GA4 (quyền Người xem) chưa")
             done.append(review_import({"rows": rows, "name": "GA4 API organic", "period": period})["message"])
             say("Lấy GA4 theo tháng: phiên, tương tác, tỷ lệ thoát, thời gian, chuyển đổi…")
-            done.append(_month_upsert(GAPI.ga4_months(token, ENV["GA4_PROPERTY"]), "GA4 API"))
+            done.append(_month_upsert(GAPI.ga4_months(token, cur_site()["ga4"]), "GA4 API"))
             say("Lấy GA4: phiên từ trợ lý AI (ChatGPT, Gemini, Perplexity…) theo tháng…")
-            done.append(_month_upsert(GAPI.ga4_ai_months(token, ENV["GA4_PROPERTY"]), "GA4 AI"))
+            done.append(_month_upsert(GAPI.ga4_ai_months(token, cur_site()["ga4"]), "GA4 AI"))
         say("Đếm khách đăng ký qua sales@ theo tháng…")
         done.append(sales_leads())
         return " · ".join(done)
@@ -2353,7 +2488,7 @@ def review_remeasure():
 
 
 def review_summary():
-    daily = json.loads(DAILY_FILE.read_text(encoding="utf-8")) if DAILY_FILE.exists() else []
+    daily = json.loads(DAILY_FILE_F().read_text(encoding="utf-8")) if DAILY_FILE_F().exists() else []
     return {"week": RV.week_alert(daily), "days": len(daily),
             "lastDay": daily[-1][0] if daily else None}
 
@@ -2363,7 +2498,7 @@ import linkbuild as LB  # noqa: E402
 
 
 def links_stats():
-    edges = LB.load_edges(ROOT / "reports")
+    edges = LB.load_edges(site_dir())
     if not edges:
         return {"ready": False, "message": "Chưa có bản đồ link nội bộ — bấm «Chạy crawl» ở tab B5 (crawl mới ghi thêm file .links.tsv)"}
     st = LB.internal_stats(edges)
@@ -2375,14 +2510,14 @@ def links_stats():
             "empty": len(st["empty"]), "heavy": st["heavy"][:5],
             "weakImportant": [{"url": u, "n": n} for u, n in weak_imp[:12]],
             "weakImportantCount": sum(1 for _, n in weak_imp if n < 3), "importantCount": len(imp),
-            "file": os.path.basename(LB.latest_links(ROOT / "reports"))}
+            "file": os.path.basename(LB.latest_links(site_dir()))}
 
 
 def links_suggest(body):
     limit = int((body or {}).get("targets") or 25)
 
     def job(say):
-        edges = LB.load_edges(ROOT / "reports")
+        edges = LB.load_edges(site_dir())
         if not edges:
             return "Chưa có bản đồ link nội bộ — chạy crawl trước (tab B5)."
         existing = {(e["from"], e["to"]) for e in edges}
@@ -2634,7 +2769,7 @@ def page_keyword(f: dict, kw_rows=None) -> tuple[str | None, list[str]]:
 
 def onpage_rescore():
     """Chấm nhanh lại mọi trang từ báo cáo crawl mới nhất (Title, Meta, Heading, URL) — không ghi đè trang đã chấm chi tiết."""
-    rows, src = TB.crawl_rows(ROOT / "reports")
+    rows, src = TB.crawl_rows(site_dir())
     by_url = {r["url"]: r for r in TB.crawl_pages(rows)}
     kw_rows = STORE.list(_tname("tukhoa"))
     ups = {}
@@ -2741,7 +2876,7 @@ def crawl_start(body):
         raise StoreError("Crawl đang chạy, đợi xong đã.")
     mp = int((body or {}).get("maxPages") or 1200)
     CRAWL.update(running=True, lines=[f"Bắt đầu crawl {site_url()} (tối đa {mp} trang)…"], started=now_ms(), finished=0, rc=None, result="")
-    threading.Thread(target=_crawl_worker, args=(mp,), daemon=True).start()
+    threading.Thread(target=in_site(_crawl_worker), args=(mp,), daemon=True).start()
     return {"ok": True, "message": "Đã bắt đầu crawl — mất vài phút, trang tự cập nhật khi xong."}
 
 
@@ -2792,7 +2927,16 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": f"Lỗi máy chủ: {e}"}, 500)
 
     def do_GET(self):
+        use_site(self.headers.get("X-Seo-Site"))
         path = urllib.parse.urlparse(self.path).path
+        if path == "/api/sites":
+            def sites():
+                fresh = "fresh=1" in (urllib.parse.urlparse(self.path).query or "")
+                ds = [MAIN_SITE] + other_sites(fresh)
+                return {"current": cur_site()["id"], "canAdd": MAIN_STORE.mode == "lark", "table": T_SITES,
+                        "base": getattr(MAIN_STORE, "base", ""),
+                        "sites": [{"id": x["id"], "name": x["name"], "url": x["url"], "gsc": bool(x["gsc"]), "ga4": bool(x["ga4"])} for x in ds]}
+            return self._guard(sites)
         if path == "/api/config":
             return self._json({"mode": STORE.mode, "stages": STAGES, "statuses": STATUSES,
                                "pageTypes": PAGE_TYPES, "gates": GATES, "gateToLeave": GATE_TO_LEAVE,
@@ -2822,10 +2966,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._guard(review_summary)
         m = re.match(r"^/api/job/(\w+)$", path)
         if m:
-            return self._json(JOBS.get(m.group(1), {"running": False, "lines": [], "result": "", "finished": 0}))
+            return self._json(JOBS.get(job_key(m.group(1)), {"running": False, "lines": [], "result": "", "finished": 0}))
         if path == "/api/run/status":
-            last = TB.latest(str(ROOT / "reports" / "crawl-*.csv"))
-            return self._json({**CRAWL, "site": site_url(),
+            last = TB.latest(str(site_dir() / "crawl-*.csv"))
+            return self._json({**crawl_state(), "site": site_url(),
                                "lastReport": os.path.basename(last) if last else None,
                                "lastReportAt": int(os.path.getmtime(last) * 1000) if last else None})
         if path == "/api/bai":
@@ -2866,6 +3010,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_POST(self):
+        use_site(self.headers.get("X-Seo-Site"))
         path = urllib.parse.urlparse(self.path).path
         if path == "/api/bai":
             return self._guard(lambda: api_create(self._body()))
@@ -2962,6 +3107,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_error(404)
 
     def do_PATCH(self):
+        use_site(self.headers.get("X-Seo-Site"))
         path = urllib.parse.urlparse(self.path).path
         m = re.match(r"^/api/t/(\w+)/([\w-]+)$", path)
         if m:
@@ -2975,6 +3121,7 @@ class Handler(BaseHTTPRequestHandler):
         self._guard(lambda: fn(m.group(2), body))
 
     def do_DELETE(self):
+        use_site(self.headers.get("X-Seo-Site"))
         m = re.match(r"^/api/t/(\w+)/([\w-]+)$", urllib.parse.urlparse(self.path).path)
         if not m:
             return self.send_error(404)

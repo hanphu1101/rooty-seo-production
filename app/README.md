@@ -108,3 +108,13 @@ Biến môi trường khai trên Render (service `mkt-hub` → Environment):
 - Đừng đổi tên bảng/cột trong Lark — trang tìm theo đúng tên. Thêm cột mới thì thoải mái.
 - `.env` và `app/demo-data.json` nằm trong `.gitignore`.
 - AI không tự sửa website, không tự đăng bài, không gửi gì ra ngoài — chỉ soạn và phân tích.
+
+## Nhiều website (ô chọn web trên đầu app)
+
+Web chính vẫn khai trong `.env` (`SITE_URL`, `SEO_LARK_BASE_TOKEN`/`LARK_BASE_TOKEN`, `GSC_SITE`, `GA4_PROPERTY`) và chạy như cũ.
+Web khác khai ở bảng **«Danh sách website»** trong Base chính (app tự tạo bảng): Tên · Website · Mã Base (link hoặc mã Base riêng của web đó) · GSC (`sc-domain:ten-mien` hoặc `https://ten-mien/`) · GA4 (mã thuộc tính) · Bật = Có.
+
+- Mỗi web một Lark Base riêng (chia sẻ cho app Lark), chọn web rồi bấm «Khởi tạo bảng Lark» một lần.
+- Search Console + GA4 của web đó: thêm email service account của app (quyền Người xem).
+- Crawl, báo cáo, số GSC theo ngày của web phụ nằm ở `reports/web/<tên miền>/`; web chính giữ `reports/`.
+- Dây chuyền bài viết (B6, thư mục 03–08) hiện chỉ dùng cho rootytrip.com.

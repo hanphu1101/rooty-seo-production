@@ -87,6 +87,7 @@ def main() -> int:
     ap.add_argument("site")
     ap.add_argument("--max-pages", type=int, default=500)
     ap.add_argument("--delay", type=float, default=0.25, help="Nghỉ giữa 2 request (giây), để không làm nặng máy chủ")
+    ap.add_argument("--out-dir", default="", help="Thư mục ghi báo cáo (mặc định reports/); app dùng reports/web/<tên miền>/ cho web phụ")
     args = ap.parse_args()
 
     start = norm(args.site if args.site.startswith("http") else "https://" + args.site)
@@ -185,8 +186,8 @@ def main() -> int:
     not_reached = len([u for u in sm if u not in rows])
 
     today = dt.date.today().isoformat()
-    out_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent / "reports"
-    out_dir.mkdir(exist_ok=True)
+    out_dir = Path(args.out_dir) if args.out_dir else Path(os.path.dirname(os.path.abspath(__file__))).parent / "reports"
+    out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"crawl-{host}-{today}"
     csv_path, md_path = out_dir / (stem + ".csv"), out_dir / (stem + ".md")
     cols = ["url", "status", "depth", "inlinks", "title", "h1", "h1_count", "words", "noindex",

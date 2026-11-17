@@ -36,6 +36,7 @@ header{background:var(--surface);border-bottom:1px solid var(--line);position:st
 .hin{padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:8px}
 .brand i{width:28px;height:28px;border-radius:8px;background:var(--brand);display:inline-grid;place-items:center;color:var(--brand-ink);font-style:normal;font-size:14px}
+.sitesel{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:5px 8px;font-size:13.5px;font-weight:600;max-width:240px}
 .mode{font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px}
 .mode.demo{background:var(--warn-soft);color:var(--warn)}
 .mode.lark{background:var(--ok-soft);color:var(--ok)}
@@ -332,6 +333,7 @@ svg.chart text{fill:var(--muted);font-size:11px}
 <body>
 <header><div class="hin">
   <div class="brand"><i>R</i>Rooty SEO Production</div>
+  <select id="siteSel" class="sitesel" title="Chọn website đang làm SEO" aria-label="Chọn website" hidden></select>
   <span id="mode" class="mode"></span>
   <span class="sp"></span>
   <button class="btn ghost" id="btnSetup" hidden>Khởi tạo bảng Lark</button>
@@ -384,8 +386,10 @@ function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='t
 /* Trong Marketing Hub trang nằm ở /m/seo/ và xin Hub không chèn CSS/JS (giữ giao diện riêng),
    nên tự thêm tiền tố cho đường /api/...; chạy riêng ở / thì BASE rỗng. */
 const BASE = location.pathname.replace(/\/[^\/]*$/, '');
+// website đang làm SEO — mọi yêu cầu mang theo để máy chủ đọc/ghi đúng Base, GSC, GA4 của web đó
+let SITE = (()=>{ try{ return JSON.parse(localStorage.getItem('seo-site'))||'chinh'; }catch{ return 'chinh'; } })();
 async function api(method, url, body){
-  const r = await fetch(url.startsWith('/') ? BASE + url : url, {method, headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):undefined});
+  const r = await fetch(url.startsWith('/') ? BASE + url : url, {method, headers:{'Content-Type':'application/json','X-Seo-Site':SITE}, body: body?JSON.stringify(body):undefined});
   const d = await r.json().catch(()=>({error:'Phản hồi không hợp lệ'}));
   if(!r.ok || (d && d.error)) throw new Error((d&&d.error) || ('HTTP '+r.status));
   return d;
@@ -1930,8 +1934,30 @@ $('#btnMigrate').onclick = async ()=>{ if(!confirm('Chép toàn bộ dữ liệu
     const poll=async()=>{ const s=await api('GET','/api/job/migrate'); if(s.running){ toast(s.lines.slice(-1)[0]||'Đang chuyển…'); setTimeout(poll,3000);} else { toast(s.result); $('#btnMigrate').disabled=false; Object.keys(DATA).forEach(k=>delete DATA[k]); renderNav(); render(); } }; setTimeout(poll,2000);
   }catch(e){ toast(e.message,true); $('#btnMigrate').disabled=false; } };
 $('#btnSetup').onclick = async ()=>{ $('#btnSetup').disabled=true; try{ const r=await api('POST','/api/setup'); toast(r.message); }catch(e){ toast(e.message,true);} finally{ $('#btnSetup').disabled=false; } };
+async function loadSites(){
+  let S; try{ S = await api('GET','/api/sites'); }catch(e){ return; }
+  if(!S.sites.some(x=>x.id===SITE)){ SITE='chinh'; store.set('seo-site','chinh'); }
+  const sel = $('#siteSel');
+  sel.innerHTML = S.sites.map(x=>`<option value="${esc(x.id)}" ${x.id===SITE?'selected':''}>${esc(x.name)}${x.id==='chinh'?' (web chính)':''}</option>`).join('')
+    + (S.canAdd ? '<option value="__add">＋ Thêm website…</option>' : '');
+  sel.hidden = S.sites.length<2 && !S.canAdd;
+  sel.onchange = ()=>{
+    if(sel.value==='__add'){ sel.value = SITE;
+      alert(`Thêm website mới:
+
+1. Tạo một Lark Base trống cho web đó, chia sẻ cho app Lark của app SEO (quyền Có thể chỉnh sửa).
+2. Mở Base SEO chính → bảng «${S.table}» → thêm 1 dòng: Tên, Website (VD rootytrip.vn), Mã Base (dán link Base mới), GSC (VD sc-domain:rootytrip.vn hoặc https://rootytrip.vn/), GA4 (mã thuộc tính), Bật = Có.
+3. Search Console + GA4 của web đó: thêm email service account của app (quyền Người xem).
+4. Quay lại đây, chọn web mới → bấm «Khởi tạo bảng Lark» một lần.
+
+Web mới hiện trong ô chọn sau tối đa 1 phút.`);
+      return; }
+    store.set('seo-site', sel.value); location.reload(); };
+  return S;
+}
 (async ()=>{
   try{
+    await loadSites();
     CFG = await api('GET','/api/config');
     $('#mode').textContent = CFG.mode==='lark' ? '● Lark Base' : 'DEMO · lưu tạm trên máy';
     $('#mode').className = 'mode ' + CFG.mode;
