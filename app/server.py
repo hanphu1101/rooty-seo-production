@@ -972,7 +972,7 @@ CRAWL = _CrawlProxy()
 
 
 def _crawl_worker(max_pages):
-    cmd = [sys.executable, "-X", "utf8", str(ROOT / "scripts" / "crawl_site.py"), site_url(),
+    cmd = [sys.executable, "-u", "-X", "utf8", str(ROOT / "scripts" / "crawl_site.py"), site_url(),  # -u: in tiến độ ngay, không dồn cuối
            "--max-pages", str(max_pages), "--delay", "0.15", "--out-dir", str(site_dir())]
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
