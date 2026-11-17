@@ -1,6 +1,6 @@
 ---
 name: rooty-do-hien-dien-ai
-description: Đo mức hiện diện của Rooty Trip trên AI (ChatGPT, Gemini, Google AI Overview, Perplexity) bằng bộ câu hỏi cố định trong 01-prompts/bo-cau-hoi-ai.csv — mỗi câu chạy nhiều lần, ghi có được nhắc tên/trích link không, AI nói đúng hay sai về Rooty, đối thủ nào xuất hiện. Dùng khi người dùng nói "đo AI", "đo hiện diện", "ChatGPT có nhắc Rooty không".
+description: Đo mức hiện diện của Rooty Trip trên AI (ChatGPT, Gemini, Google AI Overview, Perplexity, Claude) bằng bộ câu hỏi cố định trong 01-prompts/bo-cau-hoi-ai.csv — mỗi câu chạy nhiều lần, ghi có được nhắc tên/trích link không, AI nói đúng hay sai về Rooty, đối thủ nào xuất hiện. Dùng khi người dùng nói "đo AI", "đo hiện diện", "ChatGPT có nhắc Rooty không".
 ---
 
 # Đo hiện diện trên AI

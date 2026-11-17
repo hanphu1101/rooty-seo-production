@@ -1012,9 +1012,25 @@ async function uuTien(box){
   };
   draw(n0);
 }
+/* Trạng thái index từng trang qua Search Console (URL Inspection) */
+async function indexPanel(box){
+  box.innerHTML = `<details class="gwrap tfold" ${store.get('fold-idx',false)?'open':''}><summary>Trạng thái index trên Google<span class="cnt" id="idxCnt"></span></summary>
+    <div style="padding:10px 14px">
+      <p class="meta note">Hỏi Search Console từng trang: <b>đã được index chưa và vì sao</b> (bị noindex, bị robots chặn, Google chọn canonical khác, đã thu thập nhưng chưa index, trang 404…). Trang chưa index thì không thể lên top — app đưa chúng lên đầu «Thứ tự sửa theo từ khoá». Mỗi lần kiểm tối đa 400 trang (ưu tiên trang có hiển thị, bỏ qua trang đã kiểm trong 7 ngày); Google cho 2.000 lượt/ngày. Sửa xong lý do → mở Search Console, dán URL → «Yêu cầu lập chỉ mục».</p>
+      <div id="idxJob"></div><div id="idxBody"></div></div></details>`;
+  box.querySelector('details').ontoggle = e=>store.set('fold-idx', e.target.open);
+  jobPanel($('#idxJob'),'index','Kiểm index (Search Console)','/api/index/check',{limit:400},['trang']);
+  let S; try{ S = await api('GET','/api/index/summary'); }catch(e){ $('#idxBody').innerHTML = `<div class="banner">${esc(e.message)}</div>`; return; }
+  $('#idxCnt').textContent = S.daKiem ? `${S.daIndex} đã index · ${S.chuaIndex} chưa index · đã kiểm ${S.daKiem}/${S.tong} trang` : 'chưa kiểm';
+  $('#idxBody').innerHTML = S.daKiem ? `<div class="strip">${Object.entries(S.lyDo).map(([k,c])=>`<div class="pill"><b>${c}</b>${esc(k)}</div>`).join('')||'<div class="pill"><b>0</b>trang chưa index</div>'}</div>
+    ${S.trang.length?`<div class="tscroll"><table class="g"><thead><tr><th>Trang chưa index</th><th>Loại trang</th><th>Lý do (Search Console)</th><th>Canonical Google chọn</th></tr></thead><tbody>
+    ${S.trang.map(x=>`<tr><td><a class="u" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(pathOf(x.url))}</a></td><td>${esc(x.loaiTrang)}</td><td style="font-size:13px">${esc(x.lyDo)}</td><td style="font-size:13px">${x.canonical&&x.canonical!==x.url?esc(pathOf(x.canonical)):'—'}</td></tr>`).join('')}
+    </tbody></table></div>`:''}` : '<div class="meta">Chưa kiểm lần nào — bấm «Kiểm index».</div>';
+}
 VIEWS.audit = async v => {
-  v.innerHTML = '<div id="uu"></div><div id="cp"></div><div class="strip" id="sum"></div><div id="g"></div>';
+  v.innerHTML = '<div id="uu"></div><div id="idx"></div><div id="cp"></div><div class="strip" id="sum"></div><div id="g"></div>';
   uuTien($('#uu'));
+  indexPanel($('#idx'));
   crawlPanel($('#cp'));
   const lv = {'🔴 Cao':0,'🟡 Vừa':1,'🟢 Thấp':2};
   await grid($('#g'),'audit',{cols:['Vấn đề','Hạng mục','Mức độ','Số trang','Người sửa','Hạn','Trạng thái'],
@@ -1075,8 +1091,27 @@ const OP_ICON = {'Title':'🏷️','Meta':'📄','Heading':'🔠','URL chuẩn':
 const OP_RULE = {'Title':'50–60 ký tự · từ khoá gần đầu · “| Rooty Trip” ở cuối','Meta':'120–160 ký tự · có từ khoá · có lời kêu gọi',
   'Heading':'1 H1 chứa từ khoá, gần giống Title · H2/H3 chứa từ khoá phụ','URL chuẩn':'ngắn, không dấu, gạch ngang, có từ khoá, không từ thừa',
   'Hình ảnh':'tên file không dấu · alt mô tả · WebP · ≤ 200KB'};
+/* Trang top 10 nhiều hiển thị mà CTR thấp hơn hẳn mức thường gặp → viết lại title/meta để kéo nhấp */
+async function ctrThap(box){
+  let C; try{ C = await api('GET','/api/ctrthap'); }catch(e){ box.innerHTML = `<div class="banner">${esc(e.message)}</div>`; return; }
+  const n = v => Number(v||0).toLocaleString('vi-VN');
+  box.innerHTML = `<details class="gwrap tfold" ${store.get('fold-ctr',true)?'open':''}><summary>CTR thấp — viết lại title/meta<span class="cnt">${C.tong} trang · mất khoảng ${n(C.matNhap)} lượt nhấp/kỳ</span></summary>
+    <div style="padding:10px 14px">
+      <p class="meta note">Trang đã ở <b>top 10</b>, có ≥ 100 lượt hiển thị, nhưng CTR thấp hơn 60% mức thường gặp ở vị trí đó (vị trí 1 ≈ 27% · 3 ≈ 10,5% · 5 ≈ 6% · 10 ≈ 2,4%, đã tính AI Overview làm giảm nhấp). Viết lại <b>title + meta</b> cho đúng từ khoá khách đang gõ, có lợi ích cụ thể (giá, thời gian, mẹo riêng của Rooty) là nhanh có thêm nhấp mà không cần lên hạng. «Mất nhấp» = hiển thị × (CTR thường gặp − CTR thật). Số theo kỳ GSC lấy gần nhất ở B10.</p>
+      ${C.trang.length ? `<div class="tscroll"><table class="g"><thead><tr><th>#</th><th>Trang · title hiện tại</th><th>Từ khoá khách gõ (GSC)</th><th class="num">Vị trí</th><th class="num">Hiển thị</th><th class="num">CTR thật</th><th class="num">CTR thường gặp</th><th class="num">Mất nhấp</th><th>Gợi ý title (B7)</th></tr></thead><tbody>
+      ${C.trang.slice(0,60).map((x,i)=>`<tr><td class="num">${i+1}</td>
+        <td style="min-width:220px"><a class="u" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(pathOf(x.url))}</a><div class="meta">${esc(x.tieuDe.slice(0,90))}</div></td>
+        <td style="min-width:220px;font-size:13px">${x.tuKhoa?esc(x.tuKhoa).split(' · ').slice(0,3).join('<br>'):'<span class="meta">—</span>'}</td>
+        <td class="num">${Number(x.viTri).toLocaleString('vi-VN')}</td><td class="num">${n(x.hienThi)}</td>
+        <td class="num"><b style="color:var(--bad)">${Number(x.ctr).toLocaleString('vi-VN')}%</b></td><td class="num">${Number(x.ctrKyVong).toLocaleString('vi-VN')}%</td>
+        <td class="num"><b>${n(x.matNhap)}</b></td><td style="min-width:200px;font-size:13px">${x.goiYTitle?esc(x.goiYTitle):'<span class="meta">bấm «Chấm chi tiết» để có gợi ý</span>'}</td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="meta">Không có trang nào CTR thấp bất thường — hoặc chưa có số GSC theo trang (B10 → Lấy số từ Google).</div>'}
+    </div></details>`;
+  box.querySelector('details').ontoggle = e=>store.set('fold-ctr', e.target.open);
+}
 VIEWS.onpage = async v => {
-  v.innerHTML = `<div id="jobOp"></div><div class="areas" id="opa"></div><div id="g"></div>`;
+  v.innerHTML = `<div id="ctr"></div><div id="jobOp"></div><div class="areas" id="opa"></div><div id="g"></div>`;
+  ctrThap($('#ctr'));
   await load('trang');
   jobPanel($('#jobOp'), 'onpage', 'Chấm chi tiết trang quan trọng (trang chủ, danh mục, Pillar, tour — tối đa 40)', '/api/onpage/batch', {limit:40}, ['trang']);
   const st = GRID_STATE['trangop'] ||= {q:'', f:{}, chip:null, limit:100};
@@ -1386,7 +1421,7 @@ VIEWS.geo = async v => {
       <p class="meta note">Máy đọc bài đã đăng và chấm 11 tiêu chí đo được (#8, #13–20, #22, #24); 3 tiêu chí còn lại (#21 đoạn kiểm chứng được, #23 Blur Test, #25 so với AI Overview) kiểm tay khi duyệt. Bấm một dòng để xem chi tiết từng tiêu chí và chấm lại.</p></div>
     <div id="jobGeo"></div><div class="areas" id="gcr"></div><div id="gpg"></div>
     <div class="sec"><h2><span>3</span> Đo hiện diện trên AI — G0 #3 (số nền) & G5 #30–32</h2>
-      <p class="meta note">Hỏi đúng câu trong bộ câu hỏi trên ChatGPT / Gemini / AI Overview / Perplexity (cửa sổ ẩn danh, không đăng nhập nếu được) → copy <b>toàn bộ</b> câu trả lời → dán vào ô dưới. Trang tự nhận ra Rooty có được nhắc tên, có trích link, đứng thứ mấy, đối thủ nào xuất hiện. Mỗi câu chạy <b>≥ 3 lần</b> mỗi máy; báo cáo theo chủ đề, không theo từng câu. Số đo AI chỉ mang tính tham khảo xu hướng — đối chiếu referral thật trong GA4 trước khi kết luận.</p></div>
+      <p class="meta note">Hỏi đúng câu trong bộ câu hỏi trên ChatGPT / Gemini / AI Overview / Perplexity / Claude (cửa sổ ẩn danh, không đăng nhập nếu được) → copy <b>toàn bộ</b> câu trả lời → dán vào ô dưới. Trang tự nhận ra Rooty có được nhắc tên, có trích link, đứng thứ mấy, đối thủ nào xuất hiện. Mỗi câu chạy <b>≥ 3 lần</b> mỗi máy; báo cáo theo chủ đề, không theo từng câu. Số đo AI chỉ mang tính tham khảo xu hướng — đối chiếu referral thật trong GA4 trước khi kết luận.</p></div>
     <div class="gwrap" style="padding:12px 14px" id="ansBox"></div>
     <div class="cards4" id="pres"></div><div class="gwrap" style="padding:12px 14px" id="presT"></div>
     <div id="gai"></div><div id="gq"></div>`;

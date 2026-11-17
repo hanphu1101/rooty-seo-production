@@ -128,6 +128,16 @@ def _range(days, start, end, lag, today):
     return s, e
 
 
+def inspect_url(token, site, url):
+    """Search Console URL Inspection: trang đã được Google index chưa, vì sao (giới hạn 2.000 lượt/ngày/thuộc tính)."""
+    r = _post("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+              {"inspectionUrl": url, "siteUrl": site, "languageCode": "vi"}, token)
+    i = (r.get("inspectionResult") or {}).get("indexStatusResult") or {}
+    return {"verdict": i.get("verdict") or "", "coverage": i.get("coverageState") or "", "lastCrawl": i.get("lastCrawlTime") or "",
+            "googleCanonical": i.get("googleCanonical") or "", "userCanonical": i.get("userCanonical") or "",
+            "robots": i.get("robotsTxtState") or "", "fetch": i.get("pageFetchState") or "", "indexing": i.get("indexingState") or ""}
+
+
 def gsc_tables(token, site, days=28, today=None, start=None, end=None):
     """4 bảng giống CSV xuất từ GSC: Ngày (16 tháng) · Trang · Truy vấn · Truy vấn × Trang (khoảng đã chọn, mặc định 28 ngày)."""
     start, end = _range(days, start, end, 3, today)  # số liệu GSC trễ ~2–3 ngày

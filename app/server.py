@@ -1619,6 +1619,94 @@ def loi_measure():
 
 
 ONPAGE_COLS = ("Title", "Meta", "Heading", "URL chuẩn", "Hình ảnh")
+# CTR trung bình theo vị trí (số liệu ngành, đã tính cả AI Overview làm giảm nhấp) — chỉ để so tương đối
+CTR_KY_VONG = {1: 27.0, 2: 15.0, 3: 10.5, 4: 8.0, 5: 6.0, 6: 4.8, 7: 3.8, 8: 3.2, 9: 2.7, 10: 2.4}
+
+
+def ctr_thap(min_impr=100):
+    """Trang top 10 nhiều hiển thị mà CTR < 60% mức thường gặp ở vị trí đó → viết lại title/meta để kéo nhấp."""
+    out = []
+    for r in STORE.list(_tname("trang")):
+        f = r["fields"]
+        impr, pos, ctr = f.get("GSC hiển thị") or 0, f.get("GSC vị trí"), f.get("GSC CTR %")
+        if not impr or impr < min_impr or pos is None or pos > 10.5 or ctr is None:
+            continue
+        ky = CTR_KY_VONG[max(1, min(10, round(pos)))]
+        if ctr >= ky * 0.6:
+            continue
+        out.append({"url": f.get("URL"), "tieuDe": f.get("Tiêu đề") or "", "tuKhoa": f.get("Từ khoá GSC") or "", "viTri": pos,
+                    "hienThi": impr, "nhap": f.get("GSC lượt nhấp") or 0, "ctr": ctr, "ctrKyVong": ky,
+                    "matNhap": round(impr * (ky - ctr) / 100), "goiYTitle": f.get("Gợi ý Title") or "", "goiYMeta": f.get("Gợi ý Meta") or "",
+                    "kySoLieu": f.get("Kỳ số liệu") or ""})
+    out.sort(key=lambda x: -x["matNhap"])
+    return {"site": site_url(), "trang": out[:200], "tong": len(out), "matNhap": sum(x["matNhap"] for x in out)}
+
+
+def index_check(body):
+    """Kiểm index từng trang qua Search Console (URL Inspection) → cột Index Google / Lý do / Canonical Google.
+    Mỗi lượt tối đa 400 trang chưa kiểm hoặc kiểm đã quá 7 ngày; Google cho 2.000 lượt/ngày mỗi thuộc tính."""
+    s = cur_site()
+    key = ENV.get("GOOGLE_SA_JSON") or ENV.get("GOOGLE_SA_KEY")
+    if not (key and s["gsc"]):
+        raise StoreError("Web này chưa nối Search Console (GSC) — khai ở bảng «Danh sách website» hoặc .env")
+    limit = max(1, min(int((body or {}).get("limit") or 400), 1500))
+
+    def job(say):
+        k = key if key.lstrip().startswith("{") or os.path.isabs(key) else str(ROOT / key)
+        token, _ = GAPI.access_token(k)
+        STORE.setup()
+        now = now_ms()
+        rows = [r for r in STORE.list(_tname("trang")) if r["fields"].get("Loại trang") != "Ngôn ngữ khác"
+                and (now - (r["fields"].get("Lần kiểm index") or 0)) > 7 * 864e5]
+        rows.sort(key=lambda r: -(r["fields"].get("GSC hiển thị") or 0))   # trang có hiển thị trước
+        rows = rows[:limit]
+        ups, cnt, done = {}, {}, [0]
+
+        def one(r):
+            u = r["fields"].get("URL")
+            try:
+                i = GAPI.inspect_url(token, s["gsc"], u)
+            except Exception as e:
+                return r, None, str(e)[:160]
+            return r, i, ""
+
+        from concurrent.futures import ThreadPoolExecutor as _TP
+        with _TP(5) as ex:
+            for r, i, err in ex.map(one, rows):
+                done[0] += 1
+                if done[0] % 20 == 0:
+                    say(f"[{done[0]}/{len(rows)}] đã kiểm index")
+                if i is None:
+                    cnt["lỗi"] = cnt.get("lỗi", 0) + 1
+                    if "quota" in err.lower() or "429" in err:
+                        break
+                    continue
+                kl = {"PASS": "Đã index", "FAIL": "Chưa index", "NEUTRAL": "Chưa index"}.get(i["verdict"], "Không rõ")
+                ok = lambda v: not v or v in ("ALLOWED", "SUCCESSFUL") or v.endswith("_UNSPECIFIED")
+                ly = i["coverage"] + ("" if ok(i["robots"]) else f" · robots: {i['robots']}") + ("" if ok(i["fetch"]) else f" · tải trang: {i['fetch']}")
+                ch = {"Index Google": kl, "Lý do index": ly[:500], "Lần kiểm index": now}
+                if i["googleCanonical"]:
+                    ch["Canonical Google"] = i["googleCanonical"]
+                ups[r["record_id"]] = ch
+                cnt[kl] = cnt.get(kl, 0) + 1
+        if ups:
+            STORE.update_many(_tname("trang"), ups)
+        return f"Kiểm index {len(ups)} trang: " + " · ".join(f"{k} {v}" for k, v in cnt.items())
+    return run_job("index", job)
+
+
+def index_summary():
+    rows = [r["fields"] for r in STORE.list(_tname("trang")) if r["fields"].get("Loại trang") != "Ngôn ngữ khác"]
+    chua = [f for f in rows if f.get("Index Google") == "Chưa index"]
+    ly = {}
+    for f in chua:
+        k = (f.get("Lý do index") or "Không rõ").split(" · ")[0]
+        ly[k] = ly.get(k, 0) + 1
+    return {"daKiem": sum(1 for f in rows if f.get("Index Google")), "tong": len(rows),
+            "daIndex": sum(1 for f in rows if f.get("Index Google") == "Đã index"), "chuaIndex": len(chua),
+            "lyDo": dict(sorted(ly.items(), key=lambda x: -x[1])),
+            "trang": [{"url": f.get("URL"), "lyDo": f.get("Lý do index") or "", "canonical": f.get("Canonical Google") or "",
+                       "loaiTrang": f.get("Loại trang") or "", "lanKiem": f.get("Lần kiểm index")} for f in chua][:300]}
 
 
 def _nhom_vi_tri(pos, impr):
@@ -1658,6 +1746,12 @@ def uu_tien():
         onp = [k for k in ONPAGE_COLS if f.get(k) == "Chưa đạt"]
         if onp:
             ds.append({"loai": "Onpage", "sua": "Chưa đạt: " + ", ".join(onp) + (f" · gợi ý title: {f['Gợi ý Title']}" if f.get("Gợi ý Title") else ""), "muc": ""})
+        if f.get("Index Google") == "Chưa index":
+            ly = f.get("Lý do index") or ""
+            co_y = "noindex" in ly or "robots" in ly   # trang tài khoản/giỏ hàng/trang lọc thường cố ý chặn
+            ds.insert(0, {"loai": "Chưa được index", "muc": "🟡 Vừa" if co_y else "🔴 Cao", "sua": ly + (
+                " — nếu cố ý (trang tài khoản, giỏ hàng, trang lọc) thì bỏ qua; không cố ý thì bỏ noindex/robots rồi yêu cầu lập chỉ mục"
+                if co_y else " — sửa lý do rồi «Yêu cầu lập chỉ mục» trong Search Console")})
         if f.get("Link vào") is not None and f["Link vào"] <= 1 and f.get("Loại trang") not in ("Trang chủ",):
             ds.append({"loai": "Ít link nội bộ", "sua": f"Chỉ {f['Link vào']} link nội bộ trỏ vào — thêm link chữ từ bài cùng chủ đề (tab B9)", "muc": ""})
         if not ds:
@@ -3046,6 +3140,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._guard(algo_summary)
         if path == "/api/uutien":
             return self._guard(uu_tien)
+        if path == "/api/ctrthap":
+            return self._guard(ctr_thap)
+        if path == "/api/index/summary":
+            return self._guard(index_summary)
         if path == "/api/loi/summary":
             return self._guard(loi_summary)
         if path == "/api/geo/summary":
@@ -3183,6 +3281,9 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/api/kw/expand", "/api/doithu/scan"):
             body = self._body()
             return self._guard(lambda: (kw_expand if path == "/api/kw/expand" else dt_scan)(body))
+        if path == "/api/index/check":
+            body = self._body()
+            return self._guard(lambda: index_check(body))
         if path == "/api/run/crawl":
             body = self._body()
             return self._guard(lambda: crawl_start(body))
