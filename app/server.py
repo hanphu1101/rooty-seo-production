@@ -141,7 +141,7 @@ def load_env() -> dict:
                 k, v = line.split("=", 1)
                 env[k.strip()] = v.strip().strip('"').strip("'")
     for k in ("LARK_APP_ID", "LARK_APP_SECRET", "LARK_BASE_TOKEN", "LARK_DOMAIN", "PROJECT_START", "SITE_URL", "PAGESPEED_API_KEY",
-              "GOOGLE_SA_KEY", "GOOGLE_SA_JSON", "GSC_SITE", "GA4_PROPERTY"):
+              "GOOGLE_SA_KEY", "GOOGLE_SA_JSON", "GSC_SITE", "GA4_PROPERTY", "WP_USER", "WP_APP_PASSWORD"):
         if os.environ.get(k):
             env[k] = os.environ[k]
     # Chạy trong Marketing Hub: LARK_BASE_TOKEN là biến chung của các app khác trong Hub,
@@ -1575,6 +1575,80 @@ def _span_days(period):
     except ValueError:
         return None
     return (b - a).days + 1
+
+
+import wpfix as WPF  # noqa: E402
+
+
+def wp_auth():
+    """Mật khẩu ứng dụng WordPress của web chính (WP_USER + WP_APP_PASSWORD trong .env / Render). Web phụ: chưa hỗ trợ."""
+    if not cur_site()["main"]:
+        return None
+    u, pw = ENV.get("WP_USER"), (ENV.get("WP_APP_PASSWORD") or "").replace(" ", "")
+    return (u, pw) if u and pw else None
+
+
+def fix_self_links(body):
+    """Gỡ link tự thân trên WordPress cho các dòng «Link tự thân» còn mở → ghi «Đã sửa gì», chuyển Đã sửa,
+    chụp số GSC «trước», thêm dòng Nhật ký thay đổi. dryRun=True (hoặc chưa có mật khẩu ứng dụng): chỉ xem trước."""
+    b = body or {}
+    auth = wp_auth()
+    apply = not b.get("dryRun") and auth is not None
+    if not b.get("dryRun") and auth is None:
+        raise StoreError("Chưa có mật khẩu ứng dụng WordPress — điền WP_USER và WP_APP_PASSWORD (xem app/README.md), hoặc bấm «Xem trước»")
+    limit = max(1, min(int(b.get("limit") or 300), 500))
+
+    def job(say):
+        t = _tname("sualoi")
+        rows = [r for r in STORE.list(t) if r["fields"].get("Loại lỗi") == "Link tự thân" and r["fields"].get("Trạng thái") in FX.OPEN][:limit]
+        pages = _pages_by_path()
+        now, day = now_ms(), time.strftime("%d/%m/%Y")
+        ups, logs, cnt = {}, [], {"sửa": 0, "link": 0, "không còn": 0, "lỗi": 0}
+        for i, r in enumerate(rows, 1):
+            f = r["fields"]
+            url = f.get("URL") or ""
+            say(f"[{i}/{len(rows)}] {url}")
+            try:
+                res = WPF.fix_self_links(url, auth, apply=apply)
+            except Exception as e:
+                cnt["lỗi"] += 1
+                ups[r["record_id"]] = {"Kiểm lại": f"{day} · không sửa tự động được: {e}"[:500]}
+                continue
+            anchors = ", ".join(f"«{a}»" for a in res["removed"][:5]) + (f" +{len(res['removed']) - 5}" if len(res["removed"]) > 5 else "")
+            if not res["removed"]:
+                cnt["không còn"] += 1
+                if apply:
+                    ups[r["record_id"]] = {"Trạng thái": "Hết lỗi (quét lại)", "Ngày sửa": f.get("Ngày sửa") or now,
+                                           "Kiểm lại": f"{day} · đọc lại bài không còn link tự thân"}
+                continue
+            if not apply:
+                cnt["sửa"] += 1
+                cnt["link"] += len(res["removed"])
+                ups[r["record_id"]] = {"Kiểm lại": f"{day} · xem trước: sẽ gỡ {len(res['removed'])} link tự thân ({anchors})"[:500]}
+                continue
+            cnt["sửa"] += 1
+            cnt["link"] += len(res["removed"])
+            note = f"{day}: app SEO gỡ {len(res['removed'])} link tự thân qua WordPress API, giữ nguyên chữ ({anchors}). Quay lại: Bài viết → Bản sửa đổi."
+            ups[r["record_id"]] = {"Trạng thái": "Đã sửa", "Ngày sửa": now, "Đã sửa gì": note, "Người sửa": "App SEO (tự động)",
+                                   "Hiệu quả": f.get("Hiệu quả") or "Chờ đo", "Kiểm lại": f"{day} · đã gỡ, bài không còn link tự thân",
+                                   **({} if f.get("Nhấp trước") is not None else _gsc_snap(pages.get(FX.norm_path(url)), "trước"))}
+            p = pages.get(FX.norm_path(url)) or {}
+            logs.append({"Thay đổi": f"Gỡ {len(res['removed'])} link tự thân ({anchors})", "Ngày": now, "URL": url, "Loại": "Liên kết",
+                         "Người làm": "App SEO (tự động)", "Lượt nhấp trước": p.get("GSC lượt nhấp"), "Vị trí trước": p.get("GSC vị trí"),
+                         "Kết quả": "Chờ đo", "Ghi chú": "Sửa tự động qua WordPress REST API · lỗi «Link tự thân» ở B5"})
+            if len(ups) >= 40:
+                STORE.update_many(t, ups)
+                ups = {}
+        if ups:
+            STORE.update_many(t, ups)
+        if logs:
+            STORE.create_many(_tname("changelog"), [{k: v for k, v in x.items() if v is not None} for x in logs])
+        msg = (("Đã gỡ" if apply else "Xem trước: sẽ gỡ") + f" {cnt['link']} link tự thân trên {cnt['sửa']} bài"
+               + (f" · {cnt['không còn']} bài không còn link tự thân" if cnt["không còn"] else "")
+               + (f" · {cnt['lỗi']} bài không sửa tự động được (xem cột Kiểm lại)" if cnt["lỗi"] else ""))
+        log(msg)
+        return msg
+    return run_job("selflink", job)
 
 
 def loi_measure():
@@ -3243,6 +3317,9 @@ class Handler(BaseHTTPRequestHandler):
         m = re.match(r"^/api/onpage/([\w-]+)/check$", path)
         if m:
             return self._guard(lambda: onpage_deep(m.group(1)))
+        if path == "/api/loi/selflink":
+            body = self._body()
+            return self._guard(lambda: fix_self_links(body))
         if path in ("/api/loi/import", "/api/loi/recheck"):
             body = self._body()
             return self._guard(lambda: (loi_import if path.endswith("import") else loi_recheck)(body))

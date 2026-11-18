@@ -1052,13 +1052,19 @@ async function fixSection(v){
     <p class="meta note">Mỗi dòng = <b>1 lỗi trên 1 trang</b>. Nhập báo cáo lỗi (file Google Sheets: <i>Tệp → Tải xuống → Microsoft Excel (.xlsx)</i>; mỗi tab một loại lỗi, có cột <b>URL</b> hoặc <b>Các URL</b>). Đổi trạng thái khi làm: <b>Mới → Đã xác nhận → Đang sửa → Đã sửa</b> — hoặc chỉ cần ghi ô <b>“Đã sửa gì”</b> rồi Lưu, trang tự chuyển “Đã sửa”. Lúc chuyển sang “Đã sửa” trang tự ghi <b>ngày sửa</b> và chụp số liệu GSC lúc đó làm mốc <b>“trước”</b>. Sau ≥ 4 tuần, mỗi lần lấy số GSC ở B10 (bấm “Lấy số từ Google” hoặc nhập CSV Trang) app <b>tự ghi “sau”</b> và kết luận Tốt lên / Không đổi / Giảm — các ô trước/sau/hiệu quả không cần điền tay; nút “Đo hiệu quả” chỉ để đo ngay. So “trước/sau” chỉ khi hai kỳ cùng độ dài (VD cùng 28 ngày). Trang chưa sửa cùng loại lỗi được đo làm <b>nhóm đối chứng</b>, để biết thay đổi là do sửa hay do cả site lên/xuống. Nhập báo cáo đợt quét mới → lỗi còn thấy ở trang đã sửa thành <b>“Tái phát”</b>, lỗi không còn thấy thành <b>“Hết lỗi (quét lại)”</b>.</p></div>
     <div class="vhead"><button class="btn primary" id="fxImp">Nhập báo cáo lỗi (.xlsx)</button><input type="file" id="fxFile" accept=".xlsx" hidden>
       <button class="btn" id="fxMeasure">Đo hiệu quả (sau khi nhập GSC mới)</button><span class="meta">Máy tự kiểm lại được: <b>Link tự thân</b>, <b>Đổi năm giả</b>; loại khác người kiểm.</span></div>
-    <div id="fxJob"></div><div class="gwrap" style="padding:12px 14px" id="fxSum"></div><div id="fxG"></div>`;
+    <div id="fxJob"></div>
+    <div class="gwrap" style="padding:12px 14px"><b>Sửa tự động: Link tự thân</b> <span class="meta">— gỡ thẻ link trỏ về chính bài, giữ nguyên chữ, qua WordPress API. Mỗi bài sửa xong tự ghi «Đã sửa gì», chuyển «Đã sửa», chụp số GSC «trước» và thêm 1 dòng Nhật ký thay đổi (B10). WordPress giữ Bản sửa đổi nên quay lại được. Cần Mật khẩu ứng dụng WordPress (WP_USER, WP_APP_PASSWORD).</span>
+      <div class="row" style="margin-top:8px"><button class="btn" id="slPrev">Xem trước (không sửa)</button></div><div id="slJob"></div></div>
+    <div class="gwrap" style="padding:12px 14px" id="fxSum"></div><div id="fxG"></div>`;
   v.appendChild(box);
   $('#fxImp').onclick = ()=>$('#fxFile').click();
   $('#fxFile').onchange = async e=>{ const file=e.target.files[0]; if(!file) return;
     const b64 = await new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(String(r.result).split(',')[1]); r.onerror=no; r.readAsDataURL(file); });
     try{ toast('Đang nhập…'); const r=await api('POST','/api/loi/import',{name:file.name, b64}); toast(r.message); ['sualoi','audit'].forEach(k=>delete DATA[k]); renderNav(); render(); }catch(err){ toast(err.message,true); } };
   $('#fxMeasure').onclick = ()=>act('/api/loi/measure',['sualoi']);
+  const slPanel = ()=>jobPanel($('#slJob'), 'selflink', 'Gỡ link tự thân trên WordPress', '/api/loi/selflink', {}, ['sualoi','changelog']);
+  slPanel();
+  $('#slPrev').onclick = async ()=>{ try{ const r=await api('POST','/api/loi/selflink',{dryRun:true}); toast(r.message); slPanel(); }catch(e){ toast(e.message,true); } };
   jobPanel($('#fxJob'), 'loicheck', 'Kiểm lại trang (mở từng trang còn lỗi / đã sửa, xem lỗi còn không)', '/api/loi/recheck', {}, ['sualoi']);
   await load('sualoi');
   let S = {kinds:{}}; try{ S = await api('GET','/api/loi/summary'); }catch(e){}

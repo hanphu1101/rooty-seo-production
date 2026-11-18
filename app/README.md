@@ -118,3 +118,12 @@ Web khác khai ở bảng **«Danh sách website»** trong Base chính (app tự
 - Search Console + GA4 của web đó: thêm email service account của app (quyền Người xem).
 - Crawl, báo cáo, số GSC theo ngày của web phụ nằm ở `reports/web/<tên miền>/`; web chính giữ `reports/`.
 - Dây chuyền bài viết (B6, thư mục 03–08) hiện chỉ dùng cho rootytrip.com.
+
+## Sửa tự động trên WordPress (link tự thân)
+
+Tab B5 · Danh sách lỗi & sửa → «Sửa tự động: Link tự thân». App gỡ thẻ link trỏ về chính bài (giữ chữ), ghi «Đã sửa gì», chuyển «Đã sửa», thêm dòng Nhật ký thay đổi. WordPress lưu Bản sửa đổi để quay lại.
+
+Cần Mật khẩu ứng dụng của một tài khoản **Biên tập viên** trở lên (web chính):
+1. WordPress → Người dùng → Hồ sơ → «Mật khẩu ứng dụng» → tên «App SEO» → Thêm → copy chuỗi 24 ký tự (chỉ hiện 1 lần).
+2. `.env` (máy) và Environment trên Render: `WP_USER=<tên đăng nhập>` · `WP_APP_PASSWORD=<chuỗi vừa copy>`.
+3. Thu hồi bất cứ lúc nào ở cùng chỗ đó (nút «Thu hồi»).
