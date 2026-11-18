@@ -31,7 +31,8 @@ def _req(method, url, auth=None, body=None, timeout=40):
     h = {"User-Agent": UA, "Accept": "application/json"}
     data = None
     if auth:
-        h["Authorization"] = "Basic " + base64.b64encode(f"{auth[0]}:{auth[1]}".encode()).decode()
+        h["Authorization"] = h["X-Rooty-Auth"] = "Basic " + base64.b64encode(f"{auth[0]}:{auth[1]}".encode()).decode()
+        # X-Rooty-Auth: dự phòng khi hosting cắt header Authorization (cài scripts/wordpress/rooty-app-password-header.php)
     if body is not None:
         data = json.dumps(body).encode()
         h["Content-Type"] = "application/json; charset=utf-8"
