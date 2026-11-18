@@ -1604,13 +1604,21 @@ def fix_self_links(body):
         pages = _pages_by_path()
         now, day = now_ms(), time.strftime("%d/%m/%Y")
         ups, logs, cnt = {}, [], {"sửa": 0, "link": 0, "không còn": 0, "lỗi": 0}
-        for i, r in enumerate(rows, 1):
+        def one(r):   # mỗi bài ~5 giây (tìm bài qua REST) → chạy 6 bài song song
+            try:
+                return WPF.fix_self_links(r["fields"].get("URL") or "", auth, apply=apply), None
+            except Exception as e:
+                return None, e
+        from concurrent.futures import ThreadPoolExecutor as _TP
+        with _TP(6) as ex:
+            kq = list(ex.map(one, rows))
+        for i, (r, (res, err)) in enumerate(zip(rows, kq), 1):
             f = r["fields"]
             url = f.get("URL") or ""
-            say(f"[{i}/{len(rows)}] {url}")
-            try:
-                res = WPF.fix_self_links(url, auth, apply=apply)
-            except Exception as e:
+            if i % 20 == 0:
+                say(f"[{i}/{len(rows)}] đã xử lý")
+            if err is not None:
+                e = err
                 cnt["lỗi"] += 1
                 ups[r["record_id"]] = {"Kiểm lại": f"{day} · không sửa tự động được: {e}"[:500]}
                 continue
