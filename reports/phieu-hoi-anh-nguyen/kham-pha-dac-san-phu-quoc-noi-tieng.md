@@ -20,7 +20,7 @@
 ---
 
 **Điểm còn nghi vấn trong bài.** Chưa sửa vì chưa có nguồn:
-- **Tiêu đề bài ghi «10 đặc sản» nhưng thân bài có 25 món.** Nên đổi tiêu đề (Rank Math), chờ chị duyệt.
+- ~~Tiêu đề «10 đặc sản» lệch 25 món~~ — đã đổi 18/11/2026.
 - **Giá tham khảo của từng món và địa chỉ quán:** không có ngày lấy, có thể quán đã đóng hoặc đổi giá. Nhờ anh Nguyên xác nhận các quán còn mở.
 - **«Đậu phộng Chou Chou» gọi là «đậu phộng 30 vị»:** chưa rõ nguồn.
 - **Nhiều địa chỉ còn ghi phường, xã cũ** (Dương Tơ, Gành Dầu…): từ 1/7/2025 các đơn vị này đã gộp thành đặc khu Phú Quốc. Tên này vẫn dùng được để chỉ khu vực.
