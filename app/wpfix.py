@@ -70,6 +70,18 @@ def find_item(url, auth=None):
     return None
 
 
+def who_am_i(base, auth):
+    """Bị từ chối sửa bài → hỏi WordPress tài khoản đang đăng nhập là ai, để nói đúng lý do."""
+    try:
+        me = _req("GET", f"{base}/wp-json/wp/v2/users/me?context=edit&_fields=name,username,roles", auth)
+    except WPError as e:
+        return ("WordPress không nhận tài khoản (" + str(e)[:120] + "): kiểm WP_USER = tên đăng nhập, WP_APP_PASSWORD = Mật khẩu ứng dụng "
+                "(không phải mật khẩu đăng nhập); nếu đúng cả hai thì plugin bảo mật/hosting đang chặn đăng nhập kiểu Mật khẩu ứng dụng")
+    roles = ", ".join(me.get("roles") or []) or "không rõ"
+    return (f"Đăng nhập được bằng «{me.get('username') or me.get('name')}» (vai trò: {roles}) nhưng không đủ quyền sửa bài này — "
+            "cần vai trò Biên tập viên (editor) hoặc Quản trị viên")
+
+
 def strip_self_links(html, page_url):
     """Gỡ <a> trỏ về chính trang (bỏ qua #mục lục) → (html mới, [anchor đã gỡ])."""
     me = _path(page_url)
@@ -100,7 +112,12 @@ def fix_self_links(url, auth, apply=True):
         item = _req("GET", f"{base}/wp-json/wp/v2/{kind}/{pid}?_fields=id,link,content")
         _, removed = strip_self_links((item.get("content") or {}).get("rendered") or "", item.get("link") or url)
         return {"id": pid, "kind": kind, "removed": removed, "applied": False}
-    item = _req("GET", f"{base}/wp-json/wp/v2/{kind}/{pid}?context=edit&_fields=id,link,content", auth)
+    try:
+        item = _req("GET", f"{base}/wp-json/wp/v2/{kind}/{pid}?context=edit&_fields=id,link,content", auth)
+    except WPError as e:
+        if " 401" in str(e) or " 403" in str(e):
+            raise WPError(who_am_i(base, auth))
+        raise
     raw = ((item.get("content") or {}).get("raw")) or ""
     if not raw:
         raise WPError("Không đọc được nội dung gốc (tài khoản cần quyền Biên tập viên trở lên)")
