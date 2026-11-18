@@ -1,11 +1,11 @@
-# Phiếu hỏi anh Lâm — Lịch trình du lịch Phú Quốc 3N2Đ, 4N3Đ
+# Phiếu hỏi anh Nguyên — Lịch trình du lịch Phú Quốc 3N2Đ, 4N3Đ
 
 - Bài: https://rootytrip.com/lich-trinh-di-du-lich-phu-quoc/
 - Vì sao làm trước: Ưu tiên 1. Bài đứng vị trí 7,8 với 1.393 lượt hiển thị trong 28 ngày (GSC, kiểm 18/11/2026).
-- Bài dài 3.445 từ nhưng chỉ có từ chung chung («Rooty Trip gợi ý…»). Không có đoạn nào anh Lâm kể chuyện mình dẫn đoàn.
+- Bài dài 3.445 từ nhưng chỉ có từ chung chung («Rooty Trip gợi ý…»). Không có đoạn nào anh Nguyên kể chuyện mình dẫn đoàn.
 - 9/10 ảnh trong bài ghi «Ảnh: Sưu tầm».
 
-**Cách điền:** anh Lâm trả lời ngắn từng câu, nói kiểu kể chuyện cũng được. Câu nào không nhớ chắc thì để trống, **đừng ước chừng**. Team sẽ chuốt lại thành 1–2 câu và đặt vào đúng chỗ ghi bên dưới.
+**Cách điền:** anh Nguyên trả lời ngắn từng câu, nói kiểu kể chuyện cũng được. Câu nào không nhớ chắc thì để trống, **đừng ước chừng**. Team sẽ chuốt lại thành 1–2 câu và đặt vào đúng chỗ ghi bên dưới.
 
 ---
 
@@ -33,6 +33,6 @@
 
 ---
 
-**Ví dụ câu sẽ chèn vào bài.** Chỗ trong ngoặc vuông chờ anh Lâm trả lời, team không tự điền:
+**Ví dụ câu sẽ chèn vào bài.** Chỗ trong ngoặc vuông chờ anh Nguyên trả lời, team không tự điền:
 
-> Khi dẫn đoàn [gia đình 6 người] đi tháng [6/2026], anh Lâm Thành Nguyên cho khách lên cáp treo Hòn Thơm chuyến [… giờ] để tránh xếp hàng, rồi chơi [công viên nước] trước vì [buổi chiều đông hơn].
+> Khi dẫn đoàn [gia đình 6 người] đi tháng [6/2026], hướng dẫn viên Lâm Thành Nguyên cho khách lên cáp treo Hòn Thơm chuyến [… giờ] để tránh xếp hàng, rồi chơi [công viên nước] trước vì [buổi chiều đông hơn].

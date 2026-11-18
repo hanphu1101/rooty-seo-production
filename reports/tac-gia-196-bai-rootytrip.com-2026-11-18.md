@@ -5,10 +5,10 @@ Nguồn: quét HTML trang thật 18/11/2026 + GSC 28 ngày (bảng Trang). Trả
 ## Kết quả 3 tiêu chí
 
 1. **Box tác giả:** 196/196 bài có dòng «Tác giả: Lâm Thành Nguyên» + box cuối bài trỏ về trang tác giả; 193/196 có schema Person. → Không cần sửa box.
-2. **Thiếu trải nghiệm thực tế:** 60 bài KHÔNG có dấu hiệu nào; 133 bài chỉ có từ chung chung; 3 bài có nhắc «đoàn khách» (đọc lại). Không bài nào có chuyện anh Lâm tự kể lúc dẫn đoàn.
+2. **Thiếu trải nghiệm thực tế:** 60 bài KHÔNG có dấu hiệu nào; 133 bài chỉ có từ chung chung; 3 bài có nhắc «đoàn khách» (đọc lại). Không bài nào có chuyện anh Nguyên tự kể lúc dẫn đoàn.
 3. **Ưu tiên:** 56 bài Ưu tiên 1 (vị trí 4–20, ≥1.000 hiển thị) · 77 bài Ưu tiên 2 (vị trí 4–20, 200–999 hiển thị) · 63 bài Ưu tiên 3 (top 3, ngoài top 20 hoặc ít hiển thị).
 
-Cách làm mỗi bài: thêm 1–2 câu anh Lâm tự kể (dẫn đoàn tháng nào, đoàn mấy người, mẹo/giờ đẹp, giá thực tế) — ngay dưới H2 liên quan, không chỉ ở box. Bài EN: dịch câu VI đã duyệt.
+Cách làm mỗi bài: thêm 1–2 câu anh Nguyên tự kể (dẫn đoàn tháng nào, đoàn mấy người, mẹo/giờ đẹp, giá thực tế) — ngay dưới H2 liên quan, không chỉ ở box. Bài EN: dịch câu VI đã duyệt.
 
 ## Ưu tiên 1 — làm trước
 

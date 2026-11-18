@@ -53,3 +53,5 @@ Không bán llms.txt như đòn bẩy · không coi schema là cách được tr
 <!-- Mỗi lần người sửa bài, thêm 1 dòng: ngày · lỗi · luật mới. Ví dụ:
 - 2026-11-10 · AI viết giá vé VinWonders cũ · Luôn lấy giá từ trang chính thức, ghi ngày lấy, không dùng giá trong bài cũ của Rooty. -->
 - 2026-11-08 · Audit thấy khối "Tác giả · Ngày đăng · Lượt xem" chen giữa H1 và đoạn mở đầu ở 14/15 trang · Khi đề xuất sửa giao diện, đưa khối meta xuống dưới đoạn mở đầu hoặc ra ngoài thẻ main content.
+- 2026-11-18 · AI gọi HDV Lâm Thành Nguyên là «anh Lâm» · Gọi người Việt theo TÊN (chữ cuối), không theo họ: Lâm Thành Nguyên → «anh Nguyên».
+- 2026-11-18 · Chèn kinh nghiệm HDV vào bài bằng nhãn lặp «Kinh nghiệm của hướng dẫn viên … (Rooty Trip):» + «10 năm dẫn tour» nhiều lần → đọc gượng · Mỗi bài giới thiệu đầy đủ tên + số năm kinh nghiệm MỘT lần; các đoạn sau viết liền mạch vào văn bài («Anh Nguyên thường…», «Mẹo nhỏ:…»), không lặp nhãn, không lặp ý đoạn trước đã nói, đổi cách mở đoạn giữa các bài.

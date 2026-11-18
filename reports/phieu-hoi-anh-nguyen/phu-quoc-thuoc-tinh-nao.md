@@ -1,8 +1,8 @@
-# Phiếu hỏi anh Lâm — Phú Quốc ở đâu? Thuộc tỉnh nào sau sáp nhập?
+# Phiếu hỏi anh Nguyên — Phú Quốc ở đâu? Thuộc tỉnh nào sau sáp nhập?
 
 - Bài: https://rootytrip.com/phu-quoc-thuoc-tinh-nao/
 - Mức ưu tiên: 1. Bài đứng vị trí 7,1, có 3.405 lượt hiển thị trong 28 ngày (GSC, kiểm 18/11/2026).
-- Ngày 18/11/2026 đã sửa dữ kiện hành chính và đổi H2 thành câu hỏi. Bài vẫn chưa có đoạn nào anh Lâm tự kể.
+- Ngày 18/11/2026 đã sửa dữ kiện hành chính và đổi H2 thành câu hỏi. Bài vẫn chưa có đoạn nào anh Nguyên tự kể.
 
 **Cách điền:** anh trả lời ngắn từng câu. Câu nào không nhớ chắc thì để trống, đừng ước chừng.
 
