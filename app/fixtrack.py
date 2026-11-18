@@ -220,7 +220,7 @@ def recheck(kind: str, url: str, fetch, decode, detail: str = "") -> tuple[bool 
         pass
     me = norm_path(url)
     if "link tự thân" in k or "tự thân" in k:
-        own = [h for h, cls in L.links if h and not h.startswith("#") and norm_path(urllib.parse.urljoin(url, h).split("#")[0]) == me
+        own = [h for h, cls in L.links if h and "#" not in h and norm_path(urllib.parse.urljoin(url, h).split("#")[0]) == me
                and not re.search(r"share|facebook|zalo|twitter|pinterest", h)]
         return (True, f"còn {len(own)} link trỏ về chính bài") if own else (False, "không còn link trỏ về chính bài")
     if "năm" in k:   # đổi năm giả
