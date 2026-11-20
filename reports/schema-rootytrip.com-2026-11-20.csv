@@ -1,5 +1,4 @@
 ﻿URL,NN,Mã,Số khối,Loại schema,Schema chèn thêm (ngoài Rank Math),Vấn đề
-https://rootytrip.com/,VI,200,2,Place · Organization · WebSite · ImageObject · WebPage · TravelAgency · FAQPage · BreadcrumbList,FAQPage · TravelAgency,FAQ không hiện trên trang: 2/2 câu | Trùng @id khác loại: https://rootytrip.com/#organization = Organization + TravelAgency | Trang chủ có BreadcrumbList
 https://rootytrip.com/combo-du-lich-phu-quoc/3n2d/,VI,200,2,BreadcrumbList · TravelAgency · WebSite · WebPage · ProductCollection · ImageObject,ProductCollection · TravelAgency,Trùng @id khác loại: https://rootytrip.com/#website = TravelAgency + WebSite
 https://rootytrip.com/combo-du-lich-phu-quoc/4n3d/,VI,200,2,BreadcrumbList · TravelAgency · WebSite · WebPage · ProductCollection · ImageObject,ProductCollection · TravelAgency,Trùng @id khác loại: https://rootytrip.com/#website = TravelAgency + WebSite
 https://rootytrip.com/dia-diem-check-in-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 6/6 câu
@@ -68,7 +67,7 @@ https://rootytrip.com/en/product/wyndham-grand-phu-quoc-5-star-resort/,EN,200,1,
 https://rootytrip.com/grand-world-phu-quoc-co-gi-ma-dinh-dam-nhu-vay/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,1 khối JSON-LD lỗi cú pháp
 https://rootytrip.com/ja/product/grand-world-phu-quoc-tour/,JA,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,Product thiếu offers
 https://rootytrip.com/kham-pha-dac-san-phu-quoc-noi-tieng/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,1 khối JSON-LD lỗi cú pháp
-https://rootytrip.com/ko/,KO,200,2,Place · Organization · WebSite · ImageObject · WebPage,,1 khối JSON-LD lỗi cú pháp
+https://rootytrip.com/ko/,KO,200,2,Place · Organization · WebSite · ImageObject,,1 khối JSON-LD lỗi cú pháp
 https://rootytrip.com/ko/product/best-snorkeling-phu-quoc-tour/,KO,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,Product thiếu offers
 https://rootytrip.com/ko/product/grand-world-phu-quoc-crossroad-of-the-world-tour-ticket/,KO,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,Product thiếu offers
 https://rootytrip.com/ko/product/grand-world-phu-quoc-tour/,KO,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,Product thiếu offers
@@ -117,9 +116,10 @@ https://rootytrip.com/thuy-cung-vinpearl-phu-quoc/,VI,200,2,Place · Organizatio
 https://rootytrip.com/tim-hieu-bai-khem-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,1 khối JSON-LD lỗi cú pháp
 https://rootytrip.com/trai-nghiem-cau-muc-dem-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,1 khối JSON-LD lỗi cú pháp
 https://rootytrip.com/zh-hans/product/grand-world-phu-quoc-tour/,ZH,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,Product thiếu offers
+https://rootytrip.com/,VI,200,2,Place · Organization · WebSite · ImageObject · TravelAgency,TravelAgency,
 https://rootytrip.com/cafe-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · CreativeWorkSeries,CreativeWorkSeries,
 https://rootytrip.com/chua-ho-quoc-phu-quoc/,VI,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList×2 · WebPage×2 · BlogPosting×2 · TravelAgency · Person · FAQPage,FAQPage · TravelAgency,
-https://rootytrip.com/en/,EN,200,2,Place · Organization · WebSite×2 · ImageObject · WebPage×2 · TravelAgency,TravelAgency,
+https://rootytrip.com/en/,EN,200,2,Place · Organization · WebSite×2 · ImageObject · TravelAgency · WebPage,TravelAgency,
 https://rootytrip.com/en/aquatopia-water-park/,EN,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · TouristAttraction,TouristAttraction,
 https://rootytrip.com/en/best-cafe-in-phu-quoc/,EN,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · CreativeWorkSeries,CreativeWorkSeries,
 https://rootytrip.com/en/contact/,EN,200,2,BreadcrumbList · TravelAgency · WebSite · ContactPoint×2 · ContactPage,ContactPoint · TravelAgency,
@@ -522,7 +522,7 @@ https://rootytrip.com/hop-tac/,VI,200,1,BreadcrumbList,,
 https://rootytrip.com/huong-dan-vien-lam-thanh-nguyen/,VI,200,2,BreadcrumbList · Person,,
 https://rootytrip.com/huong-dan-vien-ngo-trung-liem/,VI,200,2,BreadcrumbList · Person,,
 https://rootytrip.com/huyen-thoai-tre-kiet-tac-kien-truc-viet/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
-https://rootytrip.com/ja/,JA,200,1,Place · Organization · WebSite · ImageObject · WebPage,,
+https://rootytrip.com/ja/,JA,200,1,Place · Organization · WebSite · ImageObject,,
 https://rootytrip.com/ja/about-rooty-trip/,JA,200,1,BreadcrumbList,,
 https://rootytrip.com/ja/accommodation/,JA,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/ja/activities/,JA,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
@@ -679,7 +679,7 @@ https://rootytrip.com/rooty-trip-8th-anniversary-hanh-trinh-8-nam-ruc-ro/,VI,200
 https://rootytrip.com/rooty-trip-can-tho/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/rooty-trip-phu-quoc-tai-vietnam-award-2023/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/rooty-trip-year-end-party-2025/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
-https://rootytrip.com/ru/,RU,200,1,Place · Organization · WebSite · ImageObject · WebPage,,
+https://rootytrip.com/ru/,RU,200,1,Place · Organization · WebSite · ImageObject,,
 https://rootytrip.com/ru/about-us/,RU,200,1,BreadcrumbList,,
 https://rootytrip.com/ru/bun-quay/,RU,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/ru/chem-zanyatsya-na-fukuoke/,RU,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
@@ -885,7 +885,7 @@ https://rootytrip.com/vinpearl-safari-phu-quoc/,VI,200,1,Place · Organization �
 https://rootytrip.com/vui-choi-phu-quoc/,VI,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/vuon-quoc-gia-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/vuon-tieu-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
-https://rootytrip.com/zh-hans/,ZH,200,1,Place · Organization · WebSite · ImageObject · WebPage,,
+https://rootytrip.com/zh-hans/,ZH,200,1,Place · Organization · WebSite · ImageObject,,
 https://rootytrip.com/zh-hans/fuguodao-jingdian/,ZH,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/zh-hans/home/,ZH,200,1,BreadcrumbList,,
 https://rootytrip.com/zh-hans/payment-and-cancellation-policy/,ZH,200,1,BreadcrumbList,,
