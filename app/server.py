@@ -3016,6 +3016,143 @@ def entity_schema():
             "liveType": live["org_type"], "liveSameAs": live["sameAs"]}
 
 
+LD_RE = re.compile(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', re.I | re.S)
+
+
+def _ld_nodes(blocks):
+    """Các khối JSON-LD → danh sách node cấp trên (bung @graph)."""
+    out = []
+    for d in blocks:
+        for x in (d.get("@graph", [d]) if isinstance(d, dict) else d if isinstance(d, list) else []):
+            if isinstance(x, dict):
+                out.append(x)
+    return out
+
+
+def _ld_type(x):
+    t = x.get("@type", "?")
+    return "/".join(t) if isinstance(t, list) else str(t)
+
+
+def schema_review(text, page):
+    """Kiểm một bản schema: cú pháp, loại/@id, @id trùng, dữ liệu cá nhân, chỗ chưa điền, link hỏng, giờ mở cửa so NAP gốc,
+    và so với schema đang chạy trên trang thật. → (dòng kết quả, loại schema, khớp trang thật)."""
+    lines, blocks = [], []
+    parts = LD_RE.findall(text) or [text]
+    for i, s in enumerate(parts, 1):
+        try:
+            blocks.append(json.loads(s))
+        except json.JSONDecodeError as e:
+            lines.append(f"❌ Khối {i}: JSON lỗi ở dòng {e.lineno}, cột {e.colno} — {e.msg}. Google sẽ bỏ qua cả khối này.")
+    nodes = _ld_nodes(blocks)
+    if not nodes:
+        return lines or ["❌ Không đọc được node schema nào."], "", "Chưa kiểm"
+    types = " · ".join(f"{_ld_type(x)}{(' ' + x['@id'].split('#')[-1]) if '#' in str(x.get('@id', '')) else ''}" for x in nodes)
+    lines.append(f"✅ JSON hợp lệ: {len(nodes)} node — {types}")
+    seen = {}
+    for x in nodes:
+        if x.get("@id"):
+            seen.setdefault(x["@id"], set()).add(_ld_type(x))
+    for k, v in seen.items():
+        if len(v) > 1:
+            lines.append(f"❌ @id {k} dùng cho nhiều loại ({', '.join(sorted(v))}) — Google gộp thành một thực thể.")
+    raw = json.dumps(blocks, ensure_ascii=False)
+    if re.search(r"__THAY|TODO|xxx", raw, re.I):
+        lines.append("⚠ Còn chỗ chưa điền (__THAY… / TODO).")
+
+    def walk(o, fn):
+        if isinstance(o, dict):
+            fn(o)
+            for v in o.values():
+                walk(v, fn)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v, fn)
+    people, hours, urls = [], [], set()
+
+    def grab(o):
+        if _ld_type(o) == "Person" and (o.get("birthDate") or o.get("email")):
+            people.append(o.get("name") or o.get("@id", ""))
+        if o.get("opens") and o.get("closes"):
+            hours.append((str(o["opens"])[:5], str(o["closes"])[:5]))
+        for k in ("url", "logo", "image", "hasMap", "sameAs", "mainEntityOfPage"):
+            v = o.get(k)
+            for u in (v if isinstance(v, list) else [v]):
+                if isinstance(u, str) and u.startswith("http") and "wikipedia" not in u and "wikidata" not in u:
+                    urls.add(u)
+    walk(blocks, grab)
+    if people:
+        lines.append(f"⚠ Dữ liệu cá nhân (ngày sinh / email riêng) của {', '.join(people)} — Google không cần, nên bỏ.")
+    _, master = brand_master()
+    want = re.findall(r"(\d{1,2})[:h](\d{2})", master.get("Giờ mở cửa") or "")
+    if want and hours:
+        w = tuple(f"{int(a):02d}:{b}" for a, b in want[:2])
+        for h in sorted(set(hours)):
+            if h != w:
+                lines.append(f"⚠ Giờ mở cửa {h[0]}–{h[1]} khác NAP gốc ({master['Giờ mở cửa']}).")
+
+    def head(u):
+        try:
+            st, *_ = fetch(u, follow=True)
+            return u, st
+        except Exception:
+            return u, 0
+    with ThreadPoolExecutor(8) as ex:
+        bad = [(u, st) for u, st in ex.map(head, sorted(urls)[:30]) if st and st >= 400]
+    for u, st in bad:
+        lines.append(f"❌ Link lỗi {st}: {u}")
+    if urls and not bad:
+        lines.append(f"✅ {min(len(urls), 30)} link trong schema đều mở được.")
+    match = "Chưa kiểm"
+    if page:
+        try:
+            st, body, hd, _ = fetch(page, follow=True)
+            live = []
+            for s in LD_RE.findall(decode(body, hd)):
+                try:
+                    live.append(json.loads(s))
+                except json.JSONDecodeError:
+                    pass
+            lnodes = _ld_nodes(live)
+            lid = {}
+            for x in lnodes:
+                if x.get("@id"):
+                    lid.setdefault(x["@id"], []).append(x)
+            canon = lambda o: json.dumps(o, ensure_ascii=False, sort_keys=True)
+            mine = [x for x in nodes if x.get("@id")]
+            same = [x for x in mine if any(canon(y) == canon(x) for y in lid.get(x["@id"], []))]
+            found = [x for x in mine if x["@id"] in lid]
+            match = "Khớp" if mine and len(same) == len(mine) else ("Lệch" if found else "Chưa gắn")
+            lines.append({"Khớp": "✅ Trang thật đang chạy đúng bản này.",
+                          "Lệch": f"⚠ Trang thật có {len(found)}/{len(mine)} @id của bản này nhưng nội dung khác (chưa cập nhật, hoặc cache cũ).",
+                          "Chưa gắn": "• Trang thật chưa có bản này."}[match])
+            clash = [f"{k} = {' + '.join(sorted({_ld_type(y) for y in v}))}" for k, v in lid.items() if len({_ld_type(y) for y in v}) > 1]
+            if clash:
+                lines.append("⚠ Trang thật đang có @id trùng khác loại: " + "; ".join(clash))
+            lines.append("• Trang thật hiện có: " + " · ".join(_ld_type(x) for x in lnodes))
+        except Exception as e:
+            lines.append(f"⚠ Không tải được trang để so: {e}")
+    return lines, types[:500], match
+
+
+def schema_check(body):
+    """Kiểm lại các bản schema đã lưu (ids rỗng = tất cả)."""
+    ids = set((body or {}).get("ids") or [])
+    STORE.setup()  # bảo đảm có bảng «Schema đã lưu»
+    t = _tname("schemas")
+    rows = [r for r in STORE.list(t) if not ids or r["record_id"] in ids]
+    if not rows:
+        raise StoreError("Chưa có bản schema nào — bấm «+ Thêm», dán mã vào ô Nội dung rồi lưu.")
+    ups, cnt = {}, {}
+    for r in rows:
+        f = r["fields"]
+        lines, types, match = schema_review(f.get("Nội dung") or "", f.get("Trang") or "")
+        cnt[match] = cnt.get(match, 0) + 1
+        ups[r["record_id"]] = {"Kết quả kiểm": "\n".join(lines)[:4000], "Loại schema": types, "Khớp trang thật": match, "Ngày kiểm": now_ms()}
+    STORE.update_many(t, ups)
+    return {"ok": True, "message": f"Đã kiểm {len(rows)} bản schema: " + " · ".join(f"{k} {v}" for k, v in cnt.items())}
+
+
 # ------------------------------------------------------------------ Bước 7 · Onpage
 import onpage as OP  # noqa: E402
 
@@ -3318,6 +3455,9 @@ class Handler(BaseHTTPRequestHandler):
         entity_api = {"/api/entity/from-site": entity_from_site, "/api/entity/scan": entity_scan, "/api/entity/nap": entity_nap}
         if path in entity_api:
             return self._guard(entity_api[path])
+        if path == "/api/schema/check":
+            body = self._body()
+            return self._guard(lambda: schema_check(body))
         if path == "/api/onpage/rescore":
             return self._guard(onpage_rescore)
         if path == "/api/onpage/batch":

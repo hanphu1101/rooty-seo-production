@@ -1154,9 +1154,12 @@ VIEWS.entity = async v => {
     <div class="sec"><h2><span>3</span> Schema Markup (JSON-LD)</h2>
       <p class="meta note">Mã chuẩn sinh từ NAP gốc + các hồ sơ “Đã có”: TravelAgency (một loại LocalBusiness) + Organization, logo, hotline, địa chỉ, giờ mở cửa, sameAs, kèm WebSite và WebPage. So với schema đang có trên trang chủ.</p></div>
     <div id="schema" class="gwrap" style="padding:12px 14px"><span class="meta">Đang đọc schema trang chủ…</span></div>
-    <div class="sec"><h2><span>4</span> Thực thể & dữ kiện</h2><p class="meta note">Điểm đến, tour, HDV/tác giả — thuộc tính có nguồn, dùng chung cho mọi bài viết.</p></div>
+    <div class="sec"><h2><span>4</span> Bản schema đã lưu</h2>
+      <p class="meta note">Lưu bản schema gốc của từng trang (dán nguyên mã, kể cả thẻ &lt;script&gt;) để theo dõi và chỉnh sửa. Bấm “Kiểm lỗi” để xem: JSON hợp lệ không, @id trùng, dữ liệu cá nhân, link hỏng, giờ mở cửa so NAP gốc, và trang thật đã chạy đúng bản này chưa.</p></div>
+    <div id="gs"></div>
+    <div class="sec"><h2><span>5</span> Thực thể & dữ kiện</h2><p class="meta note">Điểm đến, tour, HDV/tác giả — thuộc tính có nguồn, dùng chung cho mọi bài viết.</p></div>
     <div id="g2"></div>`;
-  await Promise.all([load('brand'), load('hoso'), load('thucthe')]);
+  await Promise.all([load('brand'), load('hoso'), load('thucthe'), load('schemas').catch(()=>{ DATA.schemas=[]; })]);
   // ① NAP gốc
   const b = DATA.brand[0];
   const NAPF = ['Tên thương hiệu','Website','Hotline chính','Địa chỉ','Thành phố','Tỉnh/thành','Giờ mở cửa','Logo URL','Email','Năm thành lập','Giấy phép lữ hành'];
@@ -1177,6 +1180,12 @@ VIEWS.entity = async v => {
     filters:['Nhóm','Trạng thái','Khớp NAP','Trong sameAs'], limit:50,
     chips:[{id:'fix',label:'Cần sửa / cảnh báo',fn:f=>f['Trạng thái']==='Cần sửa'||/⚠/.test(f['Ghi chú']||'')},{id:'miss',label:'Chưa có',fn:f=>f['Trạng thái']==='Chưa có'}],
     sort:(a,b)=>groups.indexOf(a['Nhóm'])-groups.indexOf(b['Nhóm'])});
+  await grid($('#gs'),'schemas',{title:'Schema đã lưu', cols:['Tên bản','Trang','Trạng thái','Loại schema','Khớp trang thật','Kết quả kiểm','Ngày kiểm','Ngày lưu'],
+    filters:['Trạng thái','Khớp trang thật'], sort:(a,b)=>(b['Ngày lưu']||0)-(a['Ngày lưu']||0),
+    defaults:{'Trạng thái':'Bản nháp','Trang':CFG.site||'','Ngày lưu':Date.now(),'Khớp trang thật':'Chưa kiểm'},
+    actions:[{label:'Kiểm lỗi tất cả', fn:()=>act('/api/schema/check',['schemas'])}],
+    formActions:[{label:'Kiểm lỗi bản này', fn: async rec=>{ const r=await api('POST','/api/schema/check',{ids:[rec.record_id]}); toast(r.message); await load('schemas',true); render(); }}],
+    emptyHint:'bấm “+ Thêm”, dán mã schema vào ô Nội dung'});
   await grid($('#g2'),'thucthe',{title:'Thực thể & dữ kiện', cols:['Thực thể','Loại','Thuộc tính','Nguồn','Ngày kiểm','Schema'], filters:['Loại'],
     chips:[{id:'old',label:'Chưa kiểm trong 30 ngày',fn:f=>!f['Ngày kiểm']||Date.now()-f['Ngày kiểm']>30*864e5}]});
   // ③ schema
@@ -1325,7 +1334,7 @@ async function drawKPI(wk, kpi, head){
   if(cur && part && !head.querySelector('.ibtn') && !head.nextElementSibling?.matches('p.note')) head.insertAdjacentHTML('afterend', `<p class="meta note">Tháng ${esc(part['Tháng'])} chưa hết nên thẻ đang so tháng đủ gần nhất (${esc(cur['Tháng'])} với ${esc(prev?prev['Tháng']:'—')}). Số tạm của tháng ${esc(part['Tháng'])} xem ở bảng “Số liệu theo tháng” bên dưới; theo dõi tuần ở dòng trên.</p>`);
   let s = {};
   try{ s = await api('GET','/api/review/summary');
-    if(s.week){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
+    if(s.week && wk.isConnected){ const w=s.week, bad = w.clicksChange!=null && w.clicksChange<=-20;
       wk.innerHTML = `<div class="banner" style="${bad?'':'background:var(--ok-soft)'}"><b style="color:var(${bad?'--bad':'--ok'})">${bad?'⚠ Traffic tuần giảm mạnh':'Tuần này'}</b> (${esc(w.from)} → ${esc(w.to)}): ${w.clicks.toLocaleString('vi-VN')} lượt nhấp (${w.clicksChange>0?'+':''}${w.clicksChange??'—'}% so tuần trước) · ${w.impr.toLocaleString('vi-VN')} hiển thị (${w.imprChange>0?'+':''}${w.imprChange??'—'}%).${bad?' Kiểm GSC → trang/từ khoá nào giảm, có lỗi index hay cập nhật thuật toán không.':''}</div>`; }
   }catch(e){}
   return {months, s};

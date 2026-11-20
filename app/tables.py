@@ -264,6 +264,11 @@ TABLES = {
         F("Thực thể"), F("Loại", "select", ["Thương hiệu", "Điểm đến", "Tour/sản phẩm", "Người", "Đối tác"]),
         F("Thuộc tính", "long"), F("Nguồn", "url"), F("Ngày kiểm", "date"), F("Trang dùng", "long"),
         F("Schema"), F("Ghi chú", "long")]},
+    "schemas": {"name": "Schema đã lưu", "fields": [
+        F("Tên bản"), F("Trang", "url"), F("Nội dung", "long"),
+        F("Trạng thái", "select", ["Bản nháp", "Đã gắn lên web", "Bản cũ"]),
+        F("Loại schema"), F("Khớp trang thật", "select", ["Khớp", "Lệch", "Chưa gắn", "Chưa kiểm"]),
+        F("Kết quả kiểm", "long"), F("Ngày kiểm", "date"), F("Người lưu"), F("Ngày lưu", "date"), F("Ghi chú", "long")]},
     "brand": {"name": "Thông tin thương hiệu", "fields": [
         F("Tên thương hiệu"), F("Tên pháp lý"), F("Website", "url"), F("Hotline chính"), F("Email"),
         F("Địa chỉ"), F("Thành phố"), F("Tỉnh/thành"), F("Giờ mở cửa"), F("Logo URL", "url"),
