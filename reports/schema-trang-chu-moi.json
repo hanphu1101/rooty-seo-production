@@ -2,66 +2,16 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Organization",
-      "@id": "https://rootytrip.com/#organization",
+      "@type": "TravelAgency",
+      "@id": "https://rootytrip.com/#travelagency",
       "name": "Rooty Trip",
       "alternateName": "Rooty Trip Phú Quốc",
-      "url": "https://rootytrip.com/",
-      "logo": {
-        "@type": "ImageObject",
-        "@id": "https://rootytrip.com/#logo",
-        "url": "https://rootytrip.com/wp-content/uploads/__THAY_BANG_LOGO_PNG__.png"
-      },
-      "description": "Rooty Trip là công ty lữ hành tại Phú Quốc, thành lập năm 2018, tổ chức tour trong ngày, tour trọn gói, combo nghỉ dưỡng và bán vé tham quan tại Phú Quốc.",
-      "foundingDate": "2018",
-      "email": "sales@rootytrip.com",
-      "telephone": "+84886068886",
-      "contactPoint": [
-        {
-          "@type": "ContactPoint",
-          "contactType": "sales",
-          "telephone": "+84886068886",
-          "email": "sales@rootytrip.com",
-          "areaServed": "VN",
-          "availableLanguage": ["vi", "en"]
-        },
-        {
-          "@type": "ContactPoint",
-          "contactType": "customer service",
-          "telephone": "+84339062222",
-          "url": "https://rootytrip.com/lien-he/"
-        }
-      ],
-      "founder": { "@id": "https://rootytrip.com/ceo/#person" },
-      "sameAs": [
-        "https://www.facebook.com/rootytripphuquoc/",
-        "https://www.youtube.com/@RootyTrip",
-        "https://x.com/rootytrip_",
-        "https://www.pinterest.com/rootytrip_/",
-        "https://issuu.com/rootytrip"
-      ],
-      "department": [
-        { "@id": "https://rootytrip.com/#travelagency-phu-quoc" },
-        { "@id": "https://rootytrip.com/#travelagency-ho-chi-minh" }
-      ],
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Tour, combo và vé tham quan Phú Quốc",
-        "itemListElement": [
-          { "@type": "OfferCatalog", "name": "Tour Phú Quốc trong ngày", "url": "https://rootytrip.com/tour-phu-quoc-trong-ngay/" },
-          { "@type": "OfferCatalog", "name": "Tour Phú Quốc trọn gói", "url": "https://rootytrip.com/tour-phu-quoc-tron-goi/" },
-          { "@type": "OfferCatalog", "name": "Combo du lịch Phú Quốc", "url": "https://rootytrip.com/combo-du-lich-phu-quoc/" },
-          { "@type": "OfferCatalog", "name": "Vé tham quan Phú Quốc", "url": "https://rootytrip.com/ve-tham-quan/" }
-        ]
-      }
-    },
-    {
-      "@type": "TravelAgency",
-      "@id": "https://rootytrip.com/#travelagency-phu-quoc",
-      "name": "Rooty Trip Phú Quốc",
       "parentOrganization": { "@id": "https://rootytrip.com/#organization" },
       "url": "https://rootytrip.com/",
+      "description": "Rooty Trip là công ty lữ hành tại Phú Quốc, thành lập năm 2018, tổ chức tour trong ngày, tour trọn gói, combo nghỉ dưỡng và bán vé tham quan tại Phú Quốc.",
+      "logo": "https://rootytrip.com/wp-content/uploads/__THAY_BANG_LOGO_PNG__.png",
       "image": "https://rootytrip.com/wp-content/uploads/2023/01/banner-trang-chu-tour-dao-rooty-trip-01-scaled.jpg",
+      "foundingDate": "2018",
       "telephone": "+84886068886",
       "email": "sales@rootytrip.com",
       "address": {
@@ -79,13 +29,48 @@
         "opens": "07:30",
         "closes": "21:00"
       },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "sales",
+          "telephone": "+84886068886",
+          "email": "sales@rootytrip.com",
+          "areaServed": "VN",
+          "availableLanguage": ["vi", "en"]
+        },
+        {
+          "@type": "ContactPoint",
+          "contactType": "customer service",
+          "telephone": "+84339062222",
+          "url": "https://rootytrip.com/lien-he/"
+        }
+      ],
       "currenciesAccepted": "VND",
       "paymentAccepted": "Tiền mặt, Chuyển khoản, Thẻ",
-      "priceRange": "₫₫"
+      "priceRange": "₫₫",
+      "founder": { "@id": "https://rootytrip.com/ceo/#person" },
+      "sameAs": [
+        "https://www.facebook.com/rootytripphuquoc/",
+        "https://www.youtube.com/@RootyTrip",
+        "https://x.com/rootytrip_",
+        "https://www.pinterest.com/rootytrip_/",
+        "https://issuu.com/rootytrip"
+      ],
+      "department": { "@id": "https://rootytrip.com/#travelagency-hcm" },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Tour, combo và vé tham quan Phú Quốc",
+        "itemListElement": [
+          { "@type": "OfferCatalog", "name": "Tour Phú Quốc trong ngày", "url": "https://rootytrip.com/tour-phu-quoc-trong-ngay/" },
+          { "@type": "OfferCatalog", "name": "Tour Phú Quốc trọn gói", "url": "https://rootytrip.com/tour-phu-quoc-tron-goi/" },
+          { "@type": "OfferCatalog", "name": "Combo du lịch Phú Quốc", "url": "https://rootytrip.com/combo-du-lich-phu-quoc/" },
+          { "@type": "OfferCatalog", "name": "Vé tham quan Phú Quốc", "url": "https://rootytrip.com/ve-tham-quan/" }
+        ]
+      }
     },
     {
       "@type": "TravelAgency",
-      "@id": "https://rootytrip.com/#travelagency-ho-chi-minh",
+      "@id": "https://rootytrip.com/#travelagency-hcm",
       "name": "Rooty Trip – Chi nhánh TP.HCM",
       "description": "Chi nhánh TP.HCM của Rooty Trip, tiếp nhận khách đoàn, MICE và hợp đồng doanh nghiệp.",
       "parentOrganization": { "@id": "https://rootytrip.com/#organization" },
@@ -108,26 +93,13 @@
       "priceRange": "₫₫"
     },
     {
-      "@type": "WebSite",
-      "@id": "https://rootytrip.com/#website",
-      "url": "https://rootytrip.com/",
-      "name": "Rooty Trip",
-      "inLanguage": "vi-VN",
-      "publisher": { "@id": "https://rootytrip.com/#organization" },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://rootytrip.com/?s={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    },
-    {
       "@type": "CollectionPage",
-      "@id": "https://rootytrip.com/#webpage",
+      "@id": "https://rootytrip.com/#collectionpage",
       "url": "https://rootytrip.com/",
       "name": "Rooty Trip Phú Quốc - Tour, Combo & Vé Tham Quan",
       "inLanguage": "vi-VN",
       "isPartOf": { "@id": "https://rootytrip.com/#website" },
-      "about": { "@id": "https://rootytrip.com/#organization" },
+      "about": { "@id": "https://rootytrip.com/#travelagency" },
       "primaryImageOfPage": {
         "@type": "ImageObject",
         "url": "https://rootytrip.com/wp-content/uploads/2023/01/banner-trang-chu-tour-dao-rooty-trip-01-scaled.jpg",

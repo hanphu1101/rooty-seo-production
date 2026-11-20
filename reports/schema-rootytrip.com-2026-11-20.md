@@ -38,15 +38,17 @@ Các lỗi khác trong khối chèn tay:
 
 ## 2. Schema trang chủ đề xuất
 
-File `schema-trang-chu-moi.json`, đã kiểm JSON hợp lệ. Gồm:
+*Sửa lại ngày 20/11/2026 theo góp ý thứ hai: giữ Organization, WebSite, Place của Rank Math; chỉ tắt WebPage.*
 
-- **Organization** `#organization`
-- **TravelAgency** `#travelagency-phu-quoc`, trụ sở 191 Trần Hưng Đạo
-- **TravelAgency** `#travelagency-ho-chi-minh`, Tầng 5 Lite The Gateway
-- **WebSite** `#website`
-- **CollectionPage** `#webpage`, có ItemList 4 nhóm sản phẩm
+File `schema-trang-chu-moi.json` là **khối chèn tay mới**, đã kiểm JSON hợp lệ. Gồm:
 
-Không có BreadcrumbList, WebPage, Place hay FAQPage.
+- **TravelAgency** `#travelagency`: trụ sở 191 Trần Hưng Đạo, trỏ `parentOrganization` về `#organization` của Rank Math. Giờ mở cửa, giá, toạ độ, liên hệ, mạng xã hội và danh mục sản phẩm đều nằm ở đây.
+- **TravelAgency** `#travelagency-hcm`: chi nhánh Tầng 5 Lite The Gateway, cũng trỏ `parentOrganization` về `#organization`. Trụ sở khai `department` trỏ sang chi nhánh.
+- **CollectionPage** `#collectionpage`: có ItemList 4 nhóm sản phẩm. Dùng id riêng để không đụng `#webpage` của Rank Math.
+
+Không còn BreadcrumbList và FAQPage. TravelAgency không còn dùng chung id `#organization`.
+
+Sau khi gắn, trang chủ sẽ có: Organization, WebSite, Place, ImageObject (của Rank Math) và TravelAgency ×2, CollectionPage (khối tay).
 
 **Chị cần điền 2 chỗ** đánh dấu `__THAY_...__`:
 1. Link file logo PNG.
@@ -56,13 +58,18 @@ Ngoài ra nên kiểm thêm: toạ độ `geo` (giữ theo bản cũ), số đi�
 
 **Cách gắn:**
 1. Thay toàn bộ khối chèn tay cũ (TravelAgency + FAQ + Breadcrumb) bằng nội dung file mới, bọc trong `<script type="application/ld+json">…</script>`.
-2. Tắt schema Rank Math **riêng trang chủ**, nếu không WebPage, Organization và Place của Rank Math vẫn còn. Thêm đoạn PHP sau trong WPCode:
+2. Tắt **riêng WebPage** của Rank Math ở trang chủ, các phần khác của Rank Math giữ nguyên. Thêm đoạn PHP sau trong WPCode (loại PHP Snippet, chạy mọi nơi):
    ```php
    add_filter( 'rank_math/json_ld', function ( $data ) {
-       return is_front_page() ? [] : $data;
+       if ( is_front_page() ) {
+           unset( $data['WebPage'] );
+       }
+       return $data;
    }, 99 );
    ```
 3. Xoá cache WP Rocket, rồi kiểm bằng https://validator.schema.org và https://search.google.com/test/rich-results.
+   Nếu trang chủ vẫn còn WebPage, nghĩa là bản Rank Math này đặt tên khoá khác. Báo em để chỉnh.
+4. Nên bổ sung cho Organization của Rank Math (Rank Math → Titles & Meta → Local SEO): logo PNG, tên thống nhất «Rooty Trip», và các trang mạng xã hội (Social Meta).
 
 ## 3. Các trang khác cần sửa
 
