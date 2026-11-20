@@ -1194,12 +1194,29 @@ VIEWS.entity = async v => {
     $('#schema').innerHTML = `<div class="row" style="margin-top:0"><b>Schema hiện tại trên trang chủ:</b> <span class="chip c-info">${esc(s.liveType||'không có')}</span>
       <span class="meta">sameAs đang khai báo ${s.liveSameAs.length} URL</span></div>
       ${s.gaps.length?`<ul style="margin:8px 0 10px;padding-left:20px;font-size:14px">${s.gaps.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`:'<p class="meta">Schema trang chủ đã đủ so với bản chuẩn.</p>'}
-      <div class="row"><button class="btn sm primary" id="bCopyLd">Copy mã JSON-LD</button>
+      <div class="row"><button class="btn sm primary" id="bSaveLd">Lưu</button><button class="btn sm" id="bCheckLd">Lưu & kiểm lỗi</button><button class="btn sm" id="bCopyLd">Copy mã</button><button class="btn sm" id="bGenLd">Dùng mã sinh tự động</button>
         <a class="btn sm" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" href="https://search.google.com/test/rich-results?url=${encodeURIComponent(CFG.site||'https://rootytrip.com')}">Rich Results Test ↗</a>
         <a class="btn sm" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" href="https://validator.schema.org/">Schema Validator ↗</a></div>
-      <pre class="cmd" style="white-space:pre;overflow:auto;max-height:340px;display:block;margin-top:8px">${esc('<script type="application/ld+json">\n'+s.jsonld+'\n<\/script>')}</pre>
-      <p class="hint note" style="margin:6px 0 0">Dán vào Rank Math → Schema (hoặc plugin chèn mã vào &lt;head&gt; trang chủ). Ô nào trong NAP gốc còn “thiếu” thì mã sẽ không có thuộc tính đó — điền NAP gốc trước.</p>`;
-    $('#bCopyLd').onclick = ()=>copy('<script type="application/ld+json">\n'+s.jsonld+'\n<\/script>');
+      <p class="meta" id="ldSrc" style="margin:8px 0 4px"></p>
+      <textarea id="ldEdit" class="field" spellcheck="false" style="width:100%;min-height:360px;font:13px/1.5 ui-monospace,Consolas,monospace;white-space:pre;overflow:auto"></textarea>
+      <div id="ldRes"></div>
+      <p class="hint note" style="margin:6px 0 0">Sửa thẳng trong ô trên rồi bấm Lưu — bản lưu vào mục 4 «Bản schema đã lưu» (bản trang chủ mới nhất). Xong thì Copy dán vào ô «Insert Script to &lt;head&gt;» của Trang chủ trên WordPress. “Dùng mã sinh tự động” lấy lại mã sinh từ NAP gốc + hồ sơ “Đã có”.</p>`;
+    const gen = '<script type="application/ld+json">\n'+s.jsonld+'\n<\/script>';
+    const root = u => String(u||'').replace(/^https?:\/\/(www\.)?/,'').replace(/\/+$/,'');
+    const home = () => (DATA.schemas||[]).filter(r=>root(r.fields['Trang'])===root(CFG.site)).sort((a,b)=>(b.fields['Ngày lưu']||0)-(a.fields['Ngày lưu']||0))[0];
+    const showRes = rec => { const k = rec && rec.fields['Kết quả kiểm']; $('#ldRes').innerHTML = k ? `<div class="banner" style="margin-top:8px;white-space:pre-line">${esc(k)}</div>` : ''; };
+    const fill = () => { const h = home(); $('#ldEdit').value = h ? (h.fields['Nội dung']||'') : gen;
+      $('#ldSrc').textContent = h ? `Đang mở bản đã lưu: «${h.fields['Tên bản']||''}» (${h.fields['Ngày lưu']?new Date(h.fields['Ngày lưu']).toLocaleDateString('vi-VN'):'—'}) — ${h.fields['Khớp trang thật']||'Chưa kiểm'} với trang thật` : 'Đang mở mã sinh tự động (chưa lưu)'; showRes(h); };
+    fill();
+    const save = async () => { const txt = $('#ldEdit').value.trim(); if(!txt) throw new Error('Ô mã đang trống');
+      const h = home(), f = {'Nội dung': txt, 'Ngày lưu': Date.now(), 'Khớp trang thật': 'Chưa kiểm'};
+      const r = h ? (await api('PATCH','/api/t/schemas/'+h.record_id, f), h.record_id)
+        : ((await api('POST','/api/t/schemas', {...f, 'Tên bản':'Trang chủ – sửa trong app '+new Date().toLocaleDateString('vi-VN'), 'Trang': CFG.site||'', 'Trạng thái':'Bản nháp'}))||{}).record_id;
+      await load('schemas', true); return r || (home()||{}).record_id; };
+    $('#bSaveLd').onclick = async ()=>{ try{ await save(); fill(); toast('Đã lưu bản schema'); }catch(e){ toast(e.message,true); } };
+    $('#bCheckLd').onclick = async ()=>{ try{ const id = await save(); toast('Đang kiểm…'); const r = await api('POST','/api/schema/check',{ids:[id]}); await load('schemas', true); fill(); toast(r.message); }catch(e){ toast(e.message,true); } };
+    $('#bCopyLd').onclick = ()=>copy($('#ldEdit').value);
+    $('#bGenLd').onclick = ()=>{ $('#ldEdit').value = gen; $('#ldSrc').textContent = 'Mã sinh tự động — bấm Lưu nếu muốn dùng bản này'; $('#ldRes').innerHTML=''; };
   }catch(e){ $('#schema').innerHTML = `<span class="meta">${esc(e.message)}</span>`; }
 };
 
@@ -1320,6 +1337,7 @@ function importReviewCSV(){
 }
 /* Thẻ chỉ số tháng + dòng tuần — dùng ở B10 và tab Chỉ số */
 async function drawKPI(wk, kpi, head){
+  if(!kpi) return {months:[], s:{}};   // đã chuyển sang tab khác trước khi tải xong
   const months = DATA.danhgia.map(r=>r.fields).filter(f=>f['Tháng']).sort((a,b)=>String(a['Tháng']).localeCompare(String(b['Tháng'])));
   // tháng chưa hết (GSC trễ ~3 ngày) không đem so với cả tháng trước — thẻ KPI lấy tháng đủ gần nhất
   const openM = new Date(Date.now()-4*864e5).toISOString().slice(0,7);
