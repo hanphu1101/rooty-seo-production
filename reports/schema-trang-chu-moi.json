@@ -2,13 +2,10 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "TravelAgency",
+      "@type": "Organization",
       "@id": "https://rootytrip.com/#travelagency",
       "name": "Rooty Trip",
       "alternateName": "Rooty Trip Phú Quốc",
-      "parentOrganization": {
-        "@id": "https://rootytrip.com/#organization"
-      },
       "url": "https://rootytrip.com/",
       "description": "Rooty Trip là công ty lữ hành tại Phú Quốc, thành lập năm 2018, tổ chức tour trong ngày, tour trọn gói, combo nghỉ dưỡng và bán vé tham quan tại Phú Quốc.",
       "logo": {
@@ -21,32 +18,6 @@
       "foundingDate": "2018",
       "telephone": "+84886068886",
       "email": "sales@rootytrip.com",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "191 Trần Hưng Đạo, Khu phố Cửa Lấp",
-        "addressLocality": "Đặc khu Phú Quốc",
-        "addressRegion": "An Giang",
-        "addressCountry": "VN"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 10.18852,
-        "longitude": 103.99231
-      },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ],
-        "opens": "07:30",
-        "closes": "21:00"
-      },
       "contactPoint": [
         {
           "@type": "ContactPoint",
@@ -66,9 +37,6 @@
           "url": "https://rootytrip.com/lien-he/"
         }
       ],
-      "currenciesAccepted": "VND",
-      "paymentAccepted": "Tiền mặt, Chuyển khoản, Thẻ",
-      "priceRange": "₫₫",
       "founder": {
         "@id": "https://rootytrip.com/ceo/#person"
       },
@@ -79,9 +47,6 @@
         "https://www.pinterest.com/rootytrip_/",
         "https://issuu.com/rootytrip"
       ],
-      "department": {
-        "@id": "https://rootytrip.com/#travelagency-hcm"
-      },
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "Tour, combo và vé tham quan Phú Quốc",
@@ -107,7 +72,64 @@
             "url": "https://rootytrip.com/ve-tham-quan/"
           }
         ]
-      }
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "191 Trần Hưng Đạo, Khu phố Cửa Lấp",
+        "addressLocality": "Đặc khu Phú Quốc",
+        "addressRegion": "An Giang",
+        "addressCountry": "VN"
+      },
+      "department": [
+        {
+          "@id": "https://rootytrip.com/#travelagency-phu-quoc"
+        },
+        {
+          "@id": "https://rootytrip.com/#travelagency-hcm"
+        }
+      ]
+    },
+    {
+      "@type": "TravelAgency",
+      "@id": "https://rootytrip.com/#travelagency-phu-quoc",
+      "name": "Rooty Trip Phú Quốc",
+      "parentOrganization": {
+        "@id": "https://rootytrip.com/#travelagency"
+      },
+      "url": "https://rootytrip.com/",
+      "image": "https://rootytrip.com/wp-content/uploads/2023/01/banner-trang-chu-tour-dao-rooty-trip-01-scaled.jpg",
+      "telephone": "+84886068886",
+      "email": "sales@rootytrip.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "191 Trần Hưng Đạo, Khu phố Cửa Lấp",
+        "addressLocality": "Đặc khu Phú Quốc",
+        "addressRegion": "An Giang",
+        "addressCountry": "VN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 10.1866534,
+        "longitude": 103.9693948
+      },
+      "hasMap": "https://maps.google.com/?cid=5099710776259024009",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "opens": "07:30",
+        "closes": "21:00"
+      },
+      "currenciesAccepted": "VND",
+      "paymentAccepted": "Tiền mặt, Chuyển khoản, Thẻ",
+      "priceRange": "₫₫"
     },
     {
       "@type": "TravelAgency",
@@ -115,7 +137,7 @@
       "name": "Rooty Trip – Chi nhánh TP.HCM",
       "description": "Chi nhánh TP.HCM của Rooty Trip, tiếp nhận khách đoàn, MICE và hợp đồng doanh nghiệp.",
       "parentOrganization": {
-        "@id": "https://rootytrip.com/#organization"
+        "@id": "https://rootytrip.com/#travelagency"
       },
       "url": "https://rootytrip.com/",
       "telephone": "+84933555222",

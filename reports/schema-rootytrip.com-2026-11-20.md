@@ -41,21 +41,18 @@ Các lỗi khác trong khối chèn tay:
 
 *Sửa lại ngày 20/11/2026 theo góp ý thứ hai: giữ Organization, WebSite, Place của Rank Math; chỉ tắt WebPage.*
 
-File `schema-trang-chu-moi.json` là **khối chèn tay mới**, đã kiểm JSON hợp lệ. Gồm:
+File `schema-trang-chu-moi.json` là **khối chèn tay mới**, đã kiểm JSON hợp lệ. Bản cập nhật 20/11/2026: chị Hân chọn @type Organization, gửi logo và link Maps của 2 cửa hàng. Gồm:
 
-- **TravelAgency** `#travelagency`: trụ sở 191 Trần Hưng Đạo, trỏ `parentOrganization` về `#organization` của Rank Math. Giờ mở cửa, giá, toạ độ, liên hệ, mạng xã hội và danh mục sản phẩm đều nằm ở đây.
-- **TravelAgency** `#travelagency-hcm`: chi nhánh Tầng 5 Lite The Gateway, cũng trỏ `parentOrganization` về `#organization`. Trụ sở khai `department` trỏ sang chi nhánh.
-- **CollectionPage** `#collectionpage`: có ItemList 4 nhóm sản phẩm. Dùng id riêng để không đụng `#webpage` của Rank Math.
+- **Organization** `#travelagency`: thực thể công ty. Có logo PNG 512×512, mô tả, liên hệ, mạng xã hội (YouTube kênh chính), người sáng lập, danh mục sản phẩm; trỏ `department` sang 2 cửa hàng.
+- **TravelAgency** `#travelagency-phu-quoc`: trụ sở 191 Trần Hưng Đạo. Toạ độ lấy theo Google Maps (10.18665, 103.96939); toạ độ cũ lệch khoảng 2,5 km. Có link Maps, giờ mở cửa, giá, thanh toán.
+- **TravelAgency** `#travelagency-hcm`: chi nhánh Tầng 5 Lite The Gateway, có link Maps.
+- **CollectionPage** `#collectionpage`: kèm ItemList 4 nhóm sản phẩm.
 
-Không còn BreadcrumbList và FAQPage. TravelAgency không còn dùng chung id `#organization`.
+Hai cửa hàng trỏ `parentOrganization` về `#travelagency`. Không còn BreadcrumbList và FAQPage.
 
-Sau khi gắn, trang chủ sẽ có: Organization, WebSite, Place, ImageObject (của Rank Math) và TravelAgency ×2, CollectionPage (khối tay).
+Sau khi gắn, trang chủ sẽ có: Organization, WebSite, Place, ImageObject (của Rank Math) và Organization `#travelagency`, TravelAgency ×2, CollectionPage (khối tay).
 
-**Chị cần điền 2 chỗ** đánh dấu `__THAY_...__`:
-1. Link file logo PNG.
-2. Link Google Maps của trụ sở (`hasMap`).
-
-Ngoài ra nên kiểm thêm: toạ độ `geo` (giữ theo bản cũ), số điện thoại chi nhánh TP.HCM (0933 555 222, theo chân trang), và chi nhánh TP.HCM có mở cửa 7:30–21:00 không.
+File đã điền đủ logo và link Maps, không còn chỗ trống nào. Nên kiểm thêm: số điện thoại chi nhánh TP.HCM (0933 555 222, theo chân trang) và chi nhánh TP.HCM có mở cửa 7:30–21:00 không.
 
 **Cách gắn:**
 1. Thay toàn bộ khối chèn tay cũ (TravelAgency + FAQ + Breadcrumb) bằng nội dung file mới, bọc trong `<script type="application/ld+json">…</script>`.
