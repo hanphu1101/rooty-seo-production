@@ -2678,7 +2678,8 @@ def google_sync(body=None):
             except GAPI.GoogleError as e:
                 raise GAPI.GoogleError(f"{e} — kiểm GA4_PROPERTY và đã thêm {email} vào GA4 (quyền Người xem) chưa")
             done.append(review_import({"rows": rows, "name": "GA4 API organic", "period": period})["message"])
-            say("Lấy GA4 theo tháng: phiên, tương tác, tỷ lệ thoát, thời gian, chuyển đổi…")
+            say("Lấy GA4 theo tháng: phiên, người dùng mới/cũ, tương tác, tỷ lệ thoát, thời gian, chuyển đổi…")
+            STORE.setup()  # bảo đảm có cột «Người dùng mới», «Người dùng cũ» (chỉ thêm cột còn thiếu)
             done.append(_month_upsert(GAPI.ga4_months(token, cur_site()["ga4"]), "GA4 API"))
             say("Lấy GA4: phiên từ trợ lý AI (ChatGPT, Gemini, Perplexity…) theo tháng…")
             done.append(_month_upsert(GAPI.ga4_ai_months(token, cur_site()["ga4"]), "GA4 AI"))

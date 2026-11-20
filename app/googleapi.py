@@ -188,6 +188,9 @@ def ga4_months(token, prop, months=17, today=None):
         "metrics": [{"name": n} for n in ("sessions", "totalUsers", "engagementRate", "bounceRate", "userEngagementDuration", "keyEvents", "sessionKeyEventRate")],
         "dimensionFilter": {"filter": {"fieldName": "sessionDefaultChannelGroup", "stringFilter": {"value": "Organic Search"}}}}, token)
     tot = _post(GA4_URL.format(prop=prop), {"dateRanges": rng, "dimensions": [{"name": "yearMonth"}], "metrics": [{"name": "sessions"}]}, token)
+    nvr = _post(GA4_URL.format(prop=prop), {
+        "dateRanges": rng, "dimensions": [{"name": "yearMonth"}, {"name": "newVsReturning"}], "metrics": [{"name": "activeUsers"}],
+        "dimensionFilter": {"filter": {"fieldName": "sessionDefaultChannelGroup", "stringFilter": {"value": "Organic Search"}}}}, token)
     out = {}
     for x in org.get("rows") or []:
         ym = x["dimensionValues"][0]["value"]
@@ -199,6 +202,11 @@ def ga4_months(token, prop, months=17, today=None):
     for x in tot.get("rows") or []:
         ym = x["dimensionValues"][0]["value"]
         out.setdefault(f"{ym[:4]}-{ym[4:]}", {})["Phiên (mọi kênh)"] = int(float(x["metricValues"][0]["value"]))
+    for x in nvr.get("rows") or []:   # người dùng organic mới / quay lại (bỏ "(not set)")
+        ym, kind = (v["value"] for v in x["dimensionValues"])
+        col = {"new": "Người dùng mới", "returning": "Người dùng cũ"}.get(kind)
+        if col:
+            out.setdefault(f"{ym[:4]}-{ym[4:]}", {})[col] = int(float(x["metricValues"][0]["value"]))
     return out
 
 

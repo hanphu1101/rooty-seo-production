@@ -305,7 +305,7 @@ TABLES = {
     # ---------------- 5 · EVALUATE
     "danhgia": {"name": "Đánh giá tháng", "fields": [
         F("Tháng"), F("Lượt nhấp", "num"), F("Hiển thị", "num"), F("CTR %", "dec"), F("Vị trí TB", "dec"),
-        F("Phiên organic", "num"), F("Người dùng organic", "num"), F("Tỷ lệ tương tác %", "dec"),
+        F("Phiên organic", "num"), F("Người dùng organic", "num"), F("Người dùng mới", "num"), F("Người dùng cũ", "num"), F("Tỷ lệ tương tác %", "dec"),
         F("Thời gian tương tác TB (giây)", "num"), F("Chuyển đổi organic", "num"), F("Tỷ lệ chuyển đổi %", "dec"),
         F("Tỷ lệ thoát %", "dec"), F("Phiên (mọi kênh)", "num"),
         F("Khách đăng ký sales@", "num"), F("Đặt dịch vụ / tư vấn / đơn online / email khách"), F("Tỷ lệ đăng ký %", "dec"),

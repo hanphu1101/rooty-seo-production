@@ -1316,9 +1316,9 @@ async function drawKPI(wk, kpi, head){
   const openM = new Date(Date.now()-4*864e5).toISOString().slice(0,7);
   const full = months.filter(f=>String(f['Tháng'])<openM), part = months.find(f=>String(f['Tháng'])>=openM);
   const cur = full[full.length-1] || months[months.length-1], prev = full.length ? full[full.length-2] : months[months.length-2];
-  const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ thoát %','GA4',-1],['Tỷ lệ chuyển đổi %','GA4',1],
+  const K = [['Lượt nhấp','GSC',1],['Hiển thị','GSC',1],['CTR %','GSC',1],['Vị trí TB','GSC',-1],['Phiên organic','GA4',1],['Người dùng mới','GA4',1],['Người dùng cũ','GA4',1],['Tỷ lệ tương tác %','GA4',1],['Thời gian tương tác TB (giây)','GA4',1],['Tỷ lệ thoát %','GA4',-1],['Tỷ lệ chuyển đổi %','GA4',1],
     ['Khách đăng ký sales@','Mail',1],['Tỷ lệ đăng ký %','Mail',1],['Referral AI','AI',1],['Chuyển đổi từ AI','AI',1],['Hiển thị AI Google','AI',1]];
-  const KL = {'Referral AI':'Phiên từ AI','Hiển thị AI Google':'Hiển thị trên Google AI'};
+  const KL = {'Referral AI':'Phiên từ AI','Hiển thị AI Google':'Hiển thị trên Google AI','Người dùng mới':'Người dùng mới (organic)','Người dùng cũ':'Người dùng cũ (organic)'};
   kpi.innerHTML = cur ? K.map(([k,src,dir])=>{ const a=cur[k], b=prev&&prev[k]; const ch = (a!=null&&b) ? Math.round((a/b-1)*1000)/10 : null; const good = ch==null?null:(ch*dir>=0);
     return `<div class="kcard" style="cursor:default"><span class="stp">${src} · ${esc(KL[k]||k)}</span><b class="big">${a!=null?Number(a).toLocaleString('vi-VN'):'—'}</b>
       <span class="meta">${ch!=null?`<b style="color:var(${good?'--ok':'--bad'})">${ch>0?'+':''}${ch}%</b> so tháng ${esc(prev['Tháng'])}`:`tháng ${esc(cur['Tháng'])}`}</span>${k==='Referral AI'&&cur['Phiên AI theo nguồn']?`<span class="meta">${esc(cur['Phiên AI theo nguồn'])}</span>`:''}</div>`; }).join('') : '<div class="banner" style="grid-column:1/-1">Chưa có số liệu tháng — nhập file GSC <i>Ngày</i> hoặc thêm dòng tháng ở bảng dưới.</div>';
@@ -1360,7 +1360,7 @@ VIEWS.danhgia = async v => {
   const {months, s} = await drawKPI($('#wk'), $('#kpi'), $('#kpiH'));
   if(s.lastDay) $('#rvLast').textContent = `Số liệu GSC theo ngày đến ${s.lastDay}`;
   $('#ch').innerHTML = months.length>=2 ? chart(months) : '<div class="meta">Biểu đồ lượt nhấp & chuyển đổi hiện khi có từ 2 tháng số liệu.</div>';
-  await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Tỷ lệ tương tác %','Thời gian tương tác TB (giây)','Tỷ lệ thoát %','Tỷ lệ chuyển đổi %','Phiên (mọi kênh)','Khách đăng ký sales@','Tỷ lệ đăng ký %','Referral AI','Chuyển đổi từ AI','Phiên AI theo nguồn','Hiển thị AI Google','Nguồn số liệu'],
+  await grid($('#g'),'danhgia',{title:'Số liệu theo tháng', cols:['Tháng','Lượt nhấp','Hiển thị','CTR %','Vị trí TB','Phiên organic','Người dùng mới','Người dùng cũ','Tỷ lệ tương tác %','Thời gian tương tác TB (giây)','Tỷ lệ thoát %','Tỷ lệ chuyển đổi %','Phiên (mọi kênh)','Khách đăng ký sales@','Tỷ lệ đăng ký %','Referral AI','Chuyển đổi từ AI','Phiên AI theo nguồn','Hiển thị AI Google','Nguồn số liệu'],
     sort:(a,b)=>String(b['Tháng']).localeCompare(String(a['Tháng'])), defaults:{'Tháng': new Date().toISOString().slice(0,7)}, limit:24});
   // ③ cannibalization
   await grid($('#gc'),'cannib',{title:'Xung đột từ khoá', cols:['Từ khoá','Số trang','Hiển thị','Lượt nhấp','Trang nên giữ','Các URL','Cách xử lý','Trạng thái'],
