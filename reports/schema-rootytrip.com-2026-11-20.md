@@ -31,6 +31,7 @@ Các lỗi khác trong khối chèn tay:
   - Link `linkedin.com/in/rootytrip/` là dạng hồ sơ cá nhân và không mở được.
   - `gab.com/rootytrip` trả lỗi 403.
   - `twitter.com` đã chuyển sang `x.com`.
+  - Link YouTube cũ `@RootyTrip` là kênh **«Rooty Trip Backup»**. Kênh chính là `@RootyTripPhúQuốc` (chị Hân xác nhận 20/11/2026), bản mới đã đổi.
   - Bản mới bỏ 2 link lỗi. Nên thêm link Google Maps, TikTok, Instagram nếu có.
 - **hasOfferCatalog** trỏ `/ticket/`, trang này **404**. Trang đúng là `/ve-tham-quan/`.
 - **FAQPage:** 2 câu hỏi trong schema **không hiện trên trang**. Google yêu cầu nội dung FAQ phải hiển thị cho người xem, và từ 2023 chỉ hiện FAQ dạng rich result cho trang chính phủ và y tế. Bỏ, hoặc thêm khối FAQ thật lên trang.
