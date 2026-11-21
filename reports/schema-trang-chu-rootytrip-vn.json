@@ -1,0 +1,113 @@
+{
+  "@context": "https://schema.org",
+  "@type": "TravelAgency",
+  "@id": "https://rootytrip.vn/#travelagency",
+  "name": "Rooty Trip",
+  "alternateName": ["Rooty Trip Phu Quoc", "RootyTrip Phu Quoc", "Rooty Trip Phu Quoc Travel"],
+  "legalName": "Rooty Trip Phu Quoc Joint Stock Company",
+  "url": "https://rootytrip.vn",
+  "description": "Rooty Trip is a local travel company in Phu Quoc, founded in 2018, offering snorkeling tours, island day trips, tour and hotel combos, and attraction tickets in Phu Quoc.",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://rootytrip.vn/wp-content/uploads/2025/01/cropped-logo-rooty-favicon.png",
+    "width": 512,
+    "height": 512
+  },
+  "image": "https://rootytrip.com/wp-content/uploads/2023/01/banner-trang-chu-tour-dao-rooty-trip-01-scaled.jpg",
+  "foundingDate": "2018",
+  "telephone": "+84915708328",
+  "email": "inbound@rootytrip.com",
+  "areaServed": { "@type": "Place", "name": "Vietnam" },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "sales",
+      "telephone": "+84915708328",
+      "email": "inbound@rootytrip.com",
+      "availableLanguage": ["en", "vi"]
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "telephone": "+84933555222",
+      "url": "https://rootytrip.vn/contact-us/",
+      "availableLanguage": ["en", "vi"]
+    }
+  ],
+  "hasMap": "https://maps.google.com/?cid=5099710776259024009",
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "opens": "08:00",
+    "closes": "22:00"
+  },
+  "currenciesAccepted": "VND",
+  "paymentAccepted": ["Cash", "Credit Card", "Visa"],
+  "priceRange": "500,000₫ - 5,000,000₫",
+  "founder": {
+    "@type": "Person",
+    "@id": "https://rootytrip.com/ceo/#person",
+    "name": "Phạm Quang Hậu",
+    "url": "https://rootytrip.com/ceo/"
+  },
+  "sameAs": [
+    "https://rootytrip.com/",
+    "https://www.facebook.com/rootytripphuquoc/",
+    "https://www.instagram.com/rootytrip",
+    "https://www.tiktok.com/@rootytrippq",
+    "https://www.youtube.com/@RootyTripPh%C3%BAQu%E1%BB%91c"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "191 Tran Hung Dao Street, Cua Lap Ward",
+    "addressLocality": "Phu Quoc Special Zone",
+    "addressRegion": "An Giang Province",
+    "addressCountry": "VN"
+  },
+  "geo": { "@type": "GeoCoordinates", "latitude": 10.1866534, "longitude": 103.9693948 },
+  "knowsAbout": [
+    {
+      "@type": "Thing",
+      "name": "Travel agency",
+      "@id": "https://www.google.com/search?kgmid=/m/02ty15",
+      "sameAs": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%A1i_l%C3%BD_l%E1%BB%AF_h%C3%A0nh"
+    },
+    {
+      "@type": "Thing",
+      "name": "Travel company",
+      "@id": "https://www.google.com/search?kgmid=/m/0477l6",
+      "sameAs": "https://vi.wikipedia.org/wiki/C%C3%B4ng_ty_du_l%E1%BB%8Bch"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Phu Quoc tours, combos and attraction tickets",
+    "itemListElement": [
+      { "@type": "OfferCatalog", "name": "Phu Quoc snorkeling tours", "url": "https://rootytrip.vn/snorkeling-tour/" },
+      { "@type": "OfferCatalog", "name": "Phu Quoc combo tours", "url": "https://rootytrip.vn/combo-tour/" },
+      { "@type": "OfferCatalog", "name": "Phu Quoc attraction tickets", "url": "https://rootytrip.vn/tickets/" }
+    ]
+  },
+  "subOrganization": {
+    "@type": "TravelAgency",
+    "@id": "https://rootytrip.vn/#branch-hcm",
+    "name": "Rooty Trip Ho Chi Minh City Branch",
+    "description": "Ho Chi Minh City branch of Rooty Trip, handling group tours, MICE and corporate contracts.",
+    "telephone": "+84933555222",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "5th Floor, Lite The Gateway Building, 132 Ngo Tat To Street",
+      "addressLocality": "Thanh My Tay Ward",
+      "addressRegion": "Ho Chi Minh City",
+      "addressCountry": "VN"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": 10.7906348, "longitude": 106.7151627 },
+    "hasMap": "https://www.google.com/search?kgmid=/g/11zb6rckvp",
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "08:00",
+      "closes": "22:00"
+    }
+  }
+}
