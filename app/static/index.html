@@ -222,7 +222,8 @@ section.logs h2{font-size:15px;margin:0;padding:12px 14px;border-bottom:1px soli
 label{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 label.full{grid-column:1/-1}
 .field{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:7px 10px;width:100%}
-textarea.field{min-height:80px;resize:vertical}
+textarea.field{min-height:80px;resize:vertical;cursor:text}
+textarea.field:not(:focus){max-height:160px}
 .db h4{margin:20px 0 8px;font-size:14px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .tab{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;display:flex;gap:6px;align-items:center}
@@ -543,6 +544,11 @@ function openDrawer(){ $('#drawer').classList.add('on'); $('#scrim').classList.a
 function closeDrawer(){ $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); $('#drawer').setAttribute('aria-hidden','true'); CUR=null; }
 $('#dClose').onclick = closeDrawer; $('#scrim').onclick = closeDrawer;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#drawer').classList.contains('on')) closeDrawer(); });
+/* Ô chữ dài: bấm vào là mở cao đủ toàn bộ nội dung (tối đa 75% màn hình, dài hơn thì cuộn), rời ô thì thu lại */
+const growTA = t => { t.style.height='auto'; t.style.height = Math.min(t.scrollHeight+4, innerHeight*.75)+'px'; };
+document.addEventListener('focusin', e=>{ const t=e.target; if(t.matches && t.matches('textarea.field')){ t.dataset.h0 = t.style.height||''; growTA(t); } });
+document.addEventListener('input', e=>{ const t=e.target; if(t.matches && t.matches('textarea.field') && document.activeElement===t) growTA(t); });
+document.addEventListener('focusout', e=>{ const t=e.target; if(t.matches && t.matches('textarea.field')) t.style.height = t.dataset.h0||''; });
 
 // cột app tự điền — trong form chỉ đọc, đỡ phải gõ tay
 const AUTO_FIELDS = {
@@ -560,7 +566,7 @@ function openForm(key, rec, defaults, onSave, extra){
     else if(fd.k==='num'||fd.k==='dec') input = `<input class="field" type="number" step="${fd.k==='dec'?'0.1':'1'}" id="${id}" value="${v??''}">`;
     else { const dl = fd.k==='url' ? 'list="dlUrl"' : fd.n==='Cụm chủ đề' ? 'list="dlCum"' : '';
       input = `<input class="field" id="${id}" ${dl} value="${esc(v)}">${fd.k==='url'&&v?`<a href="${esc(v)}" target="_blank" rel="noopener" style="font-size:12px">Mở link ↗</a>`:''}`; }
-    if(auto.includes(fd.n)) input = input.replace(/^<(input|select|textarea) /, '<$1 disabled title="App tự điền" ');
+    if(auto.includes(fd.n)) input = input.replace(/^<(input|select) /, '<$1 disabled title="App tự điền" ').replace(/^<textarea /, '<textarea readonly title="App tự điền" ');
     return `<label class="${full}"><span>${esc(fd.n)}${i===0?' *':''}${auto.includes(fd.n)?' <span class="meta">· tự điền</span>':''}</span>${input}</label>`;
   }).join('')}</div>`;
   $('#dFoot').innerHTML = `${rec?'<button class="btn danger" id="fDel">Xoá</button>':''}${rec&&extra?extra.map((a,i)=>`<button class="btn" data-x="${i}">${esc(a.label)}</button>`).join(''):''}<span class="sp"></span><button class="btn" id="fCancel">Huỷ</button><button class="btn primary" id="fSave">${rec?'Lưu':'Thêm'}</button>`;
