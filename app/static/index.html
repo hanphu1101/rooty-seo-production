@@ -1152,7 +1152,7 @@ VIEWS.entity = async v => {
       <button class="btn" id="bScan">Quét liên kết chéo (website ↔ hồ sơ)</button><button class="btn" id="bNap">Kiểm NAP các hồ sơ</button></div>
     <div id="g1"></div>
     <div class="sec"><h2><span>3</span> Schema Markup (JSON-LD)</h2>
-      <p class="meta note">Mã chuẩn sinh từ NAP gốc + các hồ sơ “Đã có”: TravelAgency (một loại LocalBusiness) + Organization, logo, hotline, địa chỉ, giờ mở cửa, sameAs, kèm WebSite và WebPage. So với schema đang có trên trang chủ.</p></div>
+      <p class="meta note">Mã chuẩn sinh từ NAP gốc + các hồ sơ “Đã có”: một TravelAgency id <code>#travelagency</code> (logo, hotline, địa chỉ, giờ mở cửa, sameAs; chi nhánh khai bằng <code>subOrganization</code>). Organization và WebSite đã do Rank Math xuất; trang chủ không dùng WebPage, CollectionPage, BreadcrumbList, FAQPage, parentOrganization. So với schema đang có trên trang chủ.</p></div>
     <div id="schema" class="gwrap" style="padding:12px 14px"><span class="meta">Đang đọc schema trang chủ…</span></div>
     <div class="sec"><h2><span>4</span> Bản schema đã lưu</h2>
       <p class="meta note">Lưu bản schema gốc của từng trang (dán nguyên mã, kể cả thẻ &lt;script&gt;) để theo dõi và chỉnh sửa. Bấm “Kiểm lỗi” để xem: JSON hợp lệ không, @id trùng, dữ liệu cá nhân, link hỏng, giờ mở cửa so NAP gốc, và trang thật đã chạy đúng bản này chưa.</p></div>

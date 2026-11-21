@@ -227,9 +227,11 @@ def compare_nap(master: dict, prof: dict) -> tuple[str, str]:
 
 def build_jsonld(master: dict, same_as: list[str], has_search: bool) -> dict:
     site = (master.get("Website") or "").rstrip("/")
+    # Khối chèn tay trang chủ: một TravelAgency id #travelagency (Organization/WebSite đã do Rank Math xuất).
+    # Không WebPage / CollectionPage / BreadcrumbList / FAQPage ở trang chủ; chi nhánh khai bằng subOrganization, không dùng parentOrganization.
     org = {
-        "@type": ["TravelAgency", "Organization"],
-        "@id": f"{site}/#organization",
+        "@type": "TravelAgency",
+        "@id": f"{site}/#travelagency",
         "name": master.get("Tên thương hiệu"),
         "legalName": master.get("Tên pháp lý"),
         "url": site + "/",
@@ -242,20 +244,13 @@ def build_jsonld(master: dict, same_as: list[str], has_search: bool) -> dict:
         "address": {"@type": "PostalAddress", "streetAddress": master.get("Địa chỉ"), "addressLocality": master.get("Thành phố"),
                     "addressRegion": master.get("Tỉnh/thành"), "addressCountry": "VN"} if master.get("Địa chỉ") else None,
         "openingHours": master.get("Giờ mở cửa"),
-        "areaServed": "Phú Quốc, Kiên Giang, Việt Nam",
+        "areaServed": "Phú Quốc, An Giang, Việt Nam",
         "sameAs": sorted(set(u for u in same_as + ([master["Wikidata URL"]] if master.get("Wikidata URL") else []) if u)) or None,
     }
     org = {k: v for k, v in org.items() if v}
     if isinstance(org.get("address"), dict):
         org["address"] = {k: v for k, v in org["address"].items() if v}
-    website = {"@type": "WebSite", "@id": f"{site}/#website", "url": site + "/", "name": master.get("Tên thương hiệu"),
-               "publisher": {"@id": f"{site}/#organization"}, "inLanguage": "vi"}
-    if has_search:
-        website["potentialAction"] = {"@type": "SearchAction", "target": f"{site}/?s={{search_term_string}}",
-                                      "query-input": "required name=search_term_string"}
-    webpage = {"@type": "WebPage", "@id": f"{site}/#webpage", "url": site + "/", "name": master.get("Tên thương hiệu"),
-               "isPartOf": {"@id": f"{site}/#website"}, "about": {"@id": f"{site}/#organization"}, "inLanguage": "vi"}
-    return {"@context": "https://schema.org", "@graph": [org, website, webpage]}
+    return {"@context": "https://schema.org", "@graph": [org]}
 
 
 def schema_gaps(live: dict, want: dict) -> list[str]:
@@ -277,8 +272,13 @@ def schema_gaps(live: dict, want: dict) -> list[str]:
         gaps.append(f"sameAs thiếu {len(miss)} hồ sơ: " + ", ".join(miss[:6]))
     if "WebSite" not in live.get("types", []):
         gaps.append("Chưa có schema WebSite")
-    if "WebPage" not in live.get("types", []):
-        gaps.append("Chưa có schema WebPage")
+    for t, why in (("BreadcrumbList", "trang chủ không có breadcrumb"), ("CollectionPage", "trang chủ không phải trang danh mục"),
+                   ("ItemList", "trang chủ không phải trang danh mục"), ("FAQPage", "Google không còn hiển thị FAQ"),
+                   ("WebPage", "đã tắt WebPage mặc định ở trang chủ")):
+        if t in live.get("types", []):
+            gaps.append(f"Nên bỏ {t} ở trang chủ ({why})")
+    if "parentOrganization" in json.dumps(live.get("org") or {}):
+        gaps.append("Không khai parentOrganization cho Rooty — chi nhánh khai bằng subOrganization ở thực thể chính")
     if not set(_types(org)) & {"TravelAgency", "LocalBusiness"}:
         gaps.append(f"Loại hiện tại «{'/'.join(_types(org))}» — nên dùng TravelAgency (một loại LocalBusiness) cho công ty lữ hành")
     return gaps

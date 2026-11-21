@@ -1,20 +1,6 @@
 ﻿URL,NN,Mã,Số khối,Loại schema,Schema chèn thêm (ngoài Rank Math),Vấn đề
-https://rootytrip.com/bai-sao-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 4/4 câu
-https://rootytrip.com/bi-mat-nuoc-mam-truyen-thong-phu-quoc/,VI,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList×2 · WebPage×2 · BlogPosting×2 · TravelAgency · Person · FAQPage · ItemList,FAQPage · ItemList · TravelAgency,FAQ không hiện trên trang: 2/2 câu
-https://rootytrip.com/dia-diem-check-in-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 6/6 câu
-https://rootytrip.com/dia-diem-ngam-hoang-hon-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 6/6 câu
-https://rootytrip.com/dinh-cau-bieu-tuong-tam-linh-cua-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 4/5 câu
-https://rootytrip.com/en/marriage-proposal/,EN,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 1/5 câu
-https://rootytrip.com/en/phu-quoc-island/,EN,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList · WebPage×2 · BlogPosting×2 · TravelAgency · Person · FAQPage,FAQPage · TravelAgency,FAQ không hiện trên trang: 2/2 câu
-https://rootytrip.com/en/things-to-do-in-phu-quoc/,EN,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 5/5 câu
-https://rootytrip.com/kinh-nghiem-du-lich-vinwonders-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 4/4 câu
-https://rootytrip.com/phu-quoc-thuoc-tinh-nao/,VI,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList · WebPage×2 · BlogPosting×2 · TravelAgency · Person · FAQPage,FAQPage · TravelAgency,FAQ không hiện trên trang: 1/2 câu
-https://rootytrip.com/resort-5-sao-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 5/5 câu
-https://rootytrip.com/san-ho-la-dong-vat-hay-thuc-vat/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 3/6 câu
-https://rootytrip.com/taxi-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 2/5 câu
-https://rootytrip.com/tim-hieu-bai-khem-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 6/6 câu
-https://rootytrip.com/trai-nghiem-cau-muc-dem-phu-quoc/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting · FAQPage,FAQPage,FAQ không hiện trên trang: 4/4 câu
 https://rootytrip.com/,VI,200,2,Place · Organization · WebSite · ImageObject · TravelAgency,TravelAgency,
+https://rootytrip.com/bi-mat-nuoc-mam-truyen-thong-phu-quoc/,VI,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList×2 · WebPage×2 · BlogPosting×2 · TravelAgency · Person · ItemList,ItemList · TravelAgency,
 https://rootytrip.com/chua-ho-quoc-phu-quoc/,VI,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList×2 · WebPage×2 · BlogPosting×2 · TravelAgency · Person · FAQPage,FAQPage · TravelAgency,
 https://rootytrip.com/combo-du-lich-phu-quoc/,VI,200,2,BreadcrumbList×2 · TravelAgency · WebSite,TravelAgency,
 https://rootytrip.com/combo-du-lich-phu-quoc/3n2d/,VI,200,2,BreadcrumbList · TravelAgency · WebPage · ProductCollection · ImageObject,ProductCollection · TravelAgency,
@@ -26,6 +12,7 @@ https://rootytrip.com/en/free-easy/,EN,200,2,BreadcrumbList · TravelAgency · W
 https://rootytrip.com/en/guided-packages/,EN,200,2,BreadcrumbList · TravelAgency · WebPage · ProductCollection · ImageObject,ProductCollection · TravelAgency,
 https://rootytrip.com/en/guided-packages/phu-quoc-family-group-tours/,EN,200,2,BreadcrumbList · TravelAgency · WebPage · ProductCollection · ImageObject,ProductCollection · TravelAgency,
 https://rootytrip.com/en/phu-quoc-daily-tour/,EN,200,2,BreadcrumbList · TravelAgency · WebSite · WebPage · ProductCollection · ImageObject,ProductCollection · TravelAgency,
+https://rootytrip.com/en/phu-quoc-island/,EN,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList · WebPage×2 · BlogPosting×2 · TravelAgency · Person,TravelAgency,
 https://rootytrip.com/en/product/4d3n-package-tour-for-first-time-visitors-to-phu-quoc/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · TouristTrip,TouristTrip,
 https://rootytrip.com/en/product/all-inclusive-ha-noi-phu-quoc-3d2n-tour/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · TouristTrip,TouristTrip,
 https://rootytrip.com/en/product/can-tho-phu-quoc-3d2n-all-inclusive-tour/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · TouristTrip,TouristTrip,
@@ -113,6 +100,7 @@ https://rootytrip.com/ko/tu-khoa-san-pham/rooty-trip-ko/,KO,200,1,Place · Organ
 https://rootytrip.com/ko/tu-khoa-san-pham/thi-tran-hoang-hon-ko/,KO,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage · ?,?,
 https://rootytrip.com/ko/tu-khoa-san-pham/tour-dao-phu-quoc-ko/,KO,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage · ?,?,
 https://rootytrip.com/lien-he/,VI,200,2,BreadcrumbList · TravelAgency · WebSite · ContactPoint×2 · ContactPage,ContactPoint · TravelAgency,
+https://rootytrip.com/phu-quoc-thuoc-tinh-nao/,VI,200,2,Place · Organization · WebSite×2 · ImageObject×2 · BreadcrumbList · WebPage×2 · BlogPosting×2 · TravelAgency · Person,TravelAgency,
 https://rootytrip.com/ru/contact/,RU,200,2,BreadcrumbList · TravelAgency · WebSite · ContactPoint×2 · ContactPage,ContactPoint · TravelAgency,
 https://rootytrip.com/ru/product/grand-world-phu-quoc-tour/,RU,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · TouristTrip,TouristTrip,
 https://rootytrip.com/san-pham/combo-3n2d-vinpearl-resort-spa-buffet-3-bua/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · TouristTrip,TouristTrip,
@@ -211,6 +199,7 @@ https://rootytrip.com/an-gi-o-ganh-dau-phu-quoc/,VI,200,1,Place · Organization 
 https://rootytrip.com/an-uong-phu-quoc/,VI,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/bai-dai-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/bai-ong-lang-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
+https://rootytrip.com/bai-sao-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/bai-thom-phu-quoc-co-gi-choi/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/bai-truong-phu-quoc-co-gi/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/bai-vung-bau-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
@@ -259,14 +248,17 @@ https://rootytrip.com/danh-sach-ngan-hang-va-atm-tai-phu-quoc/,VI,200,1,Place ·
 https://rootytrip.com/dao-ngoc-phu-quoc-tai-world-travel-awards-2023/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/di-bo-duoi-bien-phu-quoc-co-an-toan-khong/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/dia-diem-an-toi-lang-man-o-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
+https://rootytrip.com/dia-diem-check-in-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/dia-diem-du-lich-dep-o-hon-son/,VI,200,2,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting · Article,,
 https://rootytrip.com/dia-diem-du-lich-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/dia-diem-lan-ngam-san-ho-o-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
+https://rootytrip.com/dia-diem-ngam-hoang-hon-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/dia-trung-hai-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/dich-vu-chup-anh-may-co-boi-huong-dan-vien/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/dich-vu-in-anh-tang-khach-tour-dao/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/dich-vu-xe-dua-don-phu-quoc/,VI,200,1,BreadcrumbList,,
 https://rootytrip.com/dinh-ba-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
+https://rootytrip.com/dinh-cau-bieu-tuong-tam-linh-cua-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/du-lich-kien-giang/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/du-lich-mice/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/du-lich-mien-tay/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
@@ -324,6 +316,7 @@ https://rootytrip.com/en/humans-of-rooty-trip/,EN,200,1,BreadcrumbList,,
 https://rootytrip.com/en/khem-beach/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/en/kien-giang-tourism/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/en/login/,EN,200,1,BreadcrumbList,,
+https://rootytrip.com/en/marriage-proposal/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/en/may-rut-trong-island/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/en/melaleuca-mushroom-phu-quoc/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/en/mice-tourism/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
@@ -478,6 +471,7 @@ https://rootytrip.com/en/tag/phu-quoc-tour/,EN,200,1,Place · Organization · We
 https://rootytrip.com/en/tag/phu-quoc-travel-tips/,EN,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/en/tag/phu-quoc-united-center-en/,EN,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/en/tag/tin-tuc-en/,EN,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
+https://rootytrip.com/en/things-to-do-in-phu-quoc/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/en/thrilling-games-at-vinwonders-phu-quoc/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/en/top-9-famous-eateries-and-restaurants-in-ganh-dau/,EN,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/en/tour-guide-lam-thanh-nguyen/,EN,200,2,BreadcrumbList · Person,,
@@ -559,6 +553,7 @@ https://rootytrip.com/kinh-nghiem-di-tour-4-dao-phu-quoc/,VI,200,1,Place · Orga
 https://rootytrip.com/kinh-nghiem-di-vinpearl-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/kinh-nghiem-du-lich-hon-thom-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/kinh-nghiem-du-lich-quan-dao-an-thoi/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
+https://rootytrip.com/kinh-nghiem-du-lich-vinwonders-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/kinh-nghiem-phu-quoc/,VI,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/ko/about-us/,KO,200,2,BreadcrumbList · AboutPage,,
 https://rootytrip.com/ko/best-beaches-phu-quoc/,KO,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
@@ -661,6 +656,7 @@ https://rootytrip.com/quan-oc-phu-quoc/,VI,200,1,Place · Organization · WebSit
 https://rootytrip.com/quen-mat-khau/,VI,200,1,BreadcrumbList,,
 https://rootytrip.com/rach-vem-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/regent-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
+https://rootytrip.com/resort-5-sao-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/review-bun-quay-kien-xay/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/review-can-ho-hillside-dia-trung-hai/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/review-cap-treo-hon-thom-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
@@ -730,6 +726,7 @@ https://rootytrip.com/ru/vinpearl-safari/,RU,200,1,Place · Organization · WebS
 https://rootytrip.com/ru/vinwonders-phu-quoc/,RU,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/san-bay-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/san-golf-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
+https://rootytrip.com/san-ho-la-dong-vat-hay-thuc-vat/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/san-pham/can-ho-hillside-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,
 https://rootytrip.com/san-pham/combo-du-lich-phu-quoc-tu-tuc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,
 https://rootytrip.com/san-pham/combo-khach-san-3-sao-bai-khem-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · ItemPage · Product,,
@@ -846,6 +843,7 @@ https://rootytrip.com/tag/phu-quoc-united-center/,VI,200,1,Place · Organization
 https://rootytrip.com/tag/phu-quoc/,VI,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/tag/tin-tuc/,VI,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/tau-costa-serena-cho-2700-khach-quoc-te-den-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
+https://rootytrip.com/taxi-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/tet-co-nen-di-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/tham-quan-hai-dang-an-thoi-kham-pha-noi-cuc-nam-dao-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/thiet-ke-tour-du-lich-mice/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
@@ -859,6 +857,7 @@ https://rootytrip.com/thue-xe-o-to-phu-quoc-gia-re/,VI,200,1,Place · Organizati
 https://rootytrip.com/thuong-hieu-trang-suc-ngoc-trai-phu-quoc-noi-tieng/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/thuy-cung-vinpearl-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/tien-son-dinh-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
+https://rootytrip.com/tim-hieu-bai-khem-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/tim-hieu-ve-ruou-sim-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/tin-moi/,VI,200,1,Place · Organization · WebSite · BreadcrumbList · CollectionPage,,
 https://rootytrip.com/to-chuc-su-kien-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
@@ -872,6 +871,7 @@ https://rootytrip.com/tour-doan-cong-ty-phu-quoc-team-building-gala-dinner/,VI,2
 https://rootytrip.com/tour-team-building-phu-quoc-cung-rooty-trip/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/tp-phu-quoc-duoc-cong-nhan-do-thi-loai-i/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/trai-nghiem-ban-ca-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
+https://rootytrip.com/trai-nghiem-cau-muc-dem-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · BlogPosting,,
 https://rootytrip.com/trai-nghiem-ngam-hoang-hon-tai-sunset-sanato-cuc-chill/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/tro-choi-tren-bien-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
 https://rootytrip.com/truyen-thuyet-bo-bien-phu-quoc/,VI,200,1,Place · Organization · WebSite · ImageObject · BreadcrumbList · WebPage · Person · BlogPosting,,
