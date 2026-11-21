@@ -1,0 +1,190 @@
+{
+  "@context": "https://schema.org",
+  "@type": "TravelAgency",
+  "@id": "https://rootytrip.com/#travelagency",
+  "name": "Rooty Trip",
+  "alternateName": [
+    "Rooty Trip Phú Quốc",
+    "RootyTrip Phú Quốc",
+    "Rooty Trip Phu Quoc",
+    "RootyTrip Phu Quoc"
+  ],
+  "url": "https://rootytrip.com",
+  "description": "Rooty Trip là công ty lữ hành tại Phú Quốc, thành lập năm 2018, tổ chức tour trong ngày, tour trọn gói, combo nghỉ dưỡng và bán vé tham quan tại Phú Quốc.",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://rootytrip.com/wp-content/uploads/2023/02/cropped-logo-rooty-favicon.png",
+    "width": 512,
+    "height": 512
+  },
+  "image": "https://rootytrip.com/wp-content/uploads/2023/01/banner-trang-chu-tour-dao-rooty-trip-01-scaled.jpg",
+  "foundingDate": "2018",
+  "telephone": "+84886068886",
+  "email": "sales@rootytrip.com",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Việt Nam"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "sales",
+      "telephone": "+84886068886",
+      "email": "sales@rootytrip.com",
+      "availableLanguage": [
+        "vi",
+        "en"
+      ]
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "telephone": "+84339062222",
+      "url": "https://rootytrip.com/lien-he/"
+    }
+  ],
+  "hasMap": "https://maps.google.com/?cid=5099710776259024009",
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "opens": "08:00",
+    "closes": "22:00"
+  },
+  "currenciesAccepted": "VND",
+  "paymentAccepted": [
+    "Cash",
+    "Credit Card",
+    "Visa"
+  ],
+  "priceRange": "500,000₫ - 5,000,000₫",
+  "founder": {
+    "@type": "Person",
+    "@id": "https://rootytrip.com/ceo/#person",
+    "name": "Phạm Quang Hậu",
+    "givenName": "Hậu",
+    "familyName": "Phạm",
+    "additionalName": "Quang",
+    "gender": "https://schema.org/Male",
+    "birthDate": "1992-12-03",
+    "email": "ceo@rootytrip.com",
+    "image": "https://rootytrip.com/wp-content/uploads/2026/08/ceo-phat-bieu-khai-mac-dem-gala.jpg",
+    "jobTitle": [
+      "CEO",
+      "Founder"
+    ],
+    "sameAs": [
+      "https://www.facebook.com/QuangHauhumg"
+    ],
+    "url": "https://rootytrip.com/ceo/",
+    "mainEntityOfPage": "https://rootytrip.com/ceo/",
+    "nationality": {
+      "@type": "Country",
+      "name": "Việt Nam",
+      "url": "https://vi.wikipedia.org/wiki/Việt_Nam",
+      "sameAs": [
+        "https://www.wikidata.org/wiki/Q881",
+        "https://en.wikipedia.org/wiki/Vietnam"
+      ]
+    }
+  },
+  "sameAs": [
+    "https://www.facebook.com/rootytripphuquoc/",
+    "https://www.youtube.com/@RootyTripPh%C3%BAQu%E1%BB%91c",
+    "https://x.com/rootytrip_",
+    "https://www.pinterest.com/rootytrip_/",
+    "https://issuu.com/rootytrip"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "191 Trần Hưng Đạo, Khu phố Cửa Lấp",
+    "addressLocality": "Đặc khu Phú Quốc",
+    "addressRegion": "An Giang",
+    "addressCountry": "VN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 10.1866534,
+    "longitude": 103.9693948
+  },
+  "knowsAbout": [
+    {
+      "@type": "Thing",
+      "name": "Đại lý lữ hành",
+      "@id": "https://www.google.com/search?kgmid=/m/02ty15",
+      "sameAs": "https://vi.wikipedia.org/wiki/%C4%90%E1%BA%A1i_l%C3%BD_l%E1%BB%AF_h%C3%A0nh"
+    },
+    {
+      "@type": "Thing",
+      "name": "Công ty du lịch",
+      "@id": "https://www.google.com/search?kgmid=/m/0477l6",
+      "sameAs": "https://vi.wikipedia.org/wiki/C%C3%B4ng_ty_du_l%E1%BB%8Bch"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Tour, combo và vé tham quan Phú Quốc",
+    "itemListElement": [
+      {
+        "@type": "OfferCatalog",
+        "name": "Tour Phú Quốc trong ngày",
+        "url": "https://rootytrip.com/tour-phu-quoc-trong-ngay/"
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "Tour Phú Quốc trọn gói",
+        "url": "https://rootytrip.com/tour-phu-quoc-tron-goi/"
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "Combo du lịch Phú Quốc",
+        "url": "https://rootytrip.com/combo-du-lich-phu-quoc/"
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "Vé tham quan Phú Quốc",
+        "url": "https://rootytrip.com/ve-tham-quan/"
+      }
+    ]
+  },
+  "subOrganization": {
+    "@type": "TravelAgency",
+    "@id": "https://rootytrip.com/#branch-hcm",
+    "name": "Rooty Trip Chi Nhánh TPHCM",
+    "description": "Chi nhánh TP.HCM của Rooty Trip, tiếp nhận khách đoàn, MICE và hợp đồng doanh nghiệp.",
+    "telephone": "+84933555222",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Tầng 5, Lite The Gateway, 132 Ngô Tất Tố",
+      "addressLocality": "Phường Thạnh Mỹ Tây",
+      "addressRegion": "Thành phố Hồ Chí Minh",
+      "addressCountry": "VN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 10.7906348,
+      "longitude": 106.7151627
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "opens": "08:00",
+      "closes": "22:00"
+    }
+  }
+}

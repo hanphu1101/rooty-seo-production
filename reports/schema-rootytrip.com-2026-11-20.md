@@ -39,7 +39,7 @@ Các lỗi khác trong khối chèn tay:
 
 ## 2. Schema trang chủ đề xuất
 
-> **Cập nhật 21/11/2026 — thay cho các ghi chú bên dưới.** Theo góp ý: trang chủ **không** dùng CollectionPage/ItemList/BreadcrumbList/FAQPage/WebPage; chi nhánh khai bằng `subOrganization` trong TravelAgency `#travelagency`, **không** dùng `parentOrganization` hay `department`. File `schema-trang-chu-moi.json` đã sửa theo đúng cấu trúc này. Trên web đang chạy bản của chị Hân (`schema-han.txt`), WebPage Rank Math đã tắt (WPCode #86933). Quét lại 931 trang ngày 21/11: **0 trang có vấn đề**.
+> **Cập nhật 21/11/2026 — thay cho các ghi chú bên dưới.** Theo góp ý: trang chủ **không** dùng CollectionPage/ItemList/BreadcrumbList/FAQPage/WebPage; chi nhánh khai bằng `subOrganization` trong TravelAgency `#travelagency`, **không** dùng `parentOrganization` hay `department`. **Bản chuẩn: `schema-trang-chu-chuan.json`** (bản đang chạy trên web, chị Hân duyệt 21/11/2026; file đề xuất cũ đã bỏ). Trên web đang chạy đúng bản này, WebPage Rank Math đã tắt (WPCode #86933). Quét lại 931 trang ngày 21/11: **0 trang có vấn đề**.
 
 *Sửa lại ngày 20/11/2026 theo góp ý thứ hai: giữ Organization, WebSite, Place của Rank Math; chỉ tắt WebPage.*
 
