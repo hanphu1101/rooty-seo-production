@@ -14,7 +14,7 @@ Vị trí 5,8 · 8.934 hiển thị · 64 nhấp · từ khoá «bún quậy ki�
 3. Giá tô gần nhất anh thấy (ghi tháng)? Có tô đặc biệt không?
 4. Khách nước ngoài / trẻ em ăn có hợp không, hay phải dặn gì (cay, mắm)?
 
-Cần sửa thêm: H2 «Giới thiệu…», «Đánh giá chung…» đang rỗng nghĩa → đổi thành câu hỏi thật («Bún quậy Kiến Xây ở đâu, mở mấy giờ?», «Bún quậy Kiến Xây có ngon không?»).
+✓ 23/11/2026 đã đổi 5 H2 rỗng nghĩa thành câu hỏi thật (thanh tra Đạt).
 
 ## 2. Cảnh đẹp Phú Quốc · [/canh-dep-o-phu-quoc/](https://rootytrip.com/canh-dep-o-phu-quoc/)
 Vị trí 3,8 · 7.300 hiển thị · 86 nhấp · từ khoá «ảnh phú quốc».
@@ -31,7 +31,7 @@ Vị trí 5,9 · 3.957 hiển thị · 58 nhấp · từ khoá «rạch vẹm».
 3. Nhà bè ăn hải sản: khách hay ăn món gì, giá thực tế mỗi người khoảng bao nhiêu (ghi tháng)?
 4. Từ Dương Đông lên Rạch Vẹm đường giờ đi mất bao lâu, đoạn nào xấu?
 
-Cần sửa thêm: H2 «Tổng quan Rạch Vẹm…» là H2 rỗng nghĩa (cấm) → «Rạch Vẹm Phú Quốc ở đâu, có gì?». Mục lịch trình phải theo lịch trình tour mới (có Cửa Cạn, Grand World).
+✓ 23/11/2026 đã đổi 3 H2 thành câu hỏi thật, xoá đoạn lặp, bỏ chữ sót «(H3)», «(HCK)» (thanh tra Đạt). Còn lại: mục lịch trình phải theo tour mới (có Cửa Cạn, Grand World) — viết khi có câu trả lời.
 
 ## 4. Cafe Phú Quốc · [/cafe-phu-quoc/](https://rootytrip.com/cafe-phu-quoc/)
 Vị trí 6,4 · 3.212 hiển thị · 13 nhấp · từ khoá «view đẹp».
