@@ -12,6 +12,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8000", "--directory", "mau"],
       "port": 8000
+    },
+    {
+      "name": "uu-dai-nhom",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8020", "--directory", "reports/uu-dai-nhom"],
+      "port": 8020
     }
   ]
 }

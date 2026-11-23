@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo ưu đãi nhóm</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2433; --muted:#667085; --line:#e4e7ec; --brand:#389683; --red:#c0362c; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 20px; }
+  .grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
+  @media (max-width:720px){ .grid { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .card h2 { font-size:16px; margin:0 0 12px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+  select { width:100%; padding:8px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+  .seg { display:flex; gap:8px; }
+  .seg button { flex:1; padding:8px; border:1px solid var(--line); background:#fff; border-radius:8px; font:inherit; cursor:pointer; }
+  .seg button.on { border-color:var(--brand); background:#eaf5f2; color:var(--brand); font-weight:600; }
+  .qty { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); }
+  .qty small { display:block; color:var(--muted); }
+  .step { display:flex; align-items:center; gap:8px; }
+  .step button { width:32px; height:32px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:18px; cursor:pointer; }
+  .step span { min-width:24px; text-align:center; font-weight:600; }
+  .row { display:flex; justify-content:space-between; padding:6px 0; }
+  .row.giam { color:var(--brand); font-weight:600; }
+  .row.tong { font-size:18px; font-weight:700; border-top:1px solid var(--line); margin-top:6px; padding-top:10px; }
+  .old { color:var(--muted); }
+  .du { color:var(--red); font-size:13px; }
+  .note { font-size:13px; color:var(--muted); margin-top:10px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:right; padding:6px 8px; border-bottom:1px solid var(--line); }
+  th:first-child, td:first-child { text-align:left; }
+  .wrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ưu đãi nhóm tour ghép — bản xem trước</h1>
+  <p class="sub">Chạy trên máy, chưa đụng web. Tính bằng đúng hàm sẽ cài lên web (<code>uu-dai-nhom.js</code>). Giá theo web ngày 23/11/2026.</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Khung đặt tour (mô phỏng)</h2>
+      <label for="tour">Tour</label>
+      <select id="tour"></select>
+      <label>Loại gói dịch vụ</label>
+      <div class="seg"><button data-goi="ghep" class="on">Tour ghép</button><button data-goi="rieng">Tour riêng</button></div>
+      <div class="qty"><div>Người lớn<small id="dgNL"></small></div><div class="step"><button data-q="nl" data-d="-1">−</button><span id="nl">1</span><button data-q="nl" data-d="1">+</button></div></div>
+      <div class="qty"><div>Trẻ em (1m–1m39)<small id="dgTE"></small></div><div class="step"><button data-q="te" data-d="-1">−</button><span id="te">0</span><button data-q="te" data-d="1">+</button></div></div>
+      <p class="note" id="rieng" hidden>Tour riêng: web hiện ghi «Liên hệ», không áp ưu đãi nhóm.</p>
+    </section>
+
+    <section class="card">
+      <h2>Tổng tiền</h2>
+      <div class="row"><span>Số vé quy đổi</span><span id="ve"></span></div>
+      <div class="row"><span>Tạm tính</span><span id="tam"></span></div>
+      <div class="row giam" id="rowGiam"><span>Ưu đãi nhóm (từ vé thứ 5)</span><span id="giam"></span></div>
+      <div class="row tong"><span>Tổng (sau khi sửa)</span><span id="tong"></span></div>
+      <div class="row old"><span>Web hiện tại tính</span><span id="cu"></span></div>
+      <div class="du" id="du"></div>
+      <p class="note">Số vé quy đổi = người lớn + trẻ em ÷ 2. Đơn giá web đã trừ sẵn 100.000/NL, 50.000/TE; từ vé thứ 5 giảm thêm 50.000/vé (trẻ em 25.000).</p>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Bảng so sánh — tour đang chọn, tour ghép</h2>
+    <div class="wrap"><table id="bang"><thead><tr><th>Đoàn</th><th>Vé quy đổi</th><th>Web hiện tại</th><th>Sau khi sửa (= CSBH)</th><th>Chênh</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</main>
+
+<script src="uu-dai-nhom.js"></script>
+<script>
+  const U = window.RootyUuDaiNhom;
+  const TOURS = [
+    { id: 514,   ten: 'Tour 3 đảo (G4)', nl: 700000, te: 350000 },
+    { id: 30393, ten: 'Tour 4 đảo + cáp treo Hòn Thơm (G2)', nl: 1450000, te: 945000 },
+    { id: 31814, ten: 'Tour cáp treo Hòn Thơm 1 ngày (G2CHONTHOM)', nl: 1320000, te: 935000 },
+    { id: 12496, ten: 'Tour Rạch Vẹm (đối chứng: ưu đãi 50k/vé, không chia bậc)', nl: 950000, te: 525000 }
+  ];
+  const vnd = n => n.toLocaleString('vi-VN') + 'đ';
+  const $ = id => document.getElementById(id);
+  const st = { tour: TOURS[0], ghep: true, nl: 1, te: 0 };
+
+  $('tour').innerHTML = TOURS.map((t, i) => `<option value="${i}">${t.ten}</option>`).join('');
+  $('tour').onchange = e => { st.tour = TOURS[e.target.value]; ve(); };
+  document.querySelectorAll('[data-goi]').forEach(b => b.onclick = () => {
+    st.ghep = b.dataset.goi === 'ghep';
+    document.querySelectorAll('[data-goi]').forEach(x => x.classList.toggle('on', x === b)); ve();
+  });
+  document.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
+    const k = b.dataset.q; st[k] = Math.max(k === 'nl' ? 1 : 0, st[k] + Number(b.dataset.d)); ve();
+  });
+
+  function tinh(nl, te, ghep) {
+    return U.tongTien({ productId: st.tour.id, donGia: st.tour.nl, donGiaTreEm: st.tour.te, tourGhep: ghep, nguoiLon: nl, treEm: te });
+  }
+
+  function ve() {
+    $('nl').textContent = st.nl; $('te').textContent = st.te;
+    $('dgNL').textContent = 'Đơn giá ' + vnd(st.tour.nl); $('dgTE').textContent = 'Đơn giá ' + vnd(st.tour.te);
+    $('rieng').hidden = st.ghep;
+    const r = tinh(st.nl, st.te, st.ghep);
+    $('ve').textContent = U.soVeQuyDoi(st.nl, st.te).toLocaleString('vi-VN');
+    $('tam').textContent = vnd(r.tamTinh);
+    $('rowGiam').hidden = !r.giamNhom; $('giam').textContent = '−' + vnd(r.giamNhom);
+    $('tong').textContent = vnd(r.tong); $('cu').textContent = vnd(r.tamTinh);
+    $('du').textContent = r.giamNhom ? `Web hiện tại thu dư ${vnd(r.giamNhom)} so với CSBH.` : '';
+    const doan = [[1,0],[4,0],[3,2],[4,1],[4,2],[5,0],[6,0],[6,2],[8,0],[10,0]];
+    $('bang').tBodies[0].innerHTML = doan.map(([nl, te]) => {
+      const x = tinh(nl, te, true);
+      return `<tr><td>${nl} NL${te ? ' + ' + te + ' TE' : ''}</td><td>${U.soVeQuyDoi(nl, te).toLocaleString('vi-VN')}</td><td>${vnd(x.tamTinh)}</td><td>${vnd(x.tong)}</td><td>${x.giamNhom ? '−' + vnd(x.giamNhom) : '0'}</td></tr>`;
+    }).join('');
+  }
+  ve();
+</script>
+</body>
+</html>
