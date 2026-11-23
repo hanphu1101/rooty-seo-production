@@ -85,5 +85,5 @@ Chị Hân gửi câu trả lời của anh Nguyên cùng ngày. Đã chèn vào
 | Cafe | bỏ Godfather (đã thành Ann Cafe), thêm Phúc Long (3 điểm, nguồn Google Maps 11/2026) | quán khách hay ghé sau tour |
 | Địa Trung Hải | khách thích ga cáp treo, tháp bút chì, tháp đồng hồ, các con đường; đi sáng sớm/trưa vắng người | gửi xe, chỗ ăn tối |
 | Bãi Sao | nước trong tháng 11–4; ghế 50.000đ/ghế | Bãi Sao hay Bãi Khem |
-| Lịch pháo hoa | thay lịch tháng 7 bằng lịch 11/2026: 19:30–20:05 Symphony of the Sea, 21:30–21:35 pháo hoa tầm cao; xem không cần vé, rõ nhất ở quảng trường | mục đầu bài vẫn ghi pháo hoa «7 phút», lịch mới là 5 phút — cần xác nhận |
+| Lịch pháo hoa | thay lịch tháng 7 bằng lịch 11/2026: 19:30–20:05 Symphony of the Sea, 21:30–21:35 pháo hoa tầm cao; xem không cần vé, rõ nhất ở quảng trường | ✓ đã sửa «7 phút» → «khoảng 5 phút (21:30 – 21:35)» (chị Hân chốt 23/11) |
 | Chợ Dương Đông | đi sáng/chiều; giá thật, ít nói thách; đồ tươi sống ngon rẻ | giá vài món (mực khô, tiêu, nước mắm) |
