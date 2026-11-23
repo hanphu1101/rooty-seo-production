@@ -17,7 +17,7 @@ Vị trí 7,8 · 1.257 hiển thị.
 1. Đi thủy cung giờ nào vắng nhất? Show nàng tiên cá xem ở đâu cho rõ?
 2. Đi theo tour VinWonders 1 ngày thì vào thủy cung lúc mấy giờ hợp lý (trước hay sau buffet trưa)?
 3. Khách có con nhỏ hay thích khu nào nhất trong thủy cung?
-Cần sửa thêm: bài còn nhắc năm 2025 — em sẽ kiểm và cập nhật.
+Đã kiểm 23/11: «2025» là ngày ra mắt lớp Nhà hải dương học nhí (15/01/2025), không phải tin cũ — giữ nguyên.
 
 ## 3. Địa điểm check-in · [/dia-diem-check-in-phu-quoc/](https://rootytrip.com/dia-diem-check-in-phu-quoc/)
 Vị trí 6,7 · 1.206 hiển thị.
@@ -27,14 +27,14 @@ Vị trí 6,7 · 1.206 hiển thị.
 
 ## 4. Suối Đá Bàn · [/suoi-da-ban-phu-quoc/](https://rootytrip.com/suoi-da-ban-phu-quoc/)
 Vị trí 7,2 · 1.184 hiển thị.
-**Lỗi cần sửa:** bài còn câu «Hiện tại là ngày 25/03/2024». H2 «Giới thiệu suối Đá Bàn» là H2 rỗng nghĩa.
+✓ 23/11: đã thay câu «Hiện tại là ngày 25/03/2024» bằng lưu ý có ghi thời điểm; H2 đổi thành «Suối Đá Bàn Phú Quốc là gì, có gì đẹp?» (thanh tra Đạt).
 1. Suối Đá Bàn có nước đẹp vào tháng nào? Mùa khô có cạn không?
 2. Hiện có thu vé vào không, giá bao nhiêu (ghi tháng)?
 3. Anh dặn khách gì khi tắm suối (đá trơn, chỗ sâu, mang theo gì)?
 
 ## 5. Review Wyndham Grand · [/review-khach-san-wyndham-grand-phu-quoc/](https://rootytrip.com/review-khach-san-wyndham-grand-phu-quoc/)
 Vị trí 9,3 · 1.015 hiển thị.
-**Cần sửa:** 3 H2 rỗng nghĩa («Giới thiệu về…», «Các loại phòng…», «Tiện nghi và dịch vụ…»).
+✓ 23/11: đã đổi 3 H2 rỗng nghĩa + sửa H2 lỗi «Wyndham kế các địa điểm» (thanh tra Đạt).
 1. (Sale) Khách Rooty ở Wyndham Grand hay khen / chê điều gì?
 2. (Sale) Combo Wyndham Grand đang bán giá bao nhiêu, gồm gì (ghi tháng)?
 3. (Anh Nguyên) Đón khách ở Wyndham đi tour có tiện không, xe đến mấy giờ?
@@ -53,11 +53,11 @@ Vị trí 4,6 · 4.804 hiển thị · 60 nhấp.
 
 ## 8. Bãi Khem · [/tim-hieu-bai-khem-phu-quoc/](https://rootytrip.com/tim-hieu-bai-khem-phu-quoc/)
 Vị trí 6,3 · 3.841 hiển thị · 59 nhấp.
-**Cần sửa:** H2 «Giới thiệu về Bãi Khem Phú Quốc» rỗng nghĩa.
+✓ 23/11: H2 đổi thành «Bãi Khem Phú Quốc ở đâu, có gì đẹp?» (thanh tra Đạt).
 1. Bãi Khem đẹp nhất tháng nào, giờ nào? Có đoạn bãi công cộng nào tắm miễn phí không?
 2. Khách hay hỏi Bãi Khem hay Bãi Sao — anh khuyên ai đi bãi nào? (câu này dùng cho cả bài Bãi Sao)
 3. Ăn gì gần Bãi Khem anh hay giới thiệu?
 
 ---
 
-Trong lúc chờ: em sẽ sửa trước các lỗi không cần thông tin mới (H2 rỗng nghĩa, câu «25/03/2024», năm cũ) nếu chị đồng ý.
+Các lỗi không cần thông tin mới đã sửa ngày 23/11/2026; phần trải nghiệm chờ câu trả lời.
