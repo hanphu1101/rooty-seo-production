@@ -13,13 +13,12 @@
  *     sản phẩm (không tin số trình duyệt), tạo đơn WooCommerce chờ thanh toán, trả link thanh toán.
  * Đoạn này: (1) sửa ô «Tổng» trên trang tour; (2) sau khi theme tạo đơn, trừ ưu đãi nhóm vào đơn.
  *
- * CHẾ ĐỘ THỬ: rooty_udn_bat() chỉ trả true cho admin → khách thấy và trả như cũ.
- * Khi chị Hân duyệt: đổi thân hàm rooty_udn_bat() thành `return true;`.
+ * ĐÃ PUBLISH 23/11/2026 — WPCode #87044 «Ưu đãi nhóm tour ghép (từ vé thứ 5)», chạy cho mọi khách, mọi ngôn ngữ.
  */
 
 if ( ! function_exists( 'rooty_udn_bat' ) ) {
 	function rooty_udn_bat() {
-		return current_user_can( 'manage_options' ); // CHẾ ĐỘ THỬ — chỉ admin
+		return true; // ĐÃ PUBLISH 23/11/2026 (chị Hân duyệt). Muốn thử lại chỉ admin: return current_user_can( 'manage_options' );
 	}
 }
 
@@ -45,7 +44,8 @@ if ( ! function_exists( 'rooty_udn_id_vi' ) ) {
 
 if ( ! function_exists( 'rooty_udn_la_tour_ghep' ) ) {
 	function rooty_udn_la_tour_ghep( $nhan ) {
-		return (bool) preg_match( '/gh[eé]p|join|shared/iu', wp_strip_all_tags( (string) $nhan ) );
+		// tên gói tour ghép ở các bản dịch: Group Trip, 단체여행, 拼团游, Сборный тур, 混載ツアー
+		return (bool) preg_match( '/gh[eé]p|join|shared|group|단체|拼团|сборн|混載/iu', wp_strip_all_tags( (string) $nhan ) );
 	}
 }
 
@@ -107,12 +107,12 @@ window.addEventListener('load', function () {
 		var gia = Number($t.data('price')) || 0, giaTE = Number($t.data('price-child')) || 0, phuThu = Number($t.data('price-surcharge')) || 0;
 		var nl = Number($('.m-quantity-people').val()) || 0, te = Number($('.m-quantity-child').val()) || 0;
 		var cur = $('.m-tour-class').data('currency') || 'đ';
-		var giam = (/gh[eé]p|join|shared/i.test($t.text()) && gia > 0 && (te === 0 || giaTE > 0)) ? giamThem(nl, te) : 0;
+		var giam = (/gh[eé]p|join|shared|group|단체|拼团|сборн|混載/i.test($t.text()) && gia > 0 && (te === 0 || giaTE > 0)) ? giamThem(nl, te) : 0;
 		$('.rooty-udn-note').remove();
 		if (!giam) return;
 		var tong = (nl * gia + te * giaTE + phuThu - giam).toLocaleString();
 		$('.price-main-combo').html(cur + ' ' + tong).attr('data-price_total', cur + ' ' + tong)
-			.after('<p class="rooty-udn-note" style="margin:4px 0 0;font-size:13px;color:#389683;font-weight:600">Đã gồm ưu đãi nhóm từ vé thứ 5: −' + giam.toLocaleString() + ' ' + cur + '</p>');
+			.after('<p class="rooty-udn-note" style="margin:4px 0 0;font-size:13px;color:#389683;font-weight:600">' + (/^vi/i.test(document.documentElement.lang) ? 'Đã gồm ưu đãi nhóm từ vé thứ 5: −' : 'Group discount from the 5th ticket included: −') + giam.toLocaleString() + ' ' + cur + '</p>');
 	}
 	// nút +/− của theme bắn change không lan lên document → gắn thẳng vào ô số lượng (chạy sau handler của theme)
 	$('.m-tour-class .count-input').on('change input', capNhat);
