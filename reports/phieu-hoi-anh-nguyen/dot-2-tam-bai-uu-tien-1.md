@@ -70,3 +70,20 @@ Vị trí 6,5 · 2.023 hiển thị · 28 nhấp · từ khoá «chợ dương �
 ---
 
 Sau khi có câu trả lời: em viết vào bài theo đúng luật «tên + 10 năm giới thiệu một lần, các đoạn sau viết liền mạch», đổi các H2 rỗng nghĩa, sửa mục lỗi thời, rồi ghi Nhật ký thay đổi kèm **Phép kiểm** để app tự thanh tra.
+
+---
+
+## Kết quả 23/11/2026 — đã viết vào bài (thanh tra Đạt 8/8)
+
+Chị Hân gửi câu trả lời của anh Nguyên cùng ngày. Đã chèn vào bài, giới thiệu tên + 10 năm dẫn tour một lần mỗi bài, các đoạn sau viết liền mạch:
+
+| Bài | Đã thêm | Còn thiếu |
+|---|---|---|
+| Bún quậy Kiến Xây | đi 17h–18h; pha tắc + bột ngọt trước rồi đường, muối, ớt, tiêu; lần đầu gọi tô thập cẩm có mực | giá tô gần nhất |
+| Cảnh đẹp | 3 điểm khách khen: Rạch Vẹm, Thị trấn Hoàng Hôn, Bãi Khem; chụp 9–10h sáng, hoàng hôn buổi chiều | điểm nào trong 19 điểm đã đổi; ảnh tự chụp |
+| Rạch Vẹm | tháng 11–4 nước trong nhiều sao biển; không bắt sao biển lên bờ; nhà bè giá cao hơn nhưng tươi sống | giá nhà bè cụ thể; mục lịch trình theo tour mới (Cửa Cạn, Grand World) |
+| Cafe | bỏ Godfather (đã thành Ann Cafe), thêm Phúc Long (3 điểm, nguồn Google Maps 11/2026) | quán khách hay ghé sau tour |
+| Địa Trung Hải | khách thích ga cáp treo, tháp bút chì, tháp đồng hồ, các con đường; đi sáng sớm/trưa vắng người | gửi xe, chỗ ăn tối |
+| Bãi Sao | nước trong tháng 11–4; ghế 50.000đ/ghế | Bãi Sao hay Bãi Khem |
+| Lịch pháo hoa | thay lịch tháng 7 bằng lịch 11/2026: 19:30–20:05 Symphony of the Sea, 21:30–21:35 pháo hoa tầm cao; xem không cần vé, rõ nhất ở quảng trường | mục đầu bài vẫn ghi pháo hoa «7 phút», lịch mới là 5 phút — cần xác nhận |
+| Chợ Dương Đông | đi sáng/chiều; giá thật, ít nói thách; đồ tươi sống ngon rẻ | giá vài món (mực khô, tiêu, nước mắm) |
