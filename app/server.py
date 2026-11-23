@@ -10,6 +10,7 @@ Chỉ dùng thư viện chuẩn của Python.
 """
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -116,6 +117,8 @@ SCHEMA = {
         ("Kết quả / link", 1, None),
         ("Ghi chú", 1, None),
         ("Cập nhật lúc", 5, {"date_formatter": "yyyy/MM/dd HH:mm"}),
+        ("Xong lúc", 5, {"date_formatter": "yyyy/MM/dd"}),
+        ("Kiểm lại", 1, None),          # kết quả từng mốc kiểm lại: «Tuần 2 · 07/12: …»
     ],
     T_LOG: [
         ("Nội dung", 1, None),
@@ -752,16 +755,32 @@ def api_viec_seed():
     return {"ok": True, "message": f"Đã nạp {added} công đoạn" if added else "Đã đủ công đoạn, không nạp thêm."}
 
 
+def api_viec_list():
+    """Bảng Việc SEO + định nghĩa «xong» lấy từ quy-trinh/cong-doan.json (không lưu vào Lark để sửa một chỗ)."""
+    qt = {c["ma"]: c for c in QT["cong_doan"]}
+    out = []
+    for r in STORE.list(T_VIEC):
+        c = qt.get(r["fields"].get("Mã"), {})
+        out.append({"record_id": r["record_id"], "fields": {**r["fields"], "Xong khi": c.get("xong_khi", ""),
+                    "Kiểm lại sau tuần": c.get("kiem_lai_tuan", []), "Chỉ số đo": c.get("chi_so", "")}})
+    return out
+
+
 def api_viec_update(record_id, body):
     rec = next((r for r in STORE.list(T_VIEC) if r["record_id"] == record_id), None)
     if not rec:
         raise StoreError("Không tìm thấy công đoạn")
-    changes = {k: body[k] for k in ("Trạng thái", "Người phụ trách", "Hạn", "Kết quả / link", "Ghi chú") if k in body}
+    changes = {k: body[k] for k in ("Trạng thái", "Người phụ trách", "Hạn", "Kết quả / link", "Ghi chú", "Kiểm lại") if k in body}
     if "Trạng thái" in changes and changes["Trạng thái"] not in VIEC_STATUS:
         raise StoreError("Trạng thái không hợp lệ")
     if not changes:
         return rec
     changes["Cập nhật lúc"] = now_ms()
+    # mốc kiểm lại tính từ ngày chuyển sang «Xong»
+    if changes.get("Trạng thái") == "Xong" and rec["fields"].get("Trạng thái") != "Xong":
+        changes["Xong lúc"] = now_ms()
+    elif "Trạng thái" in changes and changes["Trạng thái"] != "Xong":
+        changes["Xong lúc"] = ""
     if "Trạng thái" in changes and changes["Trạng thái"] != rec["fields"].get("Trạng thái"):
         f = rec["fields"]
         log(f"Việc SEO {f.get('Mã')}: {f.get('Trạng thái')} → {changes['Trạng thái']}", "", f.get("Mảng", ""), changes["Trạng thái"])
@@ -2741,13 +2760,75 @@ def review_remeasure():
             before, after = f["Lượt nhấp trước"] or 0, p.get("GSC lượt nhấp") or 0
             res = "Tốt lên" if after > before * 1.1 else ("Giảm" if after < before * 0.9 else "Không đổi")
             ch = {"Lượt nhấp sau": after, "Vị trí sau": p.get("GSC vị trí"), "Kết quả": res}
+        # mốc giữa kỳ tuần 1, tuần 2 (chỉ ghi số, kết luận vẫn chốt ở tuần 4)
+        elif f.get("Lượt nhấp trước") is not None and age_days >= 14 and f.get("Nhấp tuần 2") is None:
+            ch = {"Nhấp tuần 2": p.get("GSC lượt nhấp"), "Vị trí tuần 2": p.get("GSC vị trí"), "Kết quả": "Chờ đo"}
+        elif f.get("Lượt nhấp trước") is not None and age_days >= 7 and f.get("Nhấp tuần 1") is None:
+            ch = {"Nhấp tuần 1": p.get("GSC lượt nhấp"), "Vị trí tuần 1": p.get("GSC vị trí"), "Kết quả": "Chờ đo"}
         if ch:
             ups[r["record_id"]] = ch
-            cnt[ch["Kết quả"]] = cnt.get(ch["Kết quả"], 0) + 1
+            k = ("tuần 2" if "Nhấp tuần 2" in ch else "tuần 1" if "Nhấp tuần 1" in ch else
+                 "ghi «trước»" if "Lượt nhấp trước" in ch else ch["Kết quả"])
+            cnt[k] = cnt.get(k, 0) + 1
     if ups:
         STORE.update_many(_tname("changelog"), ups)
-    return {"ok": True, "message": ("Đo lại: " + " · ".join(f"{k} {v}" for k, v in cnt.items())) if cnt else
-            "Chưa có thay đổi nào đủ điều kiện đo (cần số liệu GSC theo trang; ghi «trước» trong 7 ngày đầu, đo «sau» từ tuần thứ 4)"}
+    msg = ("Đo lại: " + " · ".join(f"{k} {v}" for k, v in cnt.items())) if cnt else \
+        "Chưa có thay đổi nào đủ điều kiện đo (cần số liệu GSC theo trang; ghi «trước» trong 7 ngày đầu, mốc tuần 1, tuần 2, chốt kết quả từ tuần 4)"
+    return {"ok": True, "message": msg + " · Thanh tra — " + review_inspect()["message"]}
+
+
+INSPECT_RE = re.compile(r"^\s*(CÓ|KHÔNG|CO|KHONG)\s*:\s*(.+?)\s*$", re.I)
+
+
+def _inspect_page(url, checks):
+    """Chạy phép kiểm trên trang thật (không đăng nhập, bỏ cache). Trả (đạt?, chi tiết)."""
+    sep = "&" if "?" in url else "?"
+    status, body, headers, _ = fetch(f"{url}{sep}rooty_check={int(time.time())}")
+    if status != 200:
+        return False, f"Trang trả HTTP {status}"
+    page = html.unescape(decode(body, headers))
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page))
+    bad = []
+    for want, s in checks:
+        s = html.unescape(s)
+        found = s in page or s in text
+        if want == "CÓ" and not found:
+            bad.append(f"thiếu «{s}»")
+        if want == "KHÔNG" and found:
+            bad.append(f"vẫn còn «{s}»")
+    return not bad, ("; ".join(bad) if bad else f"đạt {len(checks)}/{len(checks)} phép kiểm")
+
+
+def review_inspect(body=None):
+    """Thanh tra: việc AI/người báo «đã sửa» trên web phải qua phép kiểm máy chạy được trên trang thật.
+    Mỗi dòng Nhật ký có ô «Phép kiểm» (mỗi dòng «CÓ: chuỗi» / «KHÔNG: chuỗi») → chạy lại mỗi lần bấm,
+    ghi Đạt / Không đạt. Dòng không có phép kiểm được đánh dấu để bổ sung."""
+    ups, cnt = {}, {}
+    for r in STORE.list(_tname("changelog")):
+        f = r["fields"]
+        checks = []
+        for line in str(f.get("Phép kiểm") or "").splitlines():
+            m = INSPECT_RE.match(line)
+            if m:
+                checks.append(("CÓ" if m.group(1).upper() in ("CÓ", "CO") else "KHÔNG", m.group(2)))
+        if not checks:
+            if f.get("Thanh tra") != "Không có phép kiểm":
+                ups[r["record_id"]] = {"Thanh tra": "Không có phép kiểm"}
+            cnt["không có phép kiểm"] = cnt.get("không có phép kiểm", 0) + 1
+            continue
+        if not f.get("URL"):
+            continue
+        try:
+            ok, detail = _inspect_page(f["URL"], checks)
+        except Exception as e:  # mạng lỗi → ghi lại, lần sau chạy tiếp
+            ok, detail = False, f"Không tải được trang: {e}"
+        kq = "Đạt" if ok else "Không đạt"
+        ups[r["record_id"]] = {"Thanh tra": kq, "Thanh tra lúc": now_ms(),
+                               "Kết quả thanh tra": f"{time.strftime('%d/%m/%Y')} · {detail}"[:1000]}
+        cnt[kq] = cnt.get(kq, 0) + 1
+    if ups:
+        STORE.update_many(_tname("changelog"), ups)
+    return {"ok": True, "message": " · ".join(f"{k} {v}" for k, v in cnt.items()) or "chưa có dòng nào"}
 
 
 def review_summary():
@@ -3381,7 +3462,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/bai":
             return self._guard(lambda: STORE.list(T_BAI))
         if path == "/api/viec":
-            return self._guard(lambda: STORE.list(T_VIEC))
+            return self._guard(api_viec_list)
         if path.startswith("/docs/"):
             name = urllib.parse.unquote(path[len("/docs/"):])
             f = QT_DIR / name
@@ -3442,7 +3523,8 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/google/sync":
             body = self._body()
             return self._guard(lambda: google_sync(body))
-        rv = {"/api/review/classify": review_classify, "/api/review/tasks": review_tasks, "/api/review/remeasure": review_remeasure}
+        rv = {"/api/review/classify": review_classify, "/api/review/tasks": review_tasks, "/api/review/remeasure": review_remeasure,
+              "/api/review/inspect": review_inspect}
         if path in rv:
             return self._guard(rv[path])
         if path in ("/api/links/suggest", "/api/links/broken"):

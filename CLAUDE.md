@@ -14,6 +14,7 @@ Ngoài nội dung, toàn bộ quy trình SEO 10 tháng (kỹ thuật, từ khoá
 4. **Không bịa dữ kiện.** Giá vé, giờ mở cửa, khoảng cách, tên đơn vị phải có nguồn trong `02-raw/` hoặc `03-research/` kèm ngày lấy. Chưa có nguồn → ghi `[CẦN KIỂM CHỨNG]`, không đoán.
 5. **Không tự đăng, không tự gửi gì ra ngoài.** Dây chuyền dừng ở `08-humanized/`. Người duyệt (cổng 4) mới được đăng lên WordPress.
 6. **Mỗi lần người sửa bài của AI → thêm một dòng luật** vào mục "Luật học được" cuối file này, để lần sau không lặp lại lỗi đó.
+7. **«Xong» phải kiểm được, không tự báo.** Mỗi thay đổi trên web ghi vào Nhật ký thay đổi (app SEO Automation · B11) phải kèm ô «Phép kiểm» — mỗi dòng `CÓ: chuỗi phải thấy` / `KHÔNG: chuỗi không được còn` trên trang thật — để nút «Thanh tra» chấm Đạt/Không đạt. Công đoạn SEO chỉ chuyển «Xong» khi đạt tiêu chí «Xong khi» trong `quy-trinh/cong-doan.json`, rồi kiểm lại theo mốc tuần ghi ở đó.
 
 ## Bản đồ trạm
 

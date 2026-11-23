@@ -1379,7 +1379,7 @@ VIEWS.danhgia = async v => {
     <div class="sec"><h2><span>4</span> Content audit hàng quý — giữ · cập nhật · gộp · xoá/noindex</h2>
       <p class="meta note">Gom số liệu GSC + GA4 + crawl cho từng URL → bấm “Phân loại” để có đề xuất kèm lý do → chị duyệt ở cột “Quyết định” → “Tạo việc cập nhật” đưa bài sang tab Content.</p></div>
     <div class="strip" id="casum"></div><div id="gca"></div>
-    <div class="sec"><h2><span>5</span> Nhật ký thay đổi (change log)</h2><p class="meta note">Mỗi lần sửa bài/onpage/kỹ thuật ghi 1 dòng. “Đo lại” ghi số liệu trước (trong 7 ngày đầu) và sau (từ tuần thứ 4) để biết thay đổi có hiệu quả không.</p></div>
+    <div class="sec"><h2><span>5</span> Nhật ký thay đổi (change log)</h2><p class="meta note">Mỗi lần sửa bài/onpage/kỹ thuật ghi 1 dòng. “Đo lại” ghi số liệu trước (trong 7 ngày đầu), mốc tuần 1, tuần 2 và chốt kết quả từ tuần thứ 4. <b>Thanh tra:</b> ô «Phép kiểm» ghi mỗi dòng <code>CÓ: chuỗi phải thấy</code> hoặc <code>KHÔNG: chuỗi không được còn</code> — app tải trang thật (không đăng nhập, bỏ cache) và chấm Đạt / Không đạt, không tin lời báo «đã sửa». Dòng nào chưa có phép kiểm sẽ hiện «Không có phép kiểm».</p></div>
     <div id="gl"></div>
     <div class="sec"><h2><span>6</span> Lịch review định kỳ</h2><p class="meta note">Hàng tuần: biến động traffic, lỗi index. Hàng quý: audit kỹ thuật, audit nội dung, kế hoạch quý tiếp theo.</p></div>
     <div id="lich"></div>`;
@@ -1411,9 +1411,10 @@ VIEWS.danhgia = async v => {
     actions:[{label:'Phân loại content audit', fn:()=>act('/api/review/classify',['trang'])},{label:'Tạo việc cập nhật (sang B6)', fn:()=>act('/api/review/tasks',[])},{label:'Xuất CSV', fn:()=>exportCSV('trang','content-audit-rooty.csv')}],
     emptyHint:'chạy crawl (B5) để có danh sách URL'});
   // ⑤ change log
-  await grid($('#gl'),'changelog',{title:'Nhật ký thay đổi', cols:['Ngày','URL','Thay đổi','Loại','Người làm','Lượt nhấp trước','Lượt nhấp sau','Vị trí trước','Vị trí sau','Kết quả'],
-    filters:['Loại','Kết quả'], sort:(a,b)=>(b['Ngày']||0)-(a['Ngày']||0),
-    actions:[{label:'Đo lại hiệu quả', fn:()=>act('/api/review/remeasure',['changelog'])}],
+  await grid($('#gl'),'changelog',{title:'Nhật ký thay đổi', cols:['Ngày','URL','Thay đổi','Loại','Người làm','Thanh tra','Lượt nhấp trước','Nhấp tuần 1','Nhấp tuần 2','Lượt nhấp sau','Vị trí trước','Vị trí sau','Kết quả'],
+    filters:['Loại','Thanh tra','Kết quả'], sort:(a,b)=>(b['Ngày']||0)-(a['Ngày']||0),
+    actions:[{label:'Đo lại hiệu quả (tuần 1 · 2 · 4)', fn:()=>act('/api/review/remeasure',['changelog'])},
+             {label:'Thanh tra (kiểm trang thật)', fn:()=>act('/api/review/inspect',['changelog'])}],
     defaults:{'Ngày': Date.now(), 'Kết quả':'Chờ đo', 'Loại':'Nội dung'}, emptyHint:'mỗi lần sửa một trang, thêm 1 dòng'});
   // ⑥ lịch review
   const L = DATA.lichreview;
@@ -1949,13 +1950,21 @@ VIEWS.kehoach = async v => {
   VIEC = await api('GET','/api/viec'); renderViec();
 };
 function vState(f){ const cur=CFG.currentMonth, done=['Xong','Không áp dụng'].includes(f['Trạng thái']), den=Number(f['Đến tháng'])||0, tu=Number(f['Từ tháng'])||0;
-  return { done, late: !done && den && den < cur, now: !done && tu<=cur && cur<=den }; }
+  return { done, late: !done && den && den < cur, now: !done && tu<=cur && cur<=den, check: vMoc(f).some(m=>!m.ok && m.due<=Date.now()) }; }
+// mốc kiểm lại sau khi «Xong»: tuần N tính từ «Xong lúc»; mốc đã ghi «Tuần N» trong ô Kiểm lại thì coi như đã kiểm
+function vMoc(f){ const w=f['Kiểm lại sau tuần']||[], x=f['Xong lúc'], done=String(f['Kiểm lại']||'');
+  if(f['Trạng thái']!=='Xong' || !x || !w.length) return [];
+  return w.map(n=>({n, due: x + n*7*864e5, ok: new RegExp('tuần\\s*'+n+'\\b','i').test(done)})); }
+function vMocHtml(f){ const m=vMoc(f), w=f['Kiểm lại sau tuần']||[];
+  if(!m.length) return w.length?`<div class="meta" style="margin-top:4px">Kiểm lại: tuần ${w.join(', ')} sau khi xong</div>`:'';
+  return `<div class="meta" style="margin-top:4px">Kiểm lại: ${m.map(x=>{ const due=!x.ok && x.due<=Date.now();
+    return `<span class="chip" style="${due?'background:var(--bad-soft);color:var(--bad)':''}">Tuần ${x.n} · ${fmtDate(x.due)}${x.ok?' ✓':due?' · đến hạn':''}</span>`; }).join(' ')}</div>`; }
 function renderViec(){
   const [y,m] = CFG.projectStart.split('-'), total = VIEC.length, done = VIEC.filter(r=>vState(r.fields).done).length;
-  const late = VIEC.filter(r=>vState(r.fields).late).length, now = VIEC.filter(r=>vState(r.fields).now).length;
+  const late = VIEC.filter(r=>vState(r.fields).late).length, now = VIEC.filter(r=>vState(r.fields).now).length, chk = VIEC.filter(r=>vState(r.fields).check).length;
   $('#vhead').innerHTML = total ? `<div><div class="meta">Dự án bắt đầu ${m}/${y}</div><div class="big">Đang ở tháng T${CFG.currentMonth}</div></div>
     <div class="bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div><b>${done}/${total}</b> <span class="meta">xong</span></div>
-    <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>
+    <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>${chk?`<div><b style="color:var(--bad)">${chk}</b> <span class="meta">đến hạn kiểm lại</span></div>`:''}
     <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>`
     : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button>`;
   if(!total){ $('#btnSeed').onclick = async()=>{ try{ const r=await api('POST','/api/viec/seed'); toast(r.message); VIEC=await api('GET','/api/viec'); renderViec(); }catch(e){ toast(e.message,true);} }; $('#phases').innerHTML=''; return; }
@@ -1968,10 +1977,13 @@ function renderViec(){
   }).join('') || '<div class="empty">Không có việc nào khớp bộ lọc.</div>';
   document.querySelectorAll('#phases details[data-ph]').forEach(d=>d.ontoggle=()=>store.set('pha-open-'+d.dataset.ph, d.open));
   document.querySelectorAll('.vmain').forEach(el=>el.onclick=e=>{ if(e.target.closest('select')) return; const id=el.parentElement.dataset.id; OPEN.has(id)?OPEN.delete(id):OPEN.add(id); el.parentElement.classList.toggle('open'); });
-  document.querySelectorAll('.vs').forEach(el=>el.onchange=()=>saveViec(el.closest('.vrow').dataset.id, {'Trạng thái': el.value}));
-  document.querySelectorAll('.vsave').forEach(el=>el.onclick=()=>{ const row=el.closest('.vrow');
+  document.querySelectorAll('.vs').forEach(el=>el.onchange=()=>{ const id=el.closest('.vrow').dataset.id, r=VIEC.find(x=>x.record_id===id);
+    // «xong» phải đối chiếu tiêu chí, không chỉ đổi trạng thái
+    if(el.value==='Xong' && r && r.fields['Xong khi'] && !confirm('Đã đạt tiêu chí «xong» chưa?\n\n'+r.fields['Xong khi']+((r.fields['Kiểm lại sau tuần']||[]).length?'\n\nApp sẽ nhắc kiểm lại sau tuần '+r.fields['Kiểm lại sau tuần'].join(', ')+'.':''))){ el.value=r.fields['Trạng thái']; return; }
+    saveViec(id, {'Trạng thái': el.value}); });
+  document.querySelectorAll('.vsave').forEach(el=>el.onclick=()=>{ const row=el.closest('.vrow'), ck=row.querySelector('.vCheck');
     saveViec(row.dataset.id, {'Người phụ trách': row.querySelector('.vWho').value.trim(), 'Hạn': fromDateInput(row.querySelector('.vDue').value),
-      'Kết quả / link': row.querySelector('.vRes').value.trim(), 'Ghi chú': row.querySelector('.vNote').value}); });
+      'Kết quả / link': row.querySelector('.vRes').value.trim(), 'Ghi chú': row.querySelector('.vNote').value, ...(ck?{'Kiểm lại': ck.value}:{})}); });
   wireCommon($('#phases'));
 }
 function vRow(r){
@@ -1979,15 +1991,19 @@ function vRow(r){
   const cmd = `/${mg.skill||'rooty-ke-hoach-seo'} làm công đoạn ${f['Mã']}: ${f['Công đoạn']}`;
   return `<div class="vrow ${s.late?'late':s.now?'now':''} ${OPEN.has(r.record_id)?'open':''}" data-id="${r.record_id}">
     <div class="vmain"><span class="code">${esc(f['Mã'])}</span>
-      <div class="vname">${f['Cửa chặn']==='Có'?'<span class="gate">◇ CỬA</span>':''}${esc(f['Công đoạn'])}${s.late?'<span class="latetag">TRỄ</span>':''}
+      <div class="vname">${f['Cửa chặn']==='Có'?'<span class="gate">◇ CỬA</span>':''}${esc(f['Công đoạn'])}${s.late?'<span class="latetag">TRỄ</span>':''}${s.check?'<span class="latetag">KIỂM LẠI</span>':''}
         ${f['Người phụ trách']?`<div class="who">${esc(f['Người phụ trách'])}${f['Hạn']?' · hạn '+fmtDate(f['Hạn']):''}</div>`:''}</div>
       <span class="c-mang"><span class="chip">${esc(f['Mảng'])}</span></span><span class="c-thang">T${tu}${den!=tu?'–T'+den:''}</span>
       <select class="vs ${vcls(f['Trạng thái'])}" aria-label="Trạng thái">${CFG.viecStatus.map(o=>`<option ${o===f['Trạng thái']?'selected':''}>${o}</option>`).join('')}</select></div>
     <div class="vdetail"><div class="meta">Đầu ra cần có: <b style="color:var(--ink)">${esc(f['Đầu ra']||'—')}</b></div>
+      ${f['Xong khi']?`<div class="meta" style="margin-top:4px">Xong khi: <b style="color:var(--ink)">${esc(f['Xong khi'])}</b></div>`:''}
+      ${f['Chỉ số đo']&&f['Chỉ số đo']!=='—'?`<div class="meta" style="margin-top:4px">Chỉ số đo: ${esc(f['Chỉ số đo'])}</div>`:''}
+      ${vMocHtml(f)}
       <div class="grid2" style="margin-top:6px"><label>Người phụ trách<input class="field vWho" value="${esc(f['Người phụ trách'])}"></label>
         <label>Hạn<input class="field vDue" type="date" value="${toDateInput(f['Hạn'])}"></label>
         <label class="full">Kết quả / link file<input class="field vRes" value="${esc(f['Kết quả / link'])}"></label>
-        <label class="full">Ghi chú<textarea class="field vNote">${esc(f['Ghi chú'])}</textarea></label></div>
+        <label class="full">Ghi chú<textarea class="field vNote">${esc(f['Ghi chú'])}</textarea></label>
+        ${(f['Kiểm lại sau tuần']||[]).length?`<label class="full">Kết quả kiểm lại (mỗi mốc một dòng: «Tuần 2 · số đo · nhận xét»)<textarea class="field vCheck">${esc(f['Kiểm lại'])}</textarea></label>`:''}</div>
       <div class="acts"><button class="btn primary vsave">Lưu</button>${mg.sop?`<a class="btn" href="docs/${mg.sop}" target="_blank" rel="noopener">Mở SOP ${esc(f['Mảng'])}</a>`:''}
         <button class="btn" data-copy="${esc(cmd)}">Copy lệnh cho Claude</button></div></div></div>`;
 }

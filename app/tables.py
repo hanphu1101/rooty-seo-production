@@ -324,7 +324,11 @@ TABLES = {
         F("Thay đổi", "long"), F("Ngày", "date"), F("URL", "url"),
         F("Loại", "select", ["Nội dung", "Onpage", "Kỹ thuật", "Liên kết", "Gộp/Xoá", "Khác"]), F("Người làm"),
         F("Lượt nhấp trước", "num"), F("Vị trí trước", "dec"), F("Lượt nhấp sau", "num"), F("Vị trí sau", "dec"),
-        F("Kết quả", "select", ["Chờ đo", "Tốt lên", "Không đổi", "Giảm"]), F("Ghi chú", "long")]},
+        F("Kết quả", "select", ["Chờ đo", "Tốt lên", "Không đổi", "Giảm"]), F("Ghi chú", "long"),
+        F("Nhấp tuần 1", "num"), F("Vị trí tuần 1", "dec"), F("Nhấp tuần 2", "num"), F("Vị trí tuần 2", "dec"),
+        # Thanh tra: phép kiểm máy chạy được trên trang thật — mỗi dòng «CÓ: chuỗi» hoặc «KHÔNG: chuỗi»
+        F("Phép kiểm", "long"), F("Thanh tra", "select", ["Chưa kiểm", "Đạt", "Không đạt", "Không có phép kiểm"]),
+        F("Thanh tra lúc", "date"), F("Kết quả thanh tra", "long")]},
     "lichreview": {"name": "Lịch review", "fields": [
         F("Việc"), F("Tần suất", "select", ["Hàng tuần", "Hàng tháng", "Hàng quý"]), F("Hạng mục"),
         F("Lần làm gần nhất", "date"), F("Người làm"), F("Tab liên quan"), F("Cách làm", "long"), F("Ghi chú", "long")]},

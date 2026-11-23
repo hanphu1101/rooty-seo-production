@@ -1,4 +1,4 @@
-# Cổng 1 · Dàn ý — 19 tiêu chí
+# Cổng 1 · Dàn ý — 22 tiêu chí
 
 Chấm từng dòng PASS/FAIL + một câu lý do. Ghi vào `04-outlines/<slug>/_gate.md`.
 **Bắt buộc** (B) phải PASS hết. Còn lại cần ≥ 80%.
@@ -7,6 +7,7 @@ Chấm từng dòng PASS/FAIL + một câu lý do. Ghi vào `04-outlines/<slug>/
 1. (B) Ghi rõ **câu hỏi chính** của bài bằng đúng lời khách hỏi (VD: "Đi Hòn Thơm mất bao nhiêu tiền?").
 2. (B) **Một trang một câu hỏi.** Nếu dàn ý phủ quá rộng (> 20 H2 hoặc 2 ý định khác nhau) → tách bài.
 3. (B) Xác định **loại trang**: cẩm nang địa điểm · bảng giá · so sánh · lịch trình · danh sách · trang tour/combo.
+   Loại «trang tour/combo» thì làm ở **trang sản phẩm** (giá theo wiki, lịch trình theo trang sản phẩm), không viết thành bài blog.
 4. Có ghi **từ khoá chính + 5–15 từ khoá phụ** lấy từ `03-research/<slug>/`.
 5. Có ghi đối thủ đang top 3 và **AI Overview đang trả lời gì** cho câu hỏi chính.
 
@@ -31,5 +32,10 @@ Chấm từng dòng PASS/FAIL + một câu lý do. Ghi vào `04-outlines/<slug>/
 17. Dữ kiện dễ đổi (giá, lịch) được đánh dấu để kiểm lại ở trạm 4.
 
 ## Liên kết
-18. Có 3–8 **link nội bộ** dự kiến tới bài/tour liên quan trên rootytrip.com.
+18. (B) Có 3–8 **link nội bộ** dự kiến tới bài/tour liên quan trên rootytrip.com (ghi URL thật, đã mở thấy trả 200, tour còn bán).
 19. Có ≥ 1 nguồn ngoài uy tín để trích (trang chính thức, cơ quan du lịch, báo lớn).
+
+## Trước khi viết (chống viết xong phải làm lại)
+20. (B) **Đã kiểm trùng:** tra bảng Trang đích + GSC (truy vấn chính) xem rootytrip.com đã có URL nào nhắm cùng câu hỏi/từ khoá chưa. Ghi rõ URL đã kiểm. Đã có → **cập nhật bài cũ**, không viết bài mới (tránh tự cạnh tranh từ khoá).
+21. (B) **Vị trí trong bản đồ chủ đề:** ghi bài thuộc cụm nào, trang trụ cột của cụm là URL nào, và bài sẽ link lên trang trụ cột.
+22. (B) **Thứ tự trong cụm:** nếu bài cần link tới bài chưa có, ghi rõ bài đó vào hàng đợi trước hoặc ghi chú «gắn link khi bài X đăng» — không để link chết.

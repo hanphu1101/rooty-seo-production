@@ -14,7 +14,7 @@ rooty-seo-production/
 ├ 01-prompts/          # bộ câu hỏi đo AI · bảng theo dõi · hàng đợi từ khoá
 ├ 02-raw/              # nguồn gốc — chỉ thêm, không sửa
 ├ 03-research/         ← Trạm 1 · rooty-research
-├ 04-outlines/         ← Trạm 2 · rooty-outline     · Cổng 1 (19 tiêu chí)
+├ 04-outlines/         ← Trạm 2 · rooty-outline     · Cổng 1 (22 tiêu chí)
 ├ 05-drafts/           ← Trạm 3 · rooty-viet-bai    · Cổng 2 (21 tiêu chí)
 ├ 06-verified/         ← Trạm 4 · rooty-fact-check  · Cổng 3 (kiểm chứng)
 ├ 07-media-brief/      ← Trạm 5 · rooty-media-brief

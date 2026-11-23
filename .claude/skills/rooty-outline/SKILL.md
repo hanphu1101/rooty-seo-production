@@ -1,6 +1,6 @@
 ---
 name: rooty-outline
-description: Trạm 2 — dựng dàn ý bài SEO/GEO từ 03-research/<slug>/, với H2 là câu hỏi thật và câu trả lời dự kiến cho mỗi mục, rồi tự chấm theo Cổng 1 (19 tiêu chí). Đầu ra ở 04-outlines/<slug>/.
+description: Trạm 2 — dựng dàn ý bài SEO/GEO từ 03-research/<slug>/, với H2 là câu hỏi thật và câu trả lời dự kiến cho mỗi mục, rồi tự chấm theo Cổng 1 (22 tiêu chí). Đầu ra ở 04-outlines/<slug>/.
 ---
 
 # Trạm 2 · Dàn ý
@@ -10,6 +10,7 @@ description: Trạm 2 — dựng dàn ý bài SEO/GEO từ 03-research/<slug>/, 
 
 ## Các bước
 
+0. **Kiểm trùng + định vị trước khi dựng dàn ý:** tra bảng Trang đích / GSC xem đã có URL nhắm cùng câu hỏi chưa (có → chuyển sang cập nhật bài cũ, dừng trạm này); ghi cụm chủ đề + URL trang trụ cột; loại «trang tour/combo» thì làm ở trang sản phẩm.
 1. Viết **câu hỏi chính** bằng đúng lời khách. Một bài một câu hỏi — phủ quá rộng thì đề xuất tách.
 2. Viết **H1** chứa thực thể chính.
 3. Viết **đoạn mở đầu nháp 100–150 từ** trả lời thẳng câu hỏi chính (đây là đoạn AI hay trích nhất).
@@ -20,7 +21,7 @@ description: Trạm 2 — dựng dàn ý bài SEO/GEO từ 03-research/<slug>/, 
    - `Dữ kiện dùng:` trỏ dòng trong `nguon.md`
    - `Góc Rooty:` (nếu có)
 6. Thêm **bảng dữ kiện nhanh** nếu là bài thông tin.
-7. Ghi 3–8 **link nội bộ** và vị trí CTA (sau phần trả lời, không chen giữa).
+7. Ghi 3–8 **link nội bộ** (URL thật, đã mở thấy 200, tour còn bán — tên tour theo trang sản phẩm) và vị trí CTA (sau phần trả lời, không chen giữa).
 8. Chấm `gates/cong-1-dan-y.md` → ghi `_gate.md`.
 
 Cấm H2: "Tổng quan", "Giới thiệu", "Kết luận", "Lời kết".
