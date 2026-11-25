@@ -18,7 +18,11 @@ Thứ tự làm: bật ở chế độ thử (chỉ chạy khi URL có `?rooty_s
 
 Bài còn lại là /ko/phu-quoc-food-guide/: URL này đang bị chuyên mục cùng slug che (xem mục 4), nên không có BlogPosting.
 
-## 2. 8 bài có thêm schema chèn tay (ô «Insert Script to <head>») · cần sửa từng bài
+## 2. 8 bài có thêm schema chèn tay (ô «Insert Script to <head>») · ĐÃ SỬA 25/11/2026
+
+✓ 25/11/2026: đã xoá 7 khối chèn tay, sửa Aquatopia «Kien Giang» → «An Giang», xoá cache WP Rocket. Kiểm trang thật: 8/8 bài còn đúng 1 BlogPosting + 1 BreadcrumbList (Rank Math), không còn `kg:/g/11fl5fcr0h`. Nhật ký thay đổi: 8 dòng kèm phép kiểm, thanh tra Đạt 8/8. Nội dung cũ sao lưu nguyên văn trong [sao-luu-schema-chen-tay/](sao-luu-schema-chen-tay/) (tên file = ID bài), cần khôi phục thì dán lại vào ô «Insert Script to <head>».
+
+Lưu ý khi sửa ô này: đây là trình soạn CodeMirror, sửa phải gõ trong khung soạn, không sửa ô textarea ẩn bên dưới (bấm Update sẽ bị khung soạn ghi đè).
 
 Ngoài schema Rank Math, 8 bài này còn một khối JSON-LD thứ hai chèn tay. Khối này lặp lại BlogPosting / WebPage / BreadcrumbList với @id khác (`#article` thay vì `#richSnippet`), nên Google thấy 2 bài viết trên cùng một trang.
 
