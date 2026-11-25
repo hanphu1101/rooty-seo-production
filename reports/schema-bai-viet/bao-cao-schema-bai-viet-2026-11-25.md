@@ -2,7 +2,9 @@
 
 Phạm vi: 376 URL trong `post-sitemap.xml` (208 VI · 121 EN · 18 KO · 19 RU · 10 ZH). Em đọc JSON-LD trên HTML thật của từng bài, rồi mở bài mẫu /taxi-phu-quoc/ trên validator.schema.org. Danh sách từng bài: [danh-sach-376-bai.csv](danh-sach-376-bai.csv).
 
-## 1. Breadcrumb bị lồng 2 lần trong BlogPosting · 375/376 bài · ĐÃ KIỂM
+## 1. Breadcrumb bị lồng 2 lần trong BlogPosting · 375/376 bài · ĐÃ KIỂM · ĐÃ SỬA 25/11/2026
+
+✓ 25/11/2026: WPCode #87135 bật cho mọi bài viết, đã xoá cache WP Rocket. Quét lại sitemap: 375/375 bài không còn `WebPage.breadcrumb`, mỗi bài 1 BreadcrumbList ở gốc. Validator /taxi-phu-quoc/: 2 mục gốc BreadcrumbList + BlogPosting, 0 lỗi. Trang chủ, chuyên mục, sản phẩm không đổi. Nhật ký thay đổi: 3 dòng kèm phép kiểm (taxi, /en/phu-quoc-long-beach/, chùa Hộ Quốc), thanh tra Đạt.
 
 Trên validator, mỗi bài chỉ hiện **1 mục gốc là BlogPosting**. BreadcrumbList nằm bên trong BlogPosting 2 lần:
 - BlogPosting → `isPartOf` → WebPage → `breadcrumb`

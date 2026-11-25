@@ -7,12 +7,12 @@
  * BlogPosting và không đứng riêng ở gốc. Bỏ tham chiếu đó thì BreadcrumbList (vẫn nằm trong @graph)
  * thành mục gốc ngang hàng BlogPosting.
  *
- * Chạy thử: chỉ áp khi URL có ?rooty_schema_test=1. Kiểm xong đổi rooty_bc_bat() thành return true.
+ * Đã bật cho mọi bài viết 25/11/2026 (thử bằng ?rooty_schema_test=1, chị Hân duyệt).
  *
- * Trên web: WPCode #87135, PHP, Run Everywhere, Active — đang ở chế độ thử (25/11/2026).
+ * Trên web: WPCode #87135, PHP, Run Everywhere, Active.
  */
 function rooty_bc_bat() {
-	return isset( $_GET['rooty_schema_test'] );
+	return true;
 }
 
 add_filter( 'rank_math/json_ld', function ( $data, $jsonld ) {
