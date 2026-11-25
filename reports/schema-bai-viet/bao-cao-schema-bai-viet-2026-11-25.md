@@ -44,7 +44,10 @@ Lỗi chung của 6 khối lớn (TravelAgency…BlogPosting):
 
 Xoá 7 khối thì Rank Math vẫn giữ đủ BlogPosting, tác giả, breadcrumb cho các bài này, không mất gì.
 
-## 3. Lỗi ký tự trong tên (nhẹ, không bắt buộc)
+## 3. Lỗi ký tự trong tên · KHÔNG PHẢI LỖI (kiểm 25/11/2026)
+
+25/11/2026: đã thử giải mã `&amp;`/`&#038;` trong bộ lọc `rank_math/json_ld` (WPCode #87135, chế độ thử) trên 61 bài → không đổi gì: Rank Math mã hoá ký tự **sau** bộ lọc. validator.schema.org vẫn đọc đúng «&» (VD headline bài taxi hiện «Giá Các Hãng Taxi & Số Hotline»). Không sửa, đã gỡ phần thử khỏi đoạn mã.
+
 
 - 23 bài: tên mục cuối của breadcrumb có `&#038;` thay vì `&`. Ví dụ /taxi-phu-quoc/: «Bảng Giá, Hotline &#038; Kinh Nghiệm».
 - 47 bài: headline BlogPosting có `&amp;`.
