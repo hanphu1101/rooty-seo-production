@@ -28,6 +28,8 @@ Danh sách đầy đủ, máy đọc được: `cong-doan.json`. Trang theo dõi
 | 10 | GEO | `10-geo.md` | `rooty-geo-audit`, `rooty-do-hien-dien-ai` |
 | 11 | Đo lường & báo cáo | `11-do-luong-bao-cao.md` | `rooty-bao-cao` |
 
+Tự lập và vận hành kế hoạch không cần Claude (làm ở Google Sheet/Docs rồi nhập vào app): [SOP 12 · Tự lập kế hoạch](12-tu-lap-ke-hoach.md).
+
 ## Lộ trình 5 pha
 
 ```

@@ -612,6 +612,112 @@ GATES = parse_gates()
 ENV = load_env()
 
 
+# ------------------------------------------------------------------ SOP (quy-trinh/*.md) → trang tài liệu
+def _md_inline(s):
+    s = html.escape(s, quote=False)
+    s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
+    # tên SOP khác trong quy-trinh/ → bấm mở được
+    s = re.sub(r"<code>([\w.-]+\.md)</code>", lambda m: f'<a href="{m.group(1)}"><code>{m.group(1)}</code></a>'
+               if (QT_DIR / m.group(1)).exists() else m.group(0), s)
+    s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
+    s = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<i>\1</i>", s)
+    s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: f'<a href="{m.group(2)}">{m.group(1)}</a>', s)
+    return s
+
+
+def md_html(text):
+    """Markdown gọn (tiêu đề, đoạn, danh sách, bảng, khối code, trích dẫn, ô tích) → HTML. Chỉ đủ cho SOP trong quy-trinh/."""
+    out, para, lists = [], [], []
+    lines = text.replace("\r", "").split("\n")
+
+    def flush():
+        if para:
+            out.append("<p>" + _md_inline(" ".join(para)) + "</p>")
+            para.clear()
+
+    def close_lists(level=-1):
+        while lists and lists[-1][0] > level:
+            out.append(f"</li></{lists.pop()[1]}>")
+
+    i = 0
+    while i < len(lines):
+        ln = lines[i]
+        if ln.strip().startswith("```"):
+            flush(); close_lists()
+            j = i + 1
+            while j < len(lines) and not lines[j].strip().startswith("```"):
+                j += 1
+            out.append("<pre>" + html.escape("\n".join(lines[i + 1:j])) + "</pre>")
+            i = j + 1
+            continue
+        if ln.strip().startswith("|") and i + 1 < len(lines) and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]):
+            flush(); close_lists()
+            cells = lambda r: [c.strip() for c in r.strip().strip("|").split("|")]
+            rows = [cells(ln)]
+            j = i + 2
+            while j < len(lines) and lines[j].strip().startswith("|"):
+                rows.append(cells(lines[j]))
+                j += 1
+            out.append('<div class="tw"><table><thead><tr>' + "".join(f"<th>{_md_inline(c)}</th>" for c in rows[0]) + "</tr></thead><tbody>"
+                       + "".join("<tr>" + "".join(f"<td>{_md_inline(c)}</td>" for c in r) + "</tr>" for r in rows[1:]) + "</tbody></table></div>")
+            i = j
+            continue
+        m = re.match(r"^(#{1,4})\s+(.*)", ln)
+        if m:
+            flush(); close_lists()
+            n = len(m.group(1))
+            out.append(f"<h{n}>{_md_inline(m.group(2))}</h{n}>")
+        elif re.match(r"^\s*(-{3,}|\*{3,})\s*$", ln):
+            flush(); close_lists()
+            out.append("<hr>")
+        elif ln.startswith(">"):
+            flush(); close_lists()
+            out.append("<blockquote>" + _md_inline(ln.lstrip("> ")) + "</blockquote>")
+        elif re.match(r"^\s*([-*]|\d+\.)\s+", ln):
+            flush()
+            m = re.match(r"^(\s*)([-*]|\d+\.)\s+(.*)", ln)
+            level, tag, body = len(m.group(1)) // 2, "ul" if m.group(2) in "-*" else "ol", m.group(3)
+            box = re.match(r"^\[( |x)\]\s+(.*)", body)
+            item = (("☑ " if box.group(1) == "x" else "☐ ") + _md_inline(box.group(2))) if box else _md_inline(body)
+            close_lists(level)  # thụt ra: đóng các mức sâu hơn
+            if lists and lists[-1][0] == level:
+                out.append("</li><li>" + item)
+            else:
+                out.append(f"<{tag}><li>" + item)
+                lists.append((level, tag))
+        elif not ln.strip():
+            flush()
+            if not (i + 1 < len(lines) and re.match(r"^\s*([-*]|\d+\.)\s+", lines[i + 1])):
+                close_lists()
+        elif lists and ln.startswith("  "):
+            out.append(" " + _md_inline(ln.strip()))
+        else:
+            close_lists()
+            para.append(ln.strip())
+        i += 1
+    flush(); close_lists()
+    return "\n".join(out)
+
+
+def md_page(text):
+    title = next((re.sub(r"^#+\s*", "", ln) for ln in text.splitlines() if ln.startswith("# ")), "Quy trình SEO")
+    return f"""<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{html.escape(title)}</title><style>
+:root{{--bg:#fff;--ink:#1d2421;--mute:#5b6661;--line:#dde3e0;--soft:#f4f7f6;--brand:#0f7a6c}}
+@media (prefers-color-scheme:dark){{:root{{--bg:#141917;--ink:#e6ece9;--mute:#9aa8a2;--line:#2c3532;--soft:#1c2321;--brand:#3cc3ae}}}}
+body{{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif}}
+main{{max-width:860px;margin:0 auto;padding:32px 20px 80px}}
+h1{{font-size:28px;line-height:1.25;margin:0 0 20px}} h2{{font-size:21px;margin:36px 0 12px;padding-top:12px;border-top:1px solid var(--line)}}
+h3{{font-size:17px;margin:24px 0 8px}} h4{{font-size:15px;margin:18px 0 6px}}
+a{{color:var(--brand)}} code{{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:.88em}}
+pre{{background:var(--soft);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.45}}
+.tw{{overflow-x:auto;margin:12px 0}} table{{border-collapse:collapse;width:100%;font-size:14px}}
+th,td{{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}} th{{background:var(--soft)}}
+blockquote{{margin:12px 0;padding:8px 14px;border-left:3px solid var(--brand);background:var(--soft);border-radius:0 8px 8px 0}}
+li{{margin:3px 0}} hr{{border:0;border-top:1px solid var(--line);margin:24px 0}} .raw{{float:right;font-size:13px;color:var(--mute)}}
+</style></head><body><main><a class="raw" href="?raw=1">Xem chữ gốc</a>{md_html(text)}</main></body></html>"""
+
+
 def project_start() -> str:
     """Tháng bắt đầu dự án dạng YYYY-MM: web khác lấy ô «Bắt đầu dự án», web chính PROJECT_START trong .env; mặc định tháng hiện tại."""
     v = cur_site().get("start") or ENV.get("PROJECT_START", "")
@@ -3704,9 +3810,11 @@ class Handler(BaseHTTPRequestHandler):
             f = QT_DIR / name
             if not re.match(r"^[\w.-]+\.md$", name) or not f.exists():
                 return self.send_error(404)
-            data = f.read_bytes()
+            # mặc định hiện dạng tài liệu dễ đọc; ?raw=1 trả chữ gốc
+            raw = "raw=1" in (urllib.parse.urlparse(self.path).query or "")
+            data = f.read_bytes() if raw else md_page(f.read_text(encoding="utf-8")).encode("utf-8")
             self.send_response(200)
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Type", f"text/{'plain' if raw else 'html'}; charset=utf-8")
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             return self.wfile.write(data)

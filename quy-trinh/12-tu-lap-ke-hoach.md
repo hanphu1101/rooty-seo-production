@@ -2,7 +2,7 @@
 
 Mọi bước làm được bằng **app SEO Automation + Lark + Google Sheet**. Claude chỉ giúp nhanh phần đọc, tổng hợp và viết; thiếu Claude thì làm tay theo đúng thứ tự dưới đây.
 
-Mở file này từ app: tab **Kế hoạch** → nút «Tự lập kế hoạch (không cần Claude)».
+Mở file này từ app: tab **Kế hoạch** → «Quy trình tổng quan» → link SOP 12 ngay dưới bảng 11 mảng.
 
 ## Bước 0 · Khai web (một lần)
 1. Lark → Base chính → bảng **«Danh sách website»** → thêm dòng: Tên · Website · Mã Base (link Base riêng của web) · GSC (`sc-domain:ten-mien` hoặc `https://ten-mien/`) · GA4 (mã thuộc tính) · Bật = Có.
