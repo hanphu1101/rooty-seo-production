@@ -136,6 +136,7 @@ SCHEMA = {
         ("URL", 1, None),               # «Trang đạt kiểm»: đường dẫn trang trong kế hoạch
         ("Link nội bộ bắt buộc", 1, None),
         ("Title dự kiến", 1, None),
+        ("Nguồn kế hoạch", 1, None),    # bảng sheet sinh ra việc này (một trang có thể nằm ở 2 sheet)
     ],
     T_LOG: [
         ("Nội dung", 1, None),
@@ -778,6 +779,7 @@ def parse_plan_rows(rows):
     kinds = {
         "lotrinh": {"hangmuccongviec"}, "kpi": {"nhomchiso"}, "noidung": {"tieudebaiviettrang", "duongdanurl"},
         "mapping": {"capdo", "duongdanurl", "tukhoachinh"}, "outline": {"baiviet", "thetitleseo"},
+        "blog": {"tieudebaivietdexuat", "tukhoachinh"},
     }
     viec, kw, seen, outline = [], [], [], {}
     sec, cols, month = None, {}, 1
@@ -842,17 +844,39 @@ def parse_plan_rows(rows):
                          "Xong khi": f"Trang {url} đã đăng (200) và có link nội bộ tới: {links}" if links else f"Trang {url} đã đăng (200)",
                          "Trạng thái": "Xong" if st in ("xong", "dadang", "hoanthanh") else ("Đang làm" if "dang" in st else ""),
                          "Chỉ số": "Trang đạt kiểm (đăng + link nội bộ)", "URL": url, "Link nội bộ bắt buộc": "; ".join(_paths(links)),
-                         "Từ khoá theo dõi": g("tukhoachinh")})
+                         "Từ khoá theo dõi": g("tukhoachinh"), "Nguồn kế hoạch": "nội dung theo tuần"})
+        elif sec == "blog":  # kế hoạch bài viết: mỗi dòng 1 bài → 1 nhóm từ khoá + 1 việc theo dõi + 1 thẻ bài
+            ten, url, k = g("tieudebaivietdexuat"), gs("url"), g("tukhoachinh")
+            if not (ten and k):
+                continue
+            tu, den = _months(g("thoigianuutien"))
+            cta = gs("ydinh")
+            links = [x for x in _paths(cta) if x.rstrip("/") != url.rstrip("/")]
+            st = _norm_h(g("trangthai"))
+            full = (cur_site()["url"].rstrip("/") + url) if url.startswith("/") else url
+            viec.append({"Mã": "ND-" + _slug(url or ten), "Công đoạn": ten, "Mảng": "Nội dung", "Pha": "", "Từ tháng": tu, "Đến tháng": den,
+                         "Đầu ra": f"{g('danhmuc')} · từ khoá chính «{k}» · phụ: {gs('tukhoaphu')} · {cta}".strip(" ·"),
+                         "Xong khi": f"Trang {url} đã đăng (200)" + (f" và có link tới: {'; '.join(links)}" if links else ""),
+                         "Trạng thái": "Xong" if st in ("xong", "dadang", "hoanthanh") else ("Đang làm" if "dang" in st else ""),
+                         "Chỉ số": "Trang đạt kiểm (đăng + link nội bộ)", "URL": url, "Link nội bộ bắt buộc": "; ".join(links),
+                         "Từ khoá theo dõi": k, "Nguồn kế hoạch": "kế hoạch bài viết"})
+            kst = "Đã gán trang" if st in ("xong", "dadang", "hoanthanh") else ("Đang viết" if "dang" in st else "Cần viết")
+            base = {"Nhóm URL": ten, "Trang đích": full, "Cụm chủ đề": gs("cumchude"), "Nguồn": "Kế hoạch", "Trạng thái": kst}
+            kw.append({**base, "Từ khoá": k, "Vai trò": "Từ khoá chính", "Ghi chú": f"Theo kế hoạch bài viết · {cta}".strip(" ·")})
+            for x in [x.strip() for x in gs("tukhoaphu").split(";") if x.strip()]:
+                kw.append({**base, "Từ khoá": x, "Vai trò": "Từ khoá phụ", "Ghi chú": "Theo kế hoạch bài viết"})
         elif sec == "mapping":
             k, url = g("tukhoachinh"), g("duongdanurl")
             if not k:
                 continue
             site = cur_site()["url"].rstrip("/")
             kw.append({"Từ khoá": k, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá chính", "Nguồn": "Kế hoạch",
+                       "Nhóm URL": g("tentrangdanhmuc") or k,
                        "Cụm chủ đề": g("tentrangdanhmuc"), "Trạng thái": "Đã gán trang",
                        "Ghi chú": f"Theo sheet kế hoạch · {g('capdo')} · {g('ghichutrienkhai')}".strip(" ·")})
             for p in [x.strip() for x in g("tukhoaphudai").split(";") if x.strip()]:
                 kw.append({"Từ khoá": p, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá phụ", "Nguồn": "Kế hoạch",
+                           "Nhóm URL": g("tentrangdanhmuc") or k,
                            "Cụm chủ đề": g("tentrangdanhmuc"), "Trạng thái": "Đã gán trang", "Ghi chú": "Theo sheet kế hoạch"})
         elif sec == "outline":
             if g("baiviet"):
@@ -860,7 +884,8 @@ def parse_plan_rows(rows):
     uniq = {}
     for k in kw:  # một từ khoá xuất hiện ở 2 trang (chính ở trang này, phụ ở trang kia) → giữ dòng «chính»
         key = _norm_h(k["Từ khoá"])
-        if key not in uniq or (uniq[key]["Vai trò"] == "Từ khoá phụ" and k["Vai trò"] == "Từ khoá chính"):
+        if key not in uniq or (uniq[key]["Vai trò"] == "Từ khoá phụ" and k["Vai trò"] == "Từ khoá chính") or (
+                uniq[key]["Vai trò"] == k["Vai trò"] and "kế hoạch bài viết" in k.get("Ghi chú", "") and "kế hoạch bài viết" not in uniq[key].get("Ghi chú", "")):
             uniq[key] = k
     kw = list(uniq.values())
     for f in viec:  # dàn ý → title dự kiến của bài cùng tên (app kiểm <title> khi bài lên)
@@ -1263,11 +1288,17 @@ def t_sheet(key, body):
             f["Trang đích"] = cur_site()["url"].rstrip("/") + f["Trang đích"]
         return {**f, "Nguồn": f.get("Nguồn") or "Kế hoạch"}
     fix = fix if key == "tukhoa" else None
+    if key == "tukhoa":
+        rows = _sheet_rows((body or {}).get("url"))
+        plan = parse_plan_rows(rows)
+        if plan and set(plan[2]) & {"blog", "mapping", "noidung"}:
+            return viec_sheet({"rows": rows})
+        return _sheet_import(tname, kinds, SHEET_KEYS.get(key, [TB.primary(key)]), None, fix, aliases=SHEET_ALIASES.get(key), rows=rows)
     return _sheet_import(tname, kinds, SHEET_KEYS.get(key, [TB.primary(key)]), (body or {}).get("url"), fix, aliases=SHEET_ALIASES.get(key))
 
 
 def viec_sheet(body):
-    kinds = {n: {2: "num", 5: "date"}.get(t, "text") for n, t, _ in SCHEMA[T_VIEC] if n not in ("Cập nhật lúc", "Xong lúc", "Hiện tại", "Đo lúc", "Kết quả đo")}
+    kinds = {n: {2: "num", 5: "date"}.get(t, "text") for n, t, _ in SCHEMA[T_VIEC] if n not in ("Cập nhật lúc", "Xong lúc", "Hiện tại", "Đo lúc", "Kết quả đo", "Nguồn kế hoạch")}
 
     def fix(f, old):
         # Pha/Mảng/Trạng thái phải đúng tên có sẵn, sai thì tab Kế hoạch không hiện dòng đó
@@ -1299,9 +1330,14 @@ def viec_sheet(body):
             ch["Cập nhật lúc"] = now_ms()
             if "Trạng thái" in ch:
                 log(f"Việc SEO {old.get('Mã')}: {old.get('Trạng thái') or 'Chưa làm'} → {ch['Trạng thái']} (sheet)", "", old.get("Mảng", ""), ch["Trạng thái"])
-    rows = _sheet_rows((body or {}).get("url"))
+    rows = (body or {}).get("rows") or _sheet_rows((body or {}).get("url"))
     if any("ma" in [_norm_h(c) for c in r] for r in rows[:10]):  # mẫu cột của app (có cột «Mã»)
         return _sheet_import(T_VIEC, kinds, ["Mã"], None, fix, on_change, rows=rows)
+    return import_plan(rows, fix, on_change)
+
+
+def import_plan(rows, fix=None, on_change=None):
+    """Nhập sheet kế hoạch nhiều bảng: việc (tab Kế hoạch) + từ khoá (B2) + thẻ bài (B6)."""
     plan = parse_plan_rows(rows)
     if not plan:
         raise StoreError("Không nhận ra bảng kế hoạch: cần cột «Mã» (mẫu của app) hoặc các bảng «Hạng mục công việc», «Nhóm chỉ số», "
@@ -1309,10 +1345,27 @@ def viec_sheet(body):
     viec, kw, seen = plan
     for f in viec:
         f.setdefault("Mảng", _guess_mang(f["Công đoạn"] + " " + f.get("Đầu ra", "")))
-    a, b = _upsert(T_VIEC, viec, ["Mã"], fix, on_change)
-    c, d = _upsert(_tname("tukhoa"), kw, ["Từ khoá"]) if kw else (0, 0)
+
+    def fix2(f, old):
+        # cùng một trang ở 2 bảng/sheet khác nhau: bảng thứ hai chỉ điền ô còn trống, không ghi đè qua lại mỗi lần đồng bộ
+        if old and old.get("Nguồn kế hoạch") and f.get("Nguồn kế hoạch") and old["Nguồn kế hoạch"] != f["Nguồn kế hoạch"]:
+            for k in ("Từ tháng", "Đến tháng", "Hạn", "Đầu ra", "Xong khi", "Link nội bộ bắt buộc", "Công đoạn", "Nguồn kế hoạch", "Title dự kiến",
+                      "Từ khoá theo dõi"):
+                if old.get(k) not in (None, "") and k in f:
+                    del f[k]
+        return fix(f, old) if fix else f
+    a, b = _upsert(T_VIEC, viec, ["Mã"], fix2, on_change)
+    def kfix(f, old):  # từ khoá vừa ở mapping vừa ở kế hoạch bài viết: giữ dòng đã có, chỉ điền ô trống
+        src = lambda x: "bv" if "bài viết" in str((x or {}).get("Ghi chú", "")) else "map"
+        if old and "Theo" in str(old.get("Ghi chú", "")) and src(old) != src(f):
+            for k in ("Nhóm URL", "Vai trò", "Trang đích", "Cụm chủ đề", "Ghi chú", "Trạng thái"):
+                if old.get(k) not in (None, "") and k in f:
+                    del f[k]
+        return f
+    c, d = _upsert(_tname("tukhoa"), kw, ["Từ khoá"], kfix) if kw else (0, 0)
     n_post = plan_posts()
-    names = {"lotrinh": "lộ trình", "kpi": "KPI", "noidung": "nội dung theo tuần", "mapping": "keyword mapping", "outline": "dàn ý"}
+    names = {"lotrinh": "lộ trình", "kpi": "KPI", "noidung": "nội dung theo tuần", "mapping": "keyword mapping", "outline": "dàn ý",
+             "blog": "kế hoạch bài viết"}
     msg = (f"Từ sheet kế hoạch ({', '.join(names[x] for x in dict.fromkeys(seen))}): việc thêm {a}, cập nhật {b}"
            + (f"; từ khoá thêm {c}, cập nhật {d}" if kw else "") + (f"; tạo {n_post} thẻ bài ở B6" if n_post else ""))
     log(msg)

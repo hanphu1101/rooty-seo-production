@@ -99,11 +99,14 @@ App đọc được sheet kế hoạch tự soạn, không cần cột «Mã», 
 | KPI | Nhóm chỉ số · Mục tiêu cam kết · Công cụ đo lường | Việc «KPI · …» | «Top N cho … (từ khoá A; từ khoá B)» → vị trí từng từ khoá trên GSC 28 ngày, đếm số từ khoá đạt top N · chỉ số về chuyển đổi → GA4 |
 | Nội dung theo tuần | Tuần · Loại trang · Tiêu đề bài viết / Trang · Đường dẫn (URL) · Từ khóa chính · Từ khóa phụ & Dài · Link nội bộ bắt buộc · Trạng thái | Việc cho từng trang, hạn theo tuần | Trang đã lên (200), có đủ link nội bộ bắt buộc, title đúng dàn ý |
 | Sitemap & keyword mapping | Cấp độ · Tên trang / Danh mục · Đường dẫn (URL) · Từ khóa chính · Từ khóa phụ & Dài · Ghi chú triển khai | Bảng Từ khoá (gán trang đích) | — |
+| Kế hoạch bài viết | STT · Cụm chủ đề · Danh mục · Tiêu đề bài viết đề xuất · URL gợi ý · Từ khóa chính · Từ khóa phụ · Ý định tìm kiếm & CTA · Thời gian ưu tiên · Trạng thái | Mỗi bài = 1 nhóm từ khoá (B3, tên nhóm là tiêu đề bài) + 1 việc + 1 thẻ bài ở B6 | Trang đã lên (200), link nội bộ ghi trong cột CTA, title đúng dàn ý |
 | Dàn ý | Bài viết · Thẻ Title SEO · … | «Title dự kiến» của bài cùng tên | Kiểm khi bài lên |
 
 **Từ khoá theo kế hoạch:** từ khoá trong bảng mapping, hoặc nhập ở B2 bằng nút «Nhập từ khoá theo kế hoạch (Google Sheet)», được gắn nguồn «Kế hoạch». Khi web đã có từ khoá theo kế hoạch, B2, B3 và bảng tổng hợp **mặc định chỉ hiện nhóm này**; nút «Đang xem: …» để bật xem cả gợi ý Keyword Planner (không xoá dòng nào).
 
 Cột sheet từ khoá app nhận (không phân biệt hoa thường, dấu): **Từ khoá** (hoặc «Từ khoá chính», «Keyword») là bắt buộc; thêm tuỳ ý: Trang đích (hoặc «URL», «Đường dẫn (URL)», ghi «/đường-dẫn» cũng được) · Lượng tìm (hoặc «Lượng tìm kiếm», «Volume») · Cụm chủ đề (hoặc «Cụm», «Chủ đề») · Vai trò · Ý định · Ưu tiên · Ghi chú.
+
+Sheet kế hoạch nhiều bảng nạp được ở **cả hai chỗ**: tab Kế hoạch («Gắn link sheet kế hoạch», tự đồng bộ) hoặc B2 («Nhập từ khoá theo kế hoạch»). Một trang có ở hai sheet thì sheet nạp sau chỉ điền ô còn trống, không ghi đè.
 
 **Thẻ bài theo kế hoạch:** mỗi trang trong bảng nội dung theo tuần tự có một thẻ ở **B6 · Content** (từ khoá chính, loại trang, hạn theo tuần, link trang; ô Ghi chú có title dự kiến và link nội bộ bắt buộc). Viết trên Google Docs rồi chấm bản nháp ngay trong thẻ.
 

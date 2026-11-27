@@ -227,7 +227,7 @@ def suggest_groups(rows: list[dict], kind: str = "Tour", brands=()) -> dict:
             updates[r["record_id"]] = {"Trạng thái": "Bỏ", "Ghi chú": "Tự loại: không phải ý định mua tour"}
             continue
         # truy vấn thật từ Search Console (đã có lượt hiển thị trên web mình) không tự loại
-        if hotel and not f.get("Hiển thị") and not f.get("Lượt nhấp") and hotel_cluster(f.get("Từ khoá", ""), brands) == H_OTHER:
+        if hotel and not f.get("Hiển thị") and not f.get("Lượt nhấp") and f.get("Nguồn") != "Kế hoạch"                 and hotel_cluster(f.get("Từ khoá", ""), brands) == H_OTHER:  # từ khoá theo kế hoạch người dùng không tự loại
             updates[r["record_id"]] = {"Trạng thái": "Bỏ", "Cụm chủ đề": H_OTHER,
                                        "Ghi chú": "Tự loại: tên khách sạn không phải của mình (chỉ nhắm được bằng bài so sánh)"}
             continue
