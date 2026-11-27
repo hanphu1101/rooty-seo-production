@@ -8,6 +8,8 @@ Người lập: Claude (em), theo yêu cầu chị Hân. Khung: `quy-trinh/00-to
 - Search Console theo ngày đã nạp vào app: `reports/web/routinehospitality.vn/du-lieu/gsc-daily.json` (22/10 – 14/11/2026).
 - Không ghi gì vào Google Sheet (sheet là dữ liệu từ khoá, không phải mẫu kế hoạch).
 
+**Theo dõi hằng ngày (không cần Claude):** app SEO Automation → chọn web «Routine Hospitality» → tab **Kế hoạch**. 41 việc (RH01–RH37 + 4 việc lặp RH-L1…L4) đã nạp vào bảng «Việc SEO» của Base Routine; mỗi việc có người làm, hạn, đầu ra, «Xong khi». Người làm tự đổi trạng thái, ghi link kết quả, ghi chú; app tự báo việc tháng này và việc trễ (dự án bắt đầu 12/2026, ô «Bắt đầu dự án» trong bảng «Danh sách website»). Bản CSV cùng nội dung: [`viec-seo-2026-11-27.csv`](viec-seo-2026-11-27.csv).
+
 ---
 
 ## 1. Tóm tắt 5 dòng

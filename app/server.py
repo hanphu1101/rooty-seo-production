@@ -119,6 +119,7 @@ SCHEMA = {
         ("Cập nhật lúc", 5, {"date_formatter": "yyyy/MM/dd HH:mm"}),
         ("Xong lúc", 5, {"date_formatter": "yyyy/MM/dd"}),
         ("Kiểm lại", 1, None),          # kết quả từng mốc kiểm lại: «Tuần 2 · 07/12: …»
+        ("Xong khi", 1, None),          # web khác có kế hoạch riêng; trống thì lấy từ cong-doan.json
     ],
     T_LOG: [
         ("Nội dung", 1, None),
@@ -495,7 +496,8 @@ def make_store():
 # Mỗi yêu cầu mang tiêu đề X-Seo-Site; việc chạy nền giữ web của lúc bấm.
 T_SITES = "Danh sách website"
 SITE_FIELDS = [("Tên", 1, None), ("Website", 1, None), ("Mã Base", 1, None), ("GSC", 1, None), ("GA4", 1, None),
-               ("Bật", 3, {"options": [{"name": "Có"}, {"name": "Không"}]}), ("Ghi chú", 1, None)]
+               ("Bật", 3, {"options": [{"name": "Có"}, {"name": "Không"}]}), ("Ghi chú", 1, None),
+               ("Bắt đầu dự án", 1, None)]  # YYYY-MM; trống thì theo PROJECT_START của web chính
 MAIN_STORE = make_store()
 _SITE = threading.local()
 _SITES_CACHE = {"at": 0, "list": []}
@@ -540,7 +542,8 @@ def other_sites(fresh=False):
         store = o["store"] if o and o["store"].base == base else LarkStore({**load_env(), "LARK_BASE_TOKEN": base})
         url = url if "://" in url else "https://" + url
         out.append({"id": sid, "name": str(f.get("Tên") or sid), "url": url.rstrip("/"), "gsc": str(f.get("GSC") or "").strip(),
-                    "ga4": re.sub(r"\D", "", str(f.get("GA4") or "")), "store": store, "main": False})
+                    "ga4": re.sub(r"\D", "", str(f.get("GA4") or "")), "store": store, "main": False,
+                    "start": str(f.get("Bắt đầu dự án") or "").strip()})
     _SITES_CACHE.update(at=time.time(), list=out)
     return out
 
@@ -602,8 +605,8 @@ ENV = load_env()
 
 
 def project_start() -> str:
-    """Tháng bắt đầu dự án dạng YYYY-MM (PROJECT_START trong .env), mặc định tháng hiện tại."""
-    v = ENV.get("PROJECT_START", "")
+    """Tháng bắt đầu dự án dạng YYYY-MM: web khác lấy ô «Bắt đầu dự án», web chính PROJECT_START trong .env; mặc định tháng hiện tại."""
+    v = cur_site().get("start") or ENV.get("PROJECT_START", "")
     if re.match(r"^\d{4}-\d{2}$", v):
         return v
     return time.strftime("%Y-%m")
@@ -761,7 +764,7 @@ def api_viec_list():
     out = []
     for r in STORE.list(T_VIEC):
         c = qt.get(r["fields"].get("Mã"), {})
-        out.append({"record_id": r["record_id"], "fields": {**r["fields"], "Xong khi": c.get("xong_khi", ""),
+        out.append({"record_id": r["record_id"], "fields": {**r["fields"], "Xong khi": r["fields"].get("Xong khi") or c.get("xong_khi", ""),
                     "Kiểm lại sau tuần": c.get("kiem_lai_tuan", []), "Chỉ số đo": c.get("chi_so", "")}})
     return out
 
