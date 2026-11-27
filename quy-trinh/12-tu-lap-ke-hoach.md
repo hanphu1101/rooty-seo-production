@@ -103,6 +103,8 @@ App đọc được sheet kế hoạch tự soạn, không cần cột «Mã», 
 
 **Từ khoá theo kế hoạch:** từ khoá trong bảng mapping, hoặc nhập ở B2 bằng nút «Nhập từ khoá theo kế hoạch (Google Sheet)», được gắn nguồn «Kế hoạch». Khi web đã có từ khoá theo kế hoạch, B2, B3 và bảng tổng hợp **mặc định chỉ hiện nhóm này**; nút «Đang xem: …» để bật xem cả gợi ý Keyword Planner (không xoá dòng nào).
 
+Cột sheet từ khoá app nhận (không phân biệt hoa thường, dấu): **Từ khoá** (hoặc «Từ khoá chính», «Keyword») là bắt buộc; thêm tuỳ ý: Trang đích (hoặc «URL», «Đường dẫn (URL)», ghi «/đường-dẫn» cũng được) · Lượng tìm (hoặc «Lượng tìm kiếm», «Volume») · Cụm chủ đề (hoặc «Cụm», «Chủ đề») · Vai trò · Ý định · Ưu tiên · Ghi chú.
+
 **Thẻ bài theo kế hoạch:** mỗi trang trong bảng nội dung theo tuần tự có một thẻ ở **B6 · Content** (từ khoá chính, loại trang, hạn theo tuần, link trang; ô Ghi chú có title dự kiến và link nội bộ bắt buộc). Viết trên Google Docs rồi chấm bản nháp ngay trong thẻ.
 
 Kết quả từng lần đo ở dòng «Chỉ số theo dõi» của việc và khung «Tuần này» → «Chỉ số theo mục tiêu». Bấm «Đo chỉ số» để đo ngay (tự đo mỗi lần đồng bộ, tối thiểu 30 phút/lần).

@@ -1164,6 +1164,10 @@ def t_bulk(key, body):
 # Dòng tiêu đề của sheet dùng đúng tên cột của bảng (không phân biệt hoa thường, dấu). Dòng đã có (theo khoá) → cập nhật
 # các ô sheet có giá trị; dòng chưa có → thêm. Ô trống trong sheet không xoá dữ liệu đang có.
 SHEET_KEYS = {"lienket": ["Từ URL", "Đến URL", "Anchor"]}
+# tên cột hay gặp trong sheet tự soạn → cột của bảng (so sau khi bỏ dấu, viết liền)
+SHEET_ALIASES = {"tukhoa": {"Từ khoá chính": "Từ khoá", "Keyword": "Từ khoá", "Đường dẫn (URL)": "Trang đích", "URL": "Trang đích",
+                            "URL đích": "Trang đích", "Lượng tìm kiếm": "Lượng tìm", "Volume": "Lượng tìm", "Search volume": "Lượng tìm",
+                            "Cụm": "Cụm chủ đề", "Chủ đề": "Cụm chủ đề", "Intent": "Ý định", "Từ khoá phụ": "Từ khoá cha"}}
 
 
 def _norm_h(s):
@@ -1234,10 +1238,10 @@ def _upsert(table, recs, keys, fix=None, on_change=None):
     return len(new), len(ups)
 
 
-def _sheet_import(table, kinds, keys, url, fix=None, on_change=None, rows=None):
+def _sheet_import(table, kinds, keys, url, fix=None, on_change=None, rows=None, aliases=None):
     """kinds: {tên cột: num|dec|date|text}. Trả về thông báo số dòng thêm / cập nhật."""
     rows = rows if rows is not None else _sheet_rows(url)
-    want = {_norm_h(k): k for k in kinds}
+    want = {**{_norm_h(a): k for a, k in (aliases or {}).items() if k in kinds}, **{_norm_h(k): k for k in kinds}}
     hi = next((i for i, r in enumerate(rows[:10]) if sum(1 for c in r if _norm_h(c) in want) >= min(2, len(want))), None)
     if hi is None:
         raise StoreError("Không thấy dòng tiêu đề khớp tên cột của bảng. Cột cần có, VD: " + " · ".join(list(kinds)[:8]))
@@ -1254,8 +1258,12 @@ def _sheet_import(table, kinds, keys, url, fix=None, on_change=None, rows=None):
 def t_sheet(key, body):
     tname = _tname(key)
     kinds = {f["n"]: f["k"] if f["k"] in ("num", "dec", "date") else "text" for f in TB.TABLES[key]["fields"]}
-    fix = (lambda f, old: {**f, "Nguồn": f.get("Nguồn") or "Kế hoạch"}) if key == "tukhoa" else None  # từ khoá tự soạn = kế hoạch
-    return _sheet_import(tname, kinds, SHEET_KEYS.get(key, [TB.primary(key)]), (body or {}).get("url"), fix)
+    def fix(f, old):  # từ khoá tự soạn = kế hoạch; đường dẫn «/…» → link đầy đủ của web
+        if str(f.get("Trang đích", "")).startswith("/"):
+            f["Trang đích"] = cur_site()["url"].rstrip("/") + f["Trang đích"]
+        return {**f, "Nguồn": f.get("Nguồn") or "Kế hoạch"}
+    fix = fix if key == "tukhoa" else None
+    return _sheet_import(tname, kinds, SHEET_KEYS.get(key, [TB.primary(key)]), (body or {}).get("url"), fix, aliases=SHEET_ALIASES.get(key))
 
 
 def viec_sheet(body):
