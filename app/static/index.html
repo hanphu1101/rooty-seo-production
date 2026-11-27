@@ -150,6 +150,7 @@ table.g th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;pad
 table.g td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;max-width:340px}
 table.g tr{cursor:pointer}
 table.g tbody tr:hover td{background:var(--surface-2)}
+#kwsum tr.sel td{background:var(--brand-soft)}
 table.g td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 table.g td:first-child{min-width:110px}
 table.g td:first-child .trunc{white-space:normal}
@@ -671,7 +672,7 @@ function kwSummary(el){
     return {c, n:fs.length, v:fs.reduce((s,f)=>s+vol(f),0), top:fs.slice(0,3).map(f=>`${f['Từ khoá']} (${vol(f).toLocaleString('vi-VN')})`).join(' · ')}; }).sort((a,b)=>b.v-a.v);
   if(!cs.length){ el.innerHTML=''; return; }
   el.innerHTML = `<div class="tscroll"><table class="g"><thead><tr><th>Cụm chủ đề</th><th class="num">Từ khoá</th><th class="num">Lượng tìm/tháng</th><th class="num">Tỷ trọng</th><th>Từ khoá lớn nhất</th></tr></thead><tbody>
-    ${cs.map(x=>`<tr><td><b>${esc(x.c)}</b></td><td class="num">${x.n.toLocaleString('vi-VN')}</td><td class="num">${x.v.toLocaleString('vi-VN')}</td><td class="num">${all?Math.round(x.v/all*1000)/10:0}%</td><td class="meta">${esc(x.top)}</td></tr>`).join('')}</tbody></table></div>`;
+    ${cs.map(x=>`<tr data-cum="${esc(x.c)}" style="cursor:pointer" title="Bấm để xem từ khoá của cụm này ở bảng dưới"><td><b>${esc(x.c)}</b></td><td class="num">${x.n.toLocaleString('vi-VN')}</td><td class="num">${x.v.toLocaleString('vi-VN')}</td><td class="num">${all?Math.round(x.v/all*1000)/10:0}%</td><td class="meta">${esc(x.top)}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function importCompetitorCSV(){
   const name = prompt('Tên đối thủ của file này (VD: Klook):'); if(!name) return;
@@ -872,12 +873,22 @@ VIEWS.tukhoa = async v => {
     + `<div class="pill"><b>${tk.filter(f=>f['Lượng tìm']||f['Hiển thị']).length}<span class="meta">/${tk.length}</span></b>có số liệu</div>`;
   kwSummary($('#kwsum'));
   await grid($('#g'),'tukhoa',{cols:['Từ khoá','Ý định','Giai đoạn','Lượng tìm','Độ khó','Hiển thị','Vị trí','Cụm chủ đề','Nguồn','Ưu tiên','Trạng thái'],
-    filters:['Ý định','Nguồn','Từ khoá gốc','Ưu tiên','Trạng thái'],
+    filters:['Cụm chủ đề','Ý định','Nguồn','Từ khoá gốc','Ưu tiên','Trạng thái'],
     chips:[{id:'nhanh',label:'Cơ hội nhanh (vị trí 8–30)',fn:f=>f['Vị trí']>=8&&f['Vị trí']<=30},{id:'noso',label:'Chưa có số liệu',fn:f=>!f['Lượng tìm']&&!f['Hiển thị']},{id:'q',label:'Dạng câu hỏi',fn:f=>/(không|bao nhiêu|ở đâu|có gì|nên|thế nào|mấy|khi nào|là gì)/.test(f['Từ khoá']||'')}],
     sort:(a,b)=>(num(b['Lượng tìm'])||num(b['Hiển thị'])||0)-(num(a['Lượng tìm'])||num(a['Hiển thị'])||0),
     actions:[{label:'Nhập CSV (GSC / Keyword Planner / Ahrefs / Semrush)', fn:importKeywordsCSV},{label:'Nhập từ link Google Sheet', fn:importKeywordsSheet},
       {label:'Phân tích & gom nhóm', fn:()=>act('/api/kw/group',['tukhoa'])},{label:'Xuất CSV', fn:()=>exportCSV('tukhoa','tu-khoa-rooty.csv')}],
     defaults:{'Trạng thái':'Mới'}, emptyHint:'bấm “Mở rộng” ở trên hoặc nhập CSV'});
+  // bấm một cụm ở bảng tổng hợp → bảng từ khoá chỉ hiện cụm đó (bấm lại để bỏ lọc)
+  const cur = (GRID_STATE.tukhoa||{f:{}}).f['Cụm chủ đề']||'';
+  document.querySelectorAll('#kwsum tr[data-cum]').forEach(tr=>{
+    if(tr.dataset.cum===cur) tr.classList.add('sel');
+    tr.onclick=()=>{ const st=GRID_STATE.tukhoa, c=tr.dataset.cum, on=st.f['Cụm chủ đề']===c;
+      st.f['Cụm chủ đề'] = on || c==='(chưa phân tích)' ? '' : c; st.open=true;
+      document.querySelectorAll('#kwsum tr.sel').forEach(x=>x.classList.remove('sel')); if(!on) tr.classList.add('sel');
+      const sel=$('#g select[data-f="Cụm chủ đề"]'); if(sel){ sel.value=st.f['Cụm chủ đề']; sel.onchange(); }
+      const d=$('#g details'); if(d) d.open=true; $('#g').scrollIntoView({behavior:'smooth', block:'start'}); };
+  });
 };
 
 /* ---------- B3 · Topic Cluster ---------- */
