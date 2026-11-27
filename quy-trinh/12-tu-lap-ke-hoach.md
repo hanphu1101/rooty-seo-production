@@ -101,6 +101,10 @@ App đọc được sheet kế hoạch tự soạn, không cần cột «Mã», 
 | Sitemap & keyword mapping | Cấp độ · Tên trang / Danh mục · Đường dẫn (URL) · Từ khóa chính · Từ khóa phụ & Dài · Ghi chú triển khai | Bảng Từ khoá (gán trang đích) | — |
 | Dàn ý | Bài viết · Thẻ Title SEO · … | «Title dự kiến» của bài cùng tên | Kiểm khi bài lên |
 
+**Từ khoá theo kế hoạch:** từ khoá trong bảng mapping, hoặc nhập ở B2 bằng nút «Nhập từ khoá theo kế hoạch (Google Sheet)», được gắn nguồn «Kế hoạch». Khi web đã có từ khoá theo kế hoạch, B2, B3 và bảng tổng hợp **mặc định chỉ hiện nhóm này**; nút «Đang xem: …» để bật xem cả gợi ý Keyword Planner (không xoá dòng nào).
+
+**Thẻ bài theo kế hoạch:** mỗi trang trong bảng nội dung theo tuần tự có một thẻ ở **B6 · Content** (từ khoá chính, loại trang, hạn theo tuần, link trang; ô Ghi chú có title dự kiến và link nội bộ bắt buộc). Viết trên Google Docs rồi chấm bản nháp ngay trong thẻ.
+
 Kết quả từng lần đo ở dòng «Chỉ số theo dõi» của việc và khung «Tuần này» → «Chỉ số theo mục tiêu». Bấm «Đo chỉ số» để đo ngay (tự đo mỗi lần đồng bộ, tối thiểu 30 phút/lần).
 
 ### App kiểm lại việc làm ở nơi khác

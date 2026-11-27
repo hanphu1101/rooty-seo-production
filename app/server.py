@@ -848,11 +848,11 @@ def parse_plan_rows(rows):
             if not k:
                 continue
             site = cur_site()["url"].rstrip("/")
-            kw.append({"Từ khoá": k, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá chính",
+            kw.append({"Từ khoá": k, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá chính", "Nguồn": "Kế hoạch",
                        "Cụm chủ đề": g("tentrangdanhmuc"), "Trạng thái": "Đã gán trang",
                        "Ghi chú": f"Theo sheet kế hoạch · {g('capdo')} · {g('ghichutrienkhai')}".strip(" ·")})
             for p in [x.strip() for x in g("tukhoaphudai").split(";") if x.strip()]:
-                kw.append({"Từ khoá": p, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá phụ",
+                kw.append({"Từ khoá": p, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá phụ", "Nguồn": "Kế hoạch",
                            "Cụm chủ đề": g("tentrangdanhmuc"), "Trạng thái": "Đã gán trang", "Ghi chú": "Theo sheet kế hoạch"})
         elif sec == "outline":
             if g("baiviet"):
@@ -1254,7 +1254,8 @@ def _sheet_import(table, kinds, keys, url, fix=None, on_change=None, rows=None):
 def t_sheet(key, body):
     tname = _tname(key)
     kinds = {f["n"]: f["k"] if f["k"] in ("num", "dec", "date") else "text" for f in TB.TABLES[key]["fields"]}
-    return _sheet_import(tname, kinds, SHEET_KEYS.get(key, [TB.primary(key)]), (body or {}).get("url"))
+    fix = (lambda f, old: {**f, "Nguồn": f.get("Nguồn") or "Kế hoạch"}) if key == "tukhoa" else None  # từ khoá tự soạn = kế hoạch
+    return _sheet_import(tname, kinds, SHEET_KEYS.get(key, [TB.primary(key)]), (body or {}).get("url"), fix)
 
 
 def viec_sheet(body):
@@ -1302,11 +1303,40 @@ def viec_sheet(body):
         f.setdefault("Mảng", _guess_mang(f["Công đoạn"] + " " + f.get("Đầu ra", "")))
     a, b = _upsert(T_VIEC, viec, ["Mã"], fix, on_change)
     c, d = _upsert(_tname("tukhoa"), kw, ["Từ khoá"]) if kw else (0, 0)
+    n_post = plan_posts()
     names = {"lotrinh": "lộ trình", "kpi": "KPI", "noidung": "nội dung theo tuần", "mapping": "keyword mapping", "outline": "dàn ý"}
     msg = (f"Từ sheet kế hoạch ({', '.join(names[x] for x in dict.fromkeys(seen))}): việc thêm {a}, cập nhật {b}"
-           + (f"; từ khoá thêm {c}, cập nhật {d}" if kw else ""))
+           + (f"; từ khoá thêm {c}, cập nhật {d}" if kw else "") + (f"; tạo {n_post} thẻ bài ở B6" if n_post else ""))
     log(msg)
     return {"ok": True, "message": msg}
+
+
+def plan_posts():
+    """Mỗi trang trong kế hoạch nội dung (việc ND-…) có một thẻ ở B6 · Content để viết đúng kế hoạch. Đã có thẻ cùng slug thì bỏ qua."""
+    have = {str(r["fields"].get("Slug") or "") for r in STORE.list(T_BAI)}
+    site, n = cur_site()["url"].rstrip("/"), 0
+    for r in STORE.list(T_VIEC):
+        f = r["fields"]
+        if not str(f.get("Mã", "")).startswith("ND-") or not f.get("URL"):
+            continue
+        slug = f["URL"].rstrip("/").split("/")[-1] or slugify(f.get("Công đoạn", ""))
+        if slug in have:
+            continue
+        kw = (f.get("Từ khoá theo dõi") or f.get("Công đoạn") or "").strip()
+        loai, ten = _norm_spaced(f.get("Đầu ra", "").split(" · ")[0]), _norm_spaced(f.get("Công đoạn", ""))  # «Loại trang» của sheet
+        kind = ("So sánh" if re.search(r" hay |so sanh", ten) else "Trang tour/combo" if re.search(r"trang dich|money", loai)
+                else "Cẩm nang địa điểm")
+        note = [f"Theo kế hoạch nội dung: {f.get('Công đoạn', '')}", f.get("Đầu ra", "")]
+        if f.get("Title dự kiến"):
+            note.append(f"Title dự kiến: {f['Title dự kiến']}")
+        if f.get("Link nội bộ bắt buộc"):
+            note.append(f"Link nội bộ bắt buộc: {f['Link nội bộ bắt buộc']}")
+        rec = api_create({"Từ khoá": kw, "Slug": slug, "Loại trang": kind, "Người phụ trách": f.get("Người phụ trách", ""),
+                          "Ghi chú": "\n".join(x for x in note if x), "Hạn": f.get("Hạn")})
+        STORE.update(T_BAI, rec["record_id"], {"Link bài": site + f["URL"] if f["URL"].startswith("/") else f["URL"]})
+        have.add(slug)
+        n += 1
+    return n
 
 
 def _guess_mang(t):

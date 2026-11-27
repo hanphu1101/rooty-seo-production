@@ -170,7 +170,7 @@ TABLES = {
         F("Lượng tìm", "num"), F("Độ khó", "num"), F("CPC", "num"), F("Cạnh tranh"),
         F("Vị trí", "dec"), F("Lượt nhấp", "num"), F("Hiển thị", "num"),
         F("Trang đích", "url"), F("Từ khoá gốc"), F("Từ khoá cha"),
-        F("Ưu tiên", "select", PRIORITY), F("Nguồn", "select", ["Search Console", "Keyword Planner", "Ahrefs/Semrush", "Keywordtool.io", "Công cụ từ khoá", "Gợi ý Google", "Sale/CSKH", "Đối thủ"]),
+        F("Ưu tiên", "select", PRIORITY), F("Nguồn", "select", ["Search Console", "Keyword Planner", "Ahrefs/Semrush", "Keywordtool.io", "Công cụ từ khoá", "Gợi ý Google", "Sale/CSKH", "Đối thủ", "Kế hoạch"]),
         F("Trạng thái", "select", ["Mới", "Đã gán trang", "Cần viết", "Đang viết", "Bỏ"]), F("Ghi chú", "long")]},
     "trang": {"name": "Trang đích", "fields": [
         F("URL", "url"), F("Tiêu đề"), F("H1"), F("Cụm chủ đề"), F("Vai trò silo", "select", SILO_ROLE),

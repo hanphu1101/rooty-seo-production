@@ -519,7 +519,7 @@ async function grid(el, key, opts){
     const title = esc(opts.title||meta.name);
     el.innerHTML = (fold ? `<details class="gwrap tfold" ${st.open?'open':''}><summary>${title}<span class="cnt">${base.length} dòng</span></summary>` : `<div class="gwrap">`) + `
       <div class="gtool"><h3>${esc(opts.title||meta.name)}</h3><span class="cnt">${list.length}/${base.length} dòng</span>
-        <input type="search" placeholder="Tìm…" value="${esc(st.q)}" aria-label="Tìm trong ${esc(meta.name)}">${filterSel}${chips}${seed}${acts}<button class="btn sm" data-sheet title="Làm bảng ở Google Sheet rồi nhập vào: dòng đã có được cập nhật, dòng mới được thêm">Nhập từ Google Sheet</button>
+        <input type="search" placeholder="Tìm…" value="${esc(st.q)}" aria-label="Tìm trong ${esc(meta.name)}">${filterSel}${chips}${seed}${acts}<button class="btn sm" data-sheet title="Làm bảng ở Google Sheet rồi nhập vào: dòng đã có được cập nhật, dòng mới được thêm">${key==='tukhoa'?'Nhập từ khoá theo kế hoạch (Google Sheet)':'Nhập từ Google Sheet'}</button>
         <button class="btn sm primary" data-add>+ Thêm</button></div>
       <div class="tscroll">${list.length ? `<table class="g"><thead><tr>${cols.map(c=>`<th>${esc(c.n)}</th>`).join('')}</tr></thead>
         <tbody>${list.slice(0,st.limit).map(r=>`<tr data-id="${r.record_id}">${cols.map(c=>`<td class="${['num','dec'].includes(c.k)?'num':''}">${cell(c, r.fields[c.n])}</td>`).join('')}</tr>`).join('')}</tbody></table>`
@@ -671,11 +671,15 @@ async function importKeywordRows(rows, fname){
     catch(e){ toast(e.message, true); }
   }
 }
+/* từ khoá theo kế hoạch người dùng tự soạn (nguồn «Kế hoạch»): có thì B2/B3 mặc định chỉ hiện nhóm này */
+const kwHasPlan = () => (DATA.tukhoa||[]).some(r=>r.fields['Nguồn']==='Kế hoạch');
+const kwPlanOnly = () => kwHasPlan() && store.get('kw-plan-only-'+SITE, true);
+const kwRows = () => (DATA.tukhoa||[]).filter(r=>!kwPlanOnly() || r.fields['Nguồn']==='Kế hoạch');
 /* bảng tổng hợp theo cụm chủ đề: số từ khoá, tổng lượng tìm, từ khoá lớn nhất */
 function kwSummary(el){
   const vol = f => num(f['Lượng tìm'])||num(f['Hiển thị'])||0, by = {};
-  (DATA.tukhoa||[]).forEach(r=>{ const f=r.fields, c=f['Cụm chủ đề']||'(chưa phân tích)'; (by[c]=by[c]||[]).push(f); });
-  const all = (DATA.tukhoa||[]).reduce((s,r)=>s+vol(r.fields),0), cs = Object.entries(by).map(([c,fs])=>{ fs.sort((a,b)=>vol(b)-vol(a));
+  kwRows().forEach(r=>{ const f=r.fields, c=f['Cụm chủ đề']||'(chưa phân tích)'; (by[c]=by[c]||[]).push(f); });
+  const all = kwRows().reduce((s,r)=>s+vol(r.fields),0), cs = Object.entries(by).map(([c,fs])=>{ fs.sort((a,b)=>vol(b)-vol(a));
     return {c, n:fs.length, v:fs.reduce((s,f)=>s+vol(f),0), top:fs.slice(0,3).map(f=>`${f['Từ khoá']} (${vol(f).toLocaleString('vi-VN')})`).join(' · ')}; }).sort((a,b)=>b.v-a.v);
   if(!cs.length){ el.innerHTML=''; return; }
   el.innerHTML = `<div class="tscroll"><table class="g"><thead><tr><th>Cụm chủ đề</th><th class="num">Từ khoá</th><th class="num">Lượng tìm/tháng</th><th class="num">Tỷ trọng</th><th>Từ khoá lớn nhất</th></tr></thead><tbody>
@@ -875,7 +879,7 @@ VIEWS.tukhoa = async v => {
   jobPanel($('#jobExp'), 'expand', 'Mở rộng các từ khoá gốc chưa mở rộng (gợi ý Google)', '/api/kw/expand', {}, ['tukhoa','tukhoagoc']);
   await grid($('#gSeed'),'tukhoagoc',{title:'Từ khoá gốc', cols:['Từ khoá gốc','Loại','Sản phẩm / dịch vụ','Cụm dự kiến','Mở rộng','Số từ khoá tìm được'], filters:['Loại','Mở rộng'],
     defaults:{'Mở rộng':'Chưa'}});
-  const tk = DATA.tukhoa.map(r=>r.fields);
+  const tk = kwRows().map(r=>r.fields);
   $('#intents').innerHTML = ['Thông tin','Điều hướng','Cân nhắc','Mua'].map(i=>`<div class="pill"><b>${tk.filter(f=>f['Ý định']===i).length}</b>${i}</div>`).join('')
     + `<div class="pill"><b>${tk.filter(f=>f['Lượng tìm']||f['Hiển thị']).length}<span class="meta">/${tk.length}</span></b>có số liệu</div>`;
   kwSummary($('#kwsum'));
@@ -883,7 +887,10 @@ VIEWS.tukhoa = async v => {
     filters:['Cụm chủ đề','Ý định','Nguồn','Từ khoá gốc','Ưu tiên','Trạng thái'],
     chips:[{id:'nhanh',label:'Cơ hội nhanh (vị trí 8–30)',fn:f=>f['Vị trí']>=8&&f['Vị trí']<=30},{id:'noso',label:'Chưa có số liệu',fn:f=>!f['Lượng tìm']&&!f['Hiển thị']},{id:'q',label:'Dạng câu hỏi',fn:f=>/(không|bao nhiêu|ở đâu|có gì|nên|thế nào|mấy|khi nào|là gì)/.test(f['Từ khoá']||'')}],
     sort:(a,b)=>(num(b['Lượng tìm'])||num(b['Hiển thị'])||0)-(num(a['Lượng tìm'])||num(a['Hiển thị'])||0),
-    actions:[{label:'Nhập CSV (GSC / Keyword Planner / Ahrefs / Semrush)', fn:importKeywordsCSV},{label:'Nhập từ link Google Sheet', fn:importKeywordsSheet},
+    where: f => !kwPlanOnly() || f['Nguồn']==='Kế hoạch',
+    actions:[...(kwHasPlan()?[{label: kwPlanOnly()?'Đang xem: theo kế hoạch · bấm xem cả gợi ý':'Đang xem: tất cả · bấm chỉ xem theo kế hoạch', cls:'primary',
+        fn:()=>{ store.set('kw-plan-only-'+SITE, !kwPlanOnly()); render(); }}]:[]),
+      {label:'Nhập CSV (GSC / Keyword Planner / Ahrefs / Semrush)', fn:importKeywordsCSV},{label:'Nhập gợi ý Keyword Planner (link Sheet)', fn:importKeywordsSheet},
       {label:'Phân tích & gom nhóm', fn:()=>act('/api/kw/group',['tukhoa'])},{label:'Xuất CSV', fn:()=>exportCSV('tukhoa','tu-khoa-rooty.csv')}],
     defaults:{'Trạng thái':'Mới'}, emptyHint:'bấm “Mở rộng” ở trên hoặc nhập CSV'});
   // bấm một cụm ở bảng tổng hợp → bảng từ khoá chỉ hiện cụm đó (bấm lại để bỏ lọc)
@@ -924,7 +931,7 @@ VIEWS.cum = async v => {
     actions:[{label:'Nạp trang từ crawl', fn:importCrawl}], defaults:{'Vai trò silo':'Khác'}, emptyHint:'bấm “Nạp trang từ crawl”'});
 };
 function drawClusters(){
-  const kws = DATA.tukhoa.filter(r=>r.fields['Trạng thái']!=='Bỏ'), pages = DATA.trang;
+  const kws = kwRows().filter(r=>r.fields['Trạng thái']!=='Bỏ'), pages = DATA.trang;  // có kế hoạch riêng → chỉ nhóm theo kế hoạch
   const vol = f => Number(f['Lượng tìm']||f['Hiển thị']||0);
   const noGroup = kws.filter(r=>!r.fields['Nhóm URL']).length;
   const cl = {};
