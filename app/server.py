@@ -864,6 +864,114 @@ def t_bulk(key, body):
     return {"ok": True, "message": f"Đã nhập {len(new)} dòng, bỏ qua {len(recs) - len(new)} dòng trùng."}
 
 
+# ------------------------------------------------------------------ nhập bảng làm ở nơi khác (Google Sheet)
+# Dòng tiêu đề của sheet dùng đúng tên cột của bảng (không phân biệt hoa thường, dấu). Dòng đã có (theo khoá) → cập nhật
+# các ô sheet có giá trị; dòng chưa có → thêm. Ô trống trong sheet không xoá dữ liệu đang có.
+SHEET_KEYS = {"lienket": ["Từ URL", "Đến URL", "Anchor"]}
+
+
+def _norm_h(s):
+    import unicodedata
+    s = unicodedata.normalize("NFD", str(s or "").lower().replace("đ", "d"))
+    return re.sub(r"[^a-z0-9]", "", "".join(c for c in s if unicodedata.category(c) != "Mn"))
+
+
+def _sheet_cell(kind, v):
+    v = str(v or "").strip()
+    if not v:
+        return None
+    if kind in ("num", "dec"):
+        s = re.sub(r"^[Tt](?=\d)", "", v.replace("%", "").replace(" ", ""))  # «T3» (tháng dự án) → 3
+        s = s.replace(".", "").replace(",", ".") if re.fullmatch(r"-?\d{1,3}(\.\d{3})+(,\d+)?", s) else s.replace(",", "")
+        try:
+            n = float(s)
+        except ValueError:
+            return None
+        return int(n) if kind == "num" else round(n, 2)
+    if kind == "date":
+        m = re.match(r"^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})", v) or re.match(r"^(\d{4})-(\d{1,2})-(\d{1,2})", v)
+        if not m:
+            return None
+        a, b, c = map(int, m.groups())
+        y, mo, d = (a, b, c) if a > 31 else ((c + 2000 if c < 100 else c), b, a)
+        try:
+            return int(time.mktime((y, mo, d, 12, 0, 0, 0, 0, -1)) * 1000)
+        except (OverflowError, ValueError):
+            return None
+    return v
+
+
+def _sheet_import(table, kinds, keys, url, fix=None):
+    """kinds: {tên cột: num|dec|date|text}. Trả về thông báo số dòng thêm / cập nhật."""
+    import csv
+    import io
+    rows = list(csv.reader(io.StringIO(_google_export(url, "sheet"))))
+    want = {_norm_h(k): k for k in kinds}
+    hi = next((i for i, r in enumerate(rows[:10]) if sum(1 for c in r if _norm_h(c) in want) >= min(2, len(want))), None)
+    if hi is None:
+        raise StoreError("Không thấy dòng tiêu đề khớp tên cột của bảng. Cột cần có, VD: " + " · ".join(list(kinds)[:8]))
+    cols = {i: want[_norm_h(c)] for i, c in enumerate(rows[hi]) if _norm_h(c) in want}
+    if not any(k in cols.values() for k in keys):
+        raise StoreError("Sheet thiếu cột khoá «" + " / ".join(keys) + "» để biết dòng nào là dòng nào")
+    key_of = lambda f: tuple(_norm_h(f.get(k)) for k in keys)
+    have = {}
+    for r in STORE.list(table):
+        have.setdefault(key_of(r["fields"]), r)
+    new, ups = [], {}
+    for r in rows[hi + 1:]:
+        f = {cols[i]: v for i, c in enumerate(r) if i in cols for v in [_sheet_cell(kinds[cols[i]], c)] if v is not None}
+        if not any(f.get(k) for k in keys):
+            continue
+        old = have.get(key_of(f))
+        if fix:
+            f = fix(f, old["fields"] if old else None)
+        if old:
+            ch = {k: v for k, v in f.items() if old["fields"].get(k) != v}
+            if ch:
+                ups[old["record_id"]] = ch
+        else:
+            new.append(f)
+            have[key_of(f)] = {"record_id": None, "fields": f}
+    if new:
+        STORE.create_many(table, new)
+    if ups:
+        STORE.update_many(table, ups)
+    msg = f"Từ Google Sheet: thêm {len(new)} dòng, cập nhật {len(ups)} dòng ({len(cols)} cột khớp: {', '.join(cols.values())})"
+    log(f"{table} · {msg}")
+    return {"ok": True, "message": msg}
+
+
+def t_sheet(key, body):
+    tname = _tname(key)
+    kinds = {f["n"]: f["k"] if f["k"] in ("num", "dec", "date") else "text" for f in TB.TABLES[key]["fields"]}
+    return _sheet_import(tname, kinds, SHEET_KEYS.get(key, [TB.primary(key)]), (body or {}).get("url"))
+
+
+def viec_sheet(body):
+    kinds = {n: {2: "num", 5: "date"}.get(t, "text") for n, t, _ in SCHEMA[T_VIEC] if n not in ("Cập nhật lúc", "Xong lúc")}
+
+    def fix(f, old):
+        # Pha/Mảng/Trạng thái phải đúng tên có sẵn, sai thì tab Kế hoạch không hiện dòng đó
+        p = str(f.get("Pha", ""))
+        if p and p not in PHA:
+            m = re.search(r"[1-5]", p)
+            f["Pha"] = PHA[int(m.group()) - 1] if m else next((x for x in PHA if _norm_h(p) in _norm_h(x)), PHA[0])
+        if not f.get("Pha") and old is None:
+            tu = int(f.get("Từ tháng") or 1)
+            f["Pha"] = PHA[0] if tu <= 1 else PHA[1] if tu <= 3 else PHA[2] if tu <= 6 else PHA[3] if tu <= 9 else PHA[4]
+        if f.get("Mảng") and f["Mảng"] not in MANG:
+            f["Mảng"] = next((x for x in MANG if _norm_h(f["Mảng"]) in _norm_h(x) or _norm_h(x) in _norm_h(f["Mảng"])), f["Mảng"])
+        if f.get("Trạng thái") and f["Trạng thái"] not in VIEC_STATUS:
+            f["Trạng thái"] = next((x for x in VIEC_STATUS if _norm_h(x) == _norm_h(f["Trạng thái"])), "Chưa làm")
+        if f.get("Trạng thái") == "Xong" and (old or {}).get("Trạng thái") != "Xong":
+            f["Xong lúc"] = now_ms()  # mốc kiểm lại tính từ đây
+        if old is None:
+            f.setdefault("Trạng thái", "Chưa làm")
+            f["Cập nhật lúc"] = now_ms()
+        return f
+    return _sheet_import(T_VIEC, kinds, ["Mã"], (body or {}).get("url"), fix)
+
+
 def t_seed(key):
     if key not in TB.SEEDS:
         raise StoreError("Bảng này không có dữ liệu mẫu")
@@ -2966,15 +3074,24 @@ def links_suggest(body):
 
 def links_check():
     def job(say):
-        rows = [r for r in STORE.list(_tname("lienket")) if r["fields"].get("Loại") != "Nội bộ" and r["fields"].get("Từ URL")
-                and r["fields"].get("Trạng thái") in ("Đã gắn", "Đang live", "Mất link")]
+        # link nội bộ: kiểm cả dòng «Kế hoạch» (làm ở nơi khác rồi nhập vào) — thấy link đúng trang đích thì chuyển Đang live
+        rows = [r for r in STORE.list(_tname("lienket")) if r["fields"].get("Từ URL") and (
+                r["fields"].get("Trạng thái") in ("Đã gắn", "Đang live", "Mất link")
+                or (r["fields"].get("Loại") == "Nội bộ" and r["fields"].get("Trạng thái") in ("Kế hoạch", None, "")))]
         if not rows:
-            return "Chưa có backlink nào ở trạng thái Đã gắn / Đang live để kiểm."
+            return "Chưa có link nào ở trạng thái Đã gắn / Đang live (hoặc link nội bộ Kế hoạch) để kiểm."
         ups, cnt = {}, {}
         for i, r in enumerate(rows, 1):
             f = r["fields"]
             say(f"[{i}/{len(rows)}] {f['Từ URL']}")
             res = LB.check_backlink(f["Từ URL"], f.get("Đến URL") or site_url())
+            if f.get("Loại") == "Nội bộ" and res["status"] == "Đang live" and not res.get("exact"):
+                # cùng tên miền nên trang nào cũng có link về web — chỉ tính khi trỏ đúng trang đích
+                res = {"status": "Mất link", "detail": f"Chưa thấy link tới {f.get('Đến URL')} trên trang nguồn"}
+            if res["status"] == "Đang live" and f.get("Anchor") and _norm_h(f["Anchor"]) != _norm_h(res.get("anchor")):
+                res["detail"] += f" · ⚠ anchor khác kế hoạch «{f['Anchor']}»"
+            if res["status"] == "Mất link" and f.get("Trạng thái") in ("Kế hoạch", None, ""):
+                res["status"] = "Chưa gắn"
             ch = {"Kiểm lần cuối": now_ms(), "Kết quả kiểm": res["detail"]}
             if res["status"] == "Đang live":
                 ch.update({"Trạng thái": "Đang live", "Thuộc tính": res["attr"], "Vị trí đặt": res["zone"] if res["zone"] in ("Trong nội dung", "Sidebar", "Footer", "Menu/header") else f.get("Vị trí đặt")})
@@ -2984,11 +3101,12 @@ def links_check():
                 ch["Trạng thái"] = "Mất link"
             if not f.get("Domain nguồn"):
                 ch["Domain nguồn"] = urllib.parse.urlsplit(f["Từ URL"]).netloc.replace("www.", "")
-            ch["Điểm chất lượng"] = LB.quality({**f, **ch})
+            if f.get("Loại") != "Nội bộ":
+                ch["Điểm chất lượng"] = LB.quality({**f, **ch})
             ups[r["record_id"]] = ch
             cnt[res["status"]] = cnt.get(res["status"], 0) + 1
         STORE.update_many(_tname("lienket"), ups)
-        return "Kiểm backlink: " + " · ".join(f"{k} {v}" for k, v in cnt.items())
+        return "Kiểm link: " + " · ".join(f"{k} {v}" for k, v in cnt.items())
     return run_job("linkcheck", job)
 
 
@@ -3659,11 +3777,15 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/run/crawl":
             body = self._body()
             return self._guard(lambda: crawl_start(body))
-        m = re.match(r"^/api/t/(\w+)(/bulk|/seed)?$", path)
+        if path == "/api/viec/sheet":
+            body = self._body()
+            return self._guard(lambda: viec_sheet(body))
+        m = re.match(r"^/api/t/(\w+)(/bulk|/seed|/sheet)?$", path)
         if m:
             key, act = m.group(1), m.group(2)
             body = self._body() if act != "/seed" else None
-            fn = {None: lambda: t_create(key, body), "/bulk": lambda: t_bulk(key, body), "/seed": lambda: t_seed(key)}[act]
+            fn = {None: lambda: t_create(key, body), "/bulk": lambda: t_bulk(key, body), "/seed": lambda: t_seed(key),
+                  "/sheet": lambda: t_sheet(key, body)}[act]
             return self._guard(fn)
         self.send_error(404)
 

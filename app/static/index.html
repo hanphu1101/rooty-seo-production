@@ -519,7 +519,7 @@ async function grid(el, key, opts){
     const title = esc(opts.title||meta.name);
     el.innerHTML = (fold ? `<details class="gwrap tfold" ${st.open?'open':''}><summary>${title}<span class="cnt">${base.length} dòng</span></summary>` : `<div class="gwrap">`) + `
       <div class="gtool"><h3>${esc(opts.title||meta.name)}</h3><span class="cnt">${list.length}/${base.length} dòng</span>
-        <input type="search" placeholder="Tìm…" value="${esc(st.q)}" aria-label="Tìm trong ${esc(meta.name)}">${filterSel}${chips}${seed}${acts}
+        <input type="search" placeholder="Tìm…" value="${esc(st.q)}" aria-label="Tìm trong ${esc(meta.name)}">${filterSel}${chips}${seed}${acts}<button class="btn sm" data-sheet title="Làm bảng ở Google Sheet rồi nhập vào: dòng đã có được cập nhật, dòng mới được thêm">Nhập từ Google Sheet</button>
         <button class="btn sm primary" data-add>+ Thêm</button></div>
       <div class="tscroll">${list.length ? `<table class="g"><thead><tr>${cols.map(c=>`<th>${esc(c.n)}</th>`).join('')}</tr></thead>
         <tbody>${list.slice(0,st.limit).map(r=>`<tr data-id="${r.record_id}">${cols.map(c=>`<td class="${['num','dec'].includes(c.k)?'num':''}">${cell(c, r.fields[c.n])}</td>`).join('')}</tr>`).join('')}</tbody></table>`
@@ -535,6 +535,7 @@ async function grid(el, key, opts){
     el.querySelector('[data-add]').onclick = ()=>openForm(key, null, opts.defaults||{}, opts.onSave, opts.formActions);
     el.querySelector('[data-seed]')?.addEventListener('click', async()=>{ try{ const r=await api('POST',`/api/t/${key}/seed`); toast(r.message); await load(key,true); render(); }catch(e){ toast(e.message,true); } });
     el.querySelector('[data-more]')?.addEventListener('click', ()=>{ st.limit+=200; draw(); });
+    el.querySelector('[data-sheet]').onclick = ()=>sheetImport(`/api/t/${key}/sheet`, fields.map(f=>f.n), async()=>{ await load(key,true); renderNav(); render(); });
     el.querySelectorAll('tbody tr').forEach(tr=>tr.onclick=()=>openForm(key, rows.find(r=>r.record_id===tr.dataset.id), {}, opts.onSave, opts.formActions));
   };
   draw();
@@ -594,6 +595,12 @@ function openForm(key, rec, defaults, onSave, extra){
   openDrawer();
 }
 
+/* nhập bảng làm ở nơi khác: dòng tiêu đề sheet dùng đúng tên cột của bảng */
+async function sheetImport(endpoint, cols, after){
+  const url = prompt('Dán link Google Sheet (mở đúng tab rồi copy link).\nDòng tiêu đề dùng đúng tên cột của bảng, VD:\n' + cols.slice(0,12).join(' · ') + (cols.length>12?' …':'') + '\nDòng đã có được cập nhật, dòng mới được thêm; ô trống không xoá dữ liệu.'); if(!url) return;
+  try{ toast('Đang đọc sheet…'); const r = await api('POST', endpoint, {url}); toast(r.message); await after(); }
+  catch(e){ toast(e.message, true); }
+}
 /* ================= CSV ================= */
 async function readFileText(file){
   // Keyword Planner xuất CSV dạng UTF-16 (BOM FF FE), có tab; các công cụ khác thường UTF-8
@@ -1312,7 +1319,7 @@ VIEWS.link = async v => {
     <div class="pill"><b>${new Set(live.map(f=>f['Domain nguồn']).filter(Boolean)).size}</b>domain trỏ về</div>`
     + ['Thương hiệu','URL','Từ khoá','Chung chung'].map(c=>`<div class="pill"><b>${nA?Math.round((ac[c]||0)/nA*100):0}%</b>anchor ${c.toLowerCase()}</div>`).join('')
     + (exact>30?`<div class="pill" style="border-color:var(--bad)"><b style="color:var(--bad)">⚠</b>anchor từ khoá ${exact}% — nên ≤ 30%, tăng anchor thương hiệu/URL</div>`:'');
-  jobPanel($('#jobChk'), 'linkcheck', 'Kiểm backlink còn sống (mở trang nguồn: còn link? dofollow? trong nội dung?)', '/api/links/check', {}, ['lienket']);
+  jobPanel($('#jobChk'), 'linkcheck', 'Kiểm link còn sống — backlink + link nội bộ (mở trang nguồn: có link tới đúng trang đích? anchor? dofollow?)', '/api/links/check', {}, ['lienket']);
   await grid($('#gb'),'lienket',{sid:'bl', title:'Backlink & PR', where:f=>f['Loại']!=='Nội bộ',
     cols:['Domain nguồn','Chiến lược','Anchor','Đến URL','Uy tín (DR/DA)','Liên quan chủ đề','Vị trí đặt','Thuộc tính','Điểm chất lượng','Trạng thái','Kiểm lần cuối'],
     filters:['Chiến lược','Trạng thái','Thuộc tính','Liên quan chủ đề'],
@@ -2019,8 +2026,14 @@ function renderViec(){
     <div class="bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div><b>${done}/${total}</b> <span class="meta">xong</span></div>
     <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>${chk?`<div><b style="color:var(--bad)">${chk}</b> <span class="meta">đến hạn kiểm lại</span></div>`:''}
     <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>
-    <a class="btn ghost" href="docs/12-tu-lap-ke-hoach.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Tự lập kế hoạch (không cần Claude)</a>`
-    : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button><a class="btn ghost" href="docs/12-tu-lap-ke-hoach.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Tự lập kế hoạch (không cần Claude)</a>`;
+    <a class="btn ghost" href="docs/12-tu-lap-ke-hoach.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Tự lập kế hoạch (không cần Claude)</a>
+    <button class="btn" id="btnVSheet">Nhập kế hoạch từ Google Sheet</button><button class="btn" id="btnVCsv">Tải kế hoạch (CSV)</button>`
+    : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button><a class="btn ghost" href="docs/12-tu-lap-ke-hoach.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Tự lập kế hoạch (không cần Claude)</a><button class="btn" id="btnVSheet">Nhập kế hoạch từ Google Sheet</button>`;
+  const VCOLS = ['Mã','Công đoạn','Mảng','Pha','Từ tháng','Đến tháng','Cửa chặn','Trạng thái','Người phụ trách','Hạn','Đầu ra','Xong khi','Kết quả / link','Ghi chú'];
+  $('#btnVSheet').onclick = ()=>sheetImport('/api/viec/sheet', VCOLS, async()=>{ VIEC=await api('GET','/api/viec'); renderViec(); });
+  if($('#btnVCsv')) $('#btnVCsv').onclick = ()=>{ const q=v=>{ const t=v==null?'':String(v); return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; };
+    const lines=[VCOLS.join(',')].concat(VIEC.map(r=>VCOLS.map(c=>q(c==='Hạn'&&r.fields[c]?toDateInput(r.fields[c]):r.fields[c])).join(',')));
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'})); a.download='ke-hoach-seo.csv'; a.click(); };
   if(!total){ $('#btnSeed').onclick = async()=>{ try{ const r=await api('POST','/api/viec/seed'); toast(r.message); VIEC=await api('GET','/api/viec'); renderViec(); }catch(e){ toast(e.message,true);} }; $('#phases').innerHTML=''; return; }
   const fm=$('#fMang').value, fs=$('#fVs').value, fn=$('#fNow').checked;
   const list = VIEC.filter(r=>{ const f=r.fields, s=vState(f); return (!fm||f['Mảng']===fm) && (!fs||f['Trạng thái']===fs) && (!fn||s.now||s.late); })

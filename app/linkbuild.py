@@ -201,7 +201,7 @@ def check_backlink(source: str, target: str) -> dict:
     attr = "Nofollow" if re.search(r"nofollow|sponsored|ugc", rel) else "Dofollow"
     zone = {"nội dung": "Trong nội dung", "footer": "Footer", "sidebar": "Sidebar", "menu": "Menu/header"}.get(it["zone"], it["zone"])
     detail = f"Link tới {u} · anchor «{it['anchor'] or '(trống)'}» · {attr}{' (' + rel + ')' if rel else ''} · vị trí: {zone}" + ("" if exact else " · ⚠ trỏ tới URL khác trang đích dự kiến")
-    return {"status": "Đang live", "attr": attr, "zone": zone, "anchor": it["anchor"], "detail": detail}
+    return {"status": "Đang live", "attr": attr, "zone": zone, "anchor": it["anchor"], "detail": detail, "exact": exact}
 
 
 def find_broken(page: str, limit=80, say=lambda m: None) -> list[dict]:

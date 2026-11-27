@@ -75,6 +75,20 @@ Mẫu tham khảo: kế hoạch Routine `reports/routinehospitality/ke-hoach-seo
 | Cuối tháng | Nhập CSV GSC/GA4, so với số nền và tháng trước | B10 · Đánh giá |
 | Cuối quý | Đối chiếu KPI, quyết định ở các cửa ◇ | Tab Kế hoạch |
 
+## Làm ở Google Sheet → nhập vào app (mọi bảng, kể cả kế hoạch)
+Bảng nào trong app cũng có nút **«Nhập từ Google Sheet»** (cạnh ô Tìm). Tab **Kế hoạch** có **«Nhập kế hoạch từ Google Sheet»** và **«Tải kế hoạch (CSV)»**.
+1. Lấy mẫu cột: tab Kế hoạch → «Tải kế hoạch (CSV)» → mở bằng Google Sheet (Tệp → Nhập). Bảng khác: «Xuất CSV» nếu có, hoặc gõ dòng tiêu đề đúng tên cột app hiện trong hộp dán link.
+2. Làm việc trên Sheet: đổi Trạng thái, Người phụ trách, Hạn, thêm dòng mới… Ngày ghi `07/12/2026` hoặc `2026-12-07`; tháng dự án ghi `3` hoặc `T3`.
+3. Chia sẻ sheet (quyền Xem cho email service account, hoặc «Bất kỳ ai có đường liên kết») → bấm nút nhập → dán link đúng tab.
+4. App so theo **cột khoá**: Kế hoạch = «Mã»; Liên kết = «Từ URL» + «Đến URL» + «Anchor»; bảng khác = cột đầu tiên (VD Từ khoá, URL). Dòng đã có → cập nhật ô sheet có giá trị; dòng chưa có → thêm. **Ô trống không xoá dữ liệu** trong app.
+5. Kế hoạch: «Pha» ghi `Pha 2` hoặc `2` là được; «Trạng thái» phải là Chưa làm / Đang làm / Xong / Bị chặn / Không áp dụng. Chuyển «Xong» trên sheet thì app bắt đầu đếm mốc kiểm lại từ lúc nhập.
+
+### App kiểm lại việc làm ở nơi khác
+- **Liên kết nội bộ / backlink**: nhập bảng link (Loại = Nội bộ, Trạng thái = Kế hoạch hoặc Đã gắn) → tab **B9 · Link building** → «Kiểm link còn sống». App mở trang nguồn: thấy link tới **đúng trang đích** → «Đang live» (báo cả khi anchor khác kế hoạch); dòng «Đã gắn» mà không thấy → «Mất link»; dòng «Kế hoạch» chưa thấy → giữ nguyên.
+- **Sửa trên web (onpage, kỹ thuật, nội dung)**: nhập bảng **Nhật ký thay đổi** với cột «Phép kiểm» (`CÓ: …` / `KHÔNG: …`) → bấm «Thanh tra».
+- **Bài viết**: chấm bản nháp Google Docs (mục dưới).
+- **Việc kế hoạch khác**: app không tự xác nhận được — người duyệt đối chiếu «Xong khi» với link ở cột «Kết quả / link».
+
 ## Viết bài ngoài app → app chấm (Google Docs)
 1. Viết trên **Google Docs**. Tiêu đề bài dùng kiểu **Title** hoặc **Heading 1**; mỗi mục dùng kiểu **Heading 2** (Định dạng → Kiểu đoạn văn). Chữ in đậm không tính là H2.
 2. Chia sẻ file: quyền Xem cho `doc-search-console@rootytrip-seo.iam.gserviceaccount.com`, hoặc «Bất kỳ ai có đường liên kết».
