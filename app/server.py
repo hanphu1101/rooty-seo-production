@@ -497,7 +497,9 @@ def make_store():
 T_SITES = "Danh sách website"
 SITE_FIELDS = [("Tên", 1, None), ("Website", 1, None), ("Mã Base", 1, None), ("GSC", 1, None), ("GA4", 1, None),
                ("Bật", 3, {"options": [{"name": "Có"}, {"name": "Không"}]}), ("Ghi chú", 1, None),
-               ("Bắt đầu dự án", 1, None)]  # YYYY-MM; trống thì theo PROJECT_START của web chính
+               ("Bắt đầu dự án", 1, None),  # YYYY-MM; trống thì theo PROJECT_START của web chính
+               ("Loại web", 3, {"options": [{"name": "Tour"}, {"name": "Khách sạn"}]}),  # chọn bộ luật gom nhóm từ khoá
+               ("Tên thương hiệu", 1, None)]  # tên riêng của web, cách nhau dấu phẩy: «Routine, PITO, Calista…»
 MAIN_STORE = make_store()
 _SITE = threading.local()
 _SITES_CACHE = {"at": 0, "list": []}
@@ -511,7 +513,7 @@ def _main_site():
     env = load_env()
     url = (env.get("SITE_URL") or "https://rootytrip.com").rstrip("/")
     return {"id": "chinh", "name": _host(url), "url": url, "gsc": env.get("GSC_SITE", ""), "ga4": env.get("GA4_PROPERTY", ""),
-            "store": MAIN_STORE, "main": True}
+            "store": MAIN_STORE, "main": True, "kind": "Tour", "brands": ["Rooty"]}
 
 
 MAIN_SITE = _main_site()
@@ -543,7 +545,8 @@ def other_sites(fresh=False):
         url = url if "://" in url else "https://" + url
         out.append({"id": sid, "name": str(f.get("Tên") or sid), "url": url.rstrip("/"), "gsc": str(f.get("GSC") or "").strip(),
                     "ga4": re.sub(r"\D", "", str(f.get("GA4") or "")), "store": store, "main": False,
-                    "start": str(f.get("Bắt đầu dự án") or "").strip()})
+                    "start": str(f.get("Bắt đầu dự án") or "").strip(), "kind": str(f.get("Loại web") or "Tour"),
+                    "brands": [b.strip() for b in str(f.get("Tên thương hiệu") or "").split(",") if b.strip()]})
     _SITES_CACHE.update(at=time.time(), list=out)
     return out
 
@@ -1086,13 +1089,40 @@ def kw_expand(body):
 
 def kw_group():
     rows = STORE.list(_tname("tukhoa"))
-    ups = KW.suggest_groups(rows)
+    ups = KW.suggest_groups(rows, cur_site().get("kind", "Tour"), cur_site().get("brands", []))
     if ups:
         STORE.update_many(_tname("tukhoa"), ups)
     groups = {u.get("Nhóm URL") for u in ups.values() if u.get("Nhóm URL")}
     msg = f"Gợi ý gom nhóm: điền {len(ups)} từ khoá vào {len(groups)} nhóm URL (chỉ điền ô trống — kiểm lại bằng SERP)"
     log(msg)
     return {"ok": True, "message": msg}
+
+
+def sheet_csv(body):
+    """Tải 1 tab Google Sheet dạng CSV từ link người dùng dán: dùng service account (sheet chia sẻ cho email SA),
+    không có thì thử tải công khai (sheet «Bất kỳ ai có đường liên kết»). Trang tự phân tích CSV như file tải lên."""
+    url = str((body or {}).get("url") or "")
+    m = re.search(r"/spreadsheets/d/([A-Za-z0-9_-]+)", url)
+    if not m:
+        raise StoreError("Link không phải Google Sheet (cần dạng docs.google.com/spreadsheets/d/…)")
+    g = re.search(r"[#&?]gid=(\d+)", url)
+    exp = f"https://docs.google.com/spreadsheets/d/{m.group(1)}/export?format=csv" + (f"&gid={g.group(1)}" if g else "")
+    key, email, headers = ENV.get("GOOGLE_SA_JSON") or ENV.get("GOOGLE_SA_KEY"), "", {}
+    if key:
+        try:
+            token, email = GAPI.access_token(key)
+            headers["Authorization"] = "Bearer " + token
+        except Exception:
+            pass
+    for h in ([headers, {}] if headers else [{}]):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(exp, headers=h), timeout=60) as r:
+                if "text/csv" in r.headers.get("content-type", ""):
+                    return {"text": r.read().decode("utf-8-sig"), "name": "Google Sheet"}
+        except urllib.error.HTTPError:
+            continue
+    who = f"chia sẻ quyền Xem cho {email}" if email else "bật «Bất kỳ ai có đường liên kết đều xem được»"
+    raise StoreError(f"Không đọc được sheet — mở sheet → Chia sẻ → {who}, rồi thử lại")
 
 
 def kw_create_posts():
@@ -3523,6 +3553,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/review/import":
             body = self._body()
             return self._guard(lambda: review_import(body))
+        if path == "/api/sheet/csv":
+            body = self._body()
+            return self._guard(lambda: sheet_csv(body))
         if path == "/api/google/sync":
             body = self._body()
             return self._guard(lambda: google_sync(body))

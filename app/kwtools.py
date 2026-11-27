@@ -146,8 +146,77 @@ def guess_cluster(k: str) -> str:
     return "Điểm đến"
 
 
-def suggest_groups(rows: list[dict]) -> dict:
-    """rows: [{record_id, fields}] của bảng Từ khoá. Trả về {record_id: {trường: giá trị}} chỉ cho ô đang trống."""
+# ------------------------------------------------------------------ luật cho web khách sạn (Phú Quốc)
+# Từ khoá được so sau khi bỏ dấu ("đ" → "d"). Thứ tự: tên của mình → tên khách sạn khác → khu vực → phân khúc → đặt phòng → thông tin → từ khoá chính.
+
+def strip_accents(s: str) -> str:
+    s = unicodedata.normalize("NFD", s.lower().replace("đ", "d"))
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return " " + re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", s)).strip() + " "
+
+
+H_LOC = [("Sunset Town / Địa Trung Hải", r" (sunset town|sunset(?! beach)|dia trung hai) "), ("Hòn Thơm", r" hon thom "),
+         ("An Thới", r" an thoi "), ("Bãi Khem", r" bai khem "), ("Bãi Sao", r" bai sao "), ("Nam đảo", r" nam dao "),
+         ("Bãi Trường", r" bai truong "), ("Chợ đêm", r" cho dem "), ("Dương Đông / trung tâm", r" (duong dong|trung tam|tran hung dao) "),
+         ("Grand World / VinWonders", r" (grand ?world|grandworld|vin ?wonders?|safari|gan vinpearl) "), ("Bãi Dài", r" bai dai "),
+         ("Gành Dầu", r" ganh dau "), ("Bắc đảo", r" bac dao "), ("Cửa Lấp", r" cua lap "), ("Dương Tơ", r" duong to "),
+         ("Ông Lang", r" ong lang "), ("Cửa Cạn", r" cua can "), ("Hàm Ninh", r" ham ninh "), ("Sân bay", r" san bay ")]
+H_BEACH = r" (gan bien|bai bien|sat bien|view bien|huong bien|bien) "
+H_LODGE = (r" (khach san|khachs san|khach sn|ks|hotels?|resorts?|nha nghi|homestay|home stay|villas?|biet thu|bungalows?|hostel|can ho|condotel"
+           r"|phong|khu nghi duong|nghi duong|lodge|motel|house|dat phong|booking|book|agoda|traveloka|ivivu|mytour|chudu24|luu tru|o dau|cho o|noi o|o) ")
+H_GENERIC = set("""phu quoc khach khachs san sn ks chudu24 hotel hotels resort resorts o tai gan cac nhung the va and a gia re sao 1 2 3 4 5 6 7
+dep tot nhat view bien beach sat huong bai trung tam nha nghi homestay home stay villa villas biet thu bungalow bungalows hostel can ho
+condotel phong khu duong tim dat booking book online agoda traveloka ivivu mytour voucher deal combo khuyen mai uu dai cao cap sang trong
+binh dan boutique gia dinh cho family luxury dao dau nao nen kinh nghiem review danh sach top list dem ngay thue mot nhieu di du lich
+thi tran tren cuoi tuan ho boi rieng private pool spa""".split())
+H_SEG = [("Hạng sao", r" [1-7] sao "), ("Giá rẻ / bình dân", r" (gia re|re|binh dan|gia tot|gia|bao nhieu) "),
+         ("Cao cấp / boutique", r" (cao cap|sang trong|luxury|boutique|dep nhat|dep|tot nhat|top) "),
+         ("Nhà nghỉ / homestay / hostel", r" (homestay|home stay|nha nghi|bungalows?|hostel) "),
+         ("Villa / căn hộ", r" (villas?|biet thu|can ho|condotel) "), ("Gia đình / hồ bơi", r" (gia dinh|family|ho boi|pool) ")]
+H_TRAVEL = (r" (express|ve|tour|lich trinh|chi phi|tau|cang|lang chai|thang [0-9]+|du lich|tham quan|dao|marina|nghi mat|cho) ")
+H_CHAIN = r" (intercontinental|marriott|vinpearl|hyatt|novotel|melia|movenpick|regent|crowne|fusion|vinoasis|vinholiday|muong thanh|radisson|sheraton) "
+H_OTHER = "Tên khách sạn khác"
+
+
+def hotel_cluster(kw: str, brands=()) -> str:
+    """Cụm chủ đề cho từ khoá của web khách sạn. Trả về H_OTHER khi là tên khách sạn không phải của mình."""
+    n = strip_accents(kw)
+    for b in brands:
+        if strip_accents(b) in n:
+            return f"Thương hiệu · {b}"
+    if re.search(r" (gan|near|close to|around) ", n) and re.search(H_LODGE + r"| (stay|accommodation|accomodation) ", n):
+        loc = next((name for name, p in H_LOC if re.search(p, n)), "")
+        return f"Khu vực · {loc}" if loc else "Khu vực · Gần điểm tham quan"
+    rest = n
+    for _, p in H_LOC:
+        rest = re.sub(p, "  ", rest)
+    resid = [t for t in rest.split() if t not in H_GENERIC]
+    if resid:  # còn chữ ngoài từ chung + địa danh → tên riêng: có chữ lưu trú là tên khách sạn, có chữ du lịch là điểm đến
+        strong = r" (khach san|khachs san|ks|hotels?|resorts?|nha nghi|homestay|villas?|bungalows?|hostel|motel|lodge) "
+        if re.search(H_CHAIN, n) or re.search(strong, n) or not re.search(H_TRAVEL, n):
+            return H_OTHER
+        return "Du lịch · tour, vé, di chuyển"
+    if not re.search(H_LODGE, n):
+        return "Du lịch · tour, vé, di chuyển"
+    for name, p in H_LOC:
+        if re.search(p, n):
+            return f"Khu vực · {name}"
+    for name, p in H_SEG:
+        if re.search(p, n):
+            return f"Phân khúc · {name}"
+    if re.search(H_BEACH, n):
+        return "Phân khúc · View biển / gần biển"
+    if re.search(r" (tim|dat|booking|book|agoda|traveloka|ivivu|mytour|chudu24|voucher|deal|combo|khuyen mai|uu dai|online|thue) ", n):
+        return "Đặt phòng / OTA"
+    if re.search(r" (kinh nghiem|nen|nao|o dau|danh sach|review|cac|nhung|list) ", n):
+        return "Nên ở đâu / danh sách"
+    return "Khách sạn Phú Quốc (từ khoá chính)"
+
+
+def suggest_groups(rows: list[dict], kind: str = "Tour", brands=()) -> dict:
+    """rows: [{record_id, fields}] của bảng Từ khoá. Trả về {record_id: {trường: giá trị}} chỉ cho ô đang trống.
+    kind «Khách sạn»: gom theo luật khách sạn, tên khách sạn khác → Bỏ."""
+    hotel = kind == "Khách sạn"
     groups: dict[str, list] = {}
     updates = {}
     for r in rows:
@@ -157,7 +226,13 @@ def suggest_groups(rows: list[dict]) -> dict:
         if is_junk(f.get("Từ khoá", "")):
             updates[r["record_id"]] = {"Trạng thái": "Bỏ", "Ghi chú": "Tự loại: không phải ý định mua tour"}
             continue
-        key = (f.get("Từ khoá cha") or "").strip().lower() or norm_key(f.get("Từ khoá", ""))
+        # truy vấn thật từ Search Console (đã có lượt hiển thị trên web mình) không tự loại
+        if hotel and not f.get("Hiển thị") and not f.get("Lượt nhấp") and hotel_cluster(f.get("Từ khoá", ""), brands) == H_OTHER:
+            updates[r["record_id"]] = {"Trạng thái": "Bỏ", "Cụm chủ đề": H_OTHER,
+                                       "Ghi chú": "Tự loại: tên khách sạn không phải của mình (chỉ nhắm được bằng bài so sánh)"}
+            continue
+        key = (f.get("Từ khoá cha") or "").strip().lower() or (
+            norm_key(strip_accents(f.get("Từ khoá", ""))) if hotel else norm_key(f.get("Từ khoá", "")))
         groups.setdefault(key, []).append(r)
     for key, rs in groups.items():
         vol = lambda r: (r["fields"].get("Lượng tìm") or r["fields"].get("Hiển thị") or 0)
@@ -171,7 +246,7 @@ def suggest_groups(rows: list[dict]) -> dict:
             if not f.get("Nhóm URL"):
                 ch["Nhóm URL"] = head
             if not f.get("Cụm chủ đề"):
-                ch["Cụm chủ đề"] = guess_cluster(head)
+                ch["Cụm chủ đề"] = hotel_cluster(head, brands) if hotel else guess_cluster(head)
             if not f.get("Vai trò"):
                 ch["Vai trò"] = "Từ khoá chính" if i == 0 else "Từ khoá phụ"
             if url and not f.get("Trang đích"):

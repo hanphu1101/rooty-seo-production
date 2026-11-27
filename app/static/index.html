@@ -635,25 +635,43 @@ function guessIntent(k){
 const INTENT_STAGE = {'Thông tin':'Nhận thức','Cân nhắc':'Cân nhắc','Mua':'Quyết định','Điều hướng':'Quyết định'};
 function toolIntent(s){ s=(s||'').toLowerCase(); if(/transac/.test(s)) return 'Mua'; if(/commerc/.test(s)) return 'Cân nhắc'; if(/navig|brand/.test(s)) return 'Điều hướng'; if(/inform/.test(s)) return 'Thông tin'; return null; }
 function pickFile(cb){ const inp=$('#csvFile'); inp.value=''; inp.onchange=async()=>{ const f=inp.files[0]; if(f) cb(parseCSV(await readFileText(f)), f.name); }; inp.click(); }
-function importKeywordsCSV(){
-  pickFile(async (rows, fname)=>{
+function importKeywordsCSV(){ pickFile(importKeywordRows); }
+async function importKeywordsSheet(){
+  const url = prompt('Dán link Google Sheet (mở đúng tab có danh sách từ khoá rồi copy link):'); if(!url) return;
+  try{ toast('Đang đọc sheet…'); const r = await api('POST','/api/sheet/csv',{url}); await importKeywordRows(parseCSV(r.text), r.name); }
+  catch(e){ toast(e.message, true); }
+}
+async function importKeywordRows(rows, fname){
+  {
     const hi = headerRow(rows, /quer|truy v|từ khoá|từ khóa|keyword/); if(hi<0){ toast('Không thấy cột từ khoá/truy vấn trong file', true); return; }
     const h = rows[hi].map(x=>x.toLowerCase().trim()), idx = re => h.findIndex(x=>re.test(x));
-    const iq=idx(/^(top )?quer|truy v|từ khoá|từ khóa|^keyword$|keyword/), ic=idx(/click|nhấp/), ii=idx(/impr|hiển thị/), ip=idx(/posit|vị trí/),
+    let iq=idx(/^(top )?quer|truy v|từ khoá|từ khóa|^keyword$|keyword/), ic=idx(/click|nhấp/), ii=idx(/impr|hiển thị/), ip=idx(/posit|vị trí/),
       iv=idx(/avg\. monthly|monthly searches|lượt tìm kiếm trung bình|volume|lượng tìm|search vol/), id=idx(/difficult|độ khó|^kd/),
       icpc=idx(/cpc|top of page bid \(high|giá thầu đầu trang \(cao|giá thầu/), icomp=idx(/^competition$|^cạnh tranh$|competition|cạnh tranh/),
       ipar=idx(/parent/), iint=idx(/intent|ý định/);
     let src = 'Công cụ từ khoá';
-    if(ic>=0||ii>=0) src='Search Console'; else if(h.some(x=>/avg\. monthly|lượt tìm kiếm trung bình|top of page bid|giá thầu/.test(x))) src='Keyword Planner';
+    // Keyword Planner có cột «Ad/Organic impression share» → xét trước Search Console, bỏ các cột đó
+    if(h.some(x=>/avg\. monthly|lượt tìm kiếm trung bình|top of page bid|giá thầu/.test(x))){ src='Keyword Planner'; ic=ii=ip=-1; }
+    else if(ic>=0||ii>=0) src='Search Console';
     else if(id>=0||ipar>=0) src='Ahrefs/Semrush'; else if(/keywordtool/i.test(fname)) src='Keywordtool.io';
     const recs = rows.slice(hi+1).map(r=>{ const kw=(r[iq]||'').trim(); const it = (iint>=0 && toolIntent(r[iint])) || guessIntent(kw); return {
       'Từ khoá': kw, 'Ý định': it, 'Giai đoạn': INTENT_STAGE[it], 'Nguồn': src, 'Trạng thái': 'Mới',
       'Lượt nhấp': ic>=0?toNum(r[ic]):null, 'Hiển thị': ii>=0?toNum(r[ii]):null, 'Vị trí': ip>=0?toNum(r[ip],true):null,
       'Lượng tìm': iv>=0?toNum(r[iv]):null, 'Độ khó': id>=0?toNum(r[id]):null, 'CPC': icpc>=0?toNum(r[icpc]):null,
       'Cạnh tranh': icomp>=0?(r[icomp]||'').trim():'', 'Từ khoá cha': ipar>=0?(r[ipar]||'').trim():'' }; }).filter(r=>r['Từ khoá']);
-    try{ const res = await api('POST','/api/t/tukhoa/bulk',{records:recs}); toast(`${src}: ${res.message}`); await load('tukhoa',true); renderNav(); render(); }
+    try{ const res = await api('POST','/api/t/tukhoa/bulk',{records:recs}); toast(`${src}: ${res.message} — bấm «Phân tích & gom nhóm»`); await load('tukhoa',true); renderNav(); render(); }
     catch(e){ toast(e.message, true); }
-  });
+  }
+}
+/* bảng tổng hợp theo cụm chủ đề: số từ khoá, tổng lượng tìm, từ khoá lớn nhất */
+function kwSummary(el){
+  const vol = f => num(f['Lượng tìm'])||num(f['Hiển thị'])||0, by = {};
+  (DATA.tukhoa||[]).forEach(r=>{ const f=r.fields, c=f['Cụm chủ đề']||'(chưa phân tích)'; (by[c]=by[c]||[]).push(f); });
+  const all = (DATA.tukhoa||[]).reduce((s,r)=>s+vol(r.fields),0), cs = Object.entries(by).map(([c,fs])=>{ fs.sort((a,b)=>vol(b)-vol(a));
+    return {c, n:fs.length, v:fs.reduce((s,f)=>s+vol(f),0), top:fs.slice(0,3).map(f=>`${f['Từ khoá']} (${vol(f).toLocaleString('vi-VN')})`).join(' · ')}; }).sort((a,b)=>b.v-a.v);
+  if(!cs.length){ el.innerHTML=''; return; }
+  el.innerHTML = `<div class="tscroll"><table class="g"><thead><tr><th>Cụm chủ đề</th><th class="num">Từ khoá</th><th class="num">Lượng tìm/tháng</th><th class="num">Tỷ trọng</th><th>Từ khoá lớn nhất</th></tr></thead><tbody>
+    ${cs.map(x=>`<tr><td><b>${esc(x.c)}</b></td><td class="num">${x.n.toLocaleString('vi-VN')}</td><td class="num">${x.v.toLocaleString('vi-VN')}</td><td class="num">${all?Math.round(x.v/all*1000)/10:0}%</td><td class="meta">${esc(x.top)}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function importCompetitorCSV(){
   const name = prompt('Tên đối thủ của file này (VD: Klook):'); if(!name) return;
@@ -841,7 +859,10 @@ VIEWS.tukhoa = async v => {
     <div class="cards4">${TOOLS.map(([n,u,d])=>`<div class="kcard" style="cursor:default"><b>${esc(n)}</b><span class="meta">${esc(d)}</span><a href="${u}" target="_blank" rel="noopener" style="font-size:13px">Mở công cụ ↗</a></div>`).join('')}</div>
     <div class="sec"><h2><span>3</span> Danh sách từ khoá & phân loại theo ý định tìm kiếm</h2>
       <p class="meta note">Informational = <b>Thông tin</b> · Navigational = <b>Điều hướng</b> (tìm thương hiệu) · Commercial = <b>Cân nhắc</b> · Transactional = <b>Mua</b>. Ý định được đoán tự động — kiểm lại.</p></div>
-    <div class="strip" id="intents"></div><div id="g"></div>`;
+    <div class="strip" id="intents"></div>
+    <div class="sec"><h2><span>4</span> Tổng hợp theo cụm chủ đề</h2>
+      <p class="meta note">Bấm «Phân tích & gom nhóm» sau khi nhập file/link: app gom từ khoá cùng nghĩa thành nhóm URL và xếp cụm theo loại web (khai «Loại web», «Tên thương hiệu» ở bảng Danh sách website). Web khách sạn: tên khách sạn khác tự chuyển «Bỏ».</p></div>
+    <div id="kwsum" style="overflow-x:auto;margin-bottom:12px"></div><div id="g"></div>`;
   await Promise.all([load('trang').catch(()=>{}), load('tukhoagoc'), load('tukhoa')]);
   jobPanel($('#jobExp'), 'expand', 'Mở rộng các từ khoá gốc chưa mở rộng (gợi ý Google)', '/api/kw/expand', {}, ['tukhoa','tukhoagoc']);
   await grid($('#gSeed'),'tukhoagoc',{title:'Từ khoá gốc', cols:['Từ khoá gốc','Loại','Sản phẩm / dịch vụ','Cụm dự kiến','Mở rộng','Số từ khoá tìm được'], filters:['Loại','Mở rộng'],
@@ -849,11 +870,13 @@ VIEWS.tukhoa = async v => {
   const tk = DATA.tukhoa.map(r=>r.fields);
   $('#intents').innerHTML = ['Thông tin','Điều hướng','Cân nhắc','Mua'].map(i=>`<div class="pill"><b>${tk.filter(f=>f['Ý định']===i).length}</b>${i}</div>`).join('')
     + `<div class="pill"><b>${tk.filter(f=>f['Lượng tìm']||f['Hiển thị']).length}<span class="meta">/${tk.length}</span></b>có số liệu</div>`;
+  kwSummary($('#kwsum'));
   await grid($('#g'),'tukhoa',{cols:['Từ khoá','Ý định','Giai đoạn','Lượng tìm','Độ khó','Hiển thị','Vị trí','Cụm chủ đề','Nguồn','Ưu tiên','Trạng thái'],
     filters:['Ý định','Nguồn','Từ khoá gốc','Ưu tiên','Trạng thái'],
     chips:[{id:'nhanh',label:'Cơ hội nhanh (vị trí 8–30)',fn:f=>f['Vị trí']>=8&&f['Vị trí']<=30},{id:'noso',label:'Chưa có số liệu',fn:f=>!f['Lượng tìm']&&!f['Hiển thị']},{id:'q',label:'Dạng câu hỏi',fn:f=>/(không|bao nhiêu|ở đâu|có gì|nên|thế nào|mấy|khi nào|là gì)/.test(f['Từ khoá']||'')}],
     sort:(a,b)=>(num(b['Lượng tìm'])||num(b['Hiển thị'])||0)-(num(a['Lượng tìm'])||num(a['Hiển thị'])||0),
-    actions:[{label:'Nhập CSV (GSC / Keyword Planner / Ahrefs / Semrush)', fn:importKeywordsCSV},{label:'Xuất CSV', fn:()=>exportCSV('tukhoa','tu-khoa-rooty.csv')}],
+    actions:[{label:'Nhập CSV (GSC / Keyword Planner / Ahrefs / Semrush)', fn:importKeywordsCSV},{label:'Nhập từ link Google Sheet', fn:importKeywordsSheet},
+      {label:'Phân tích & gom nhóm', fn:()=>act('/api/kw/group',['tukhoa'])},{label:'Xuất CSV', fn:()=>exportCSV('tukhoa','tu-khoa-rooty.csv')}],
     defaults:{'Trạng thái':'Mới'}, emptyHint:'bấm “Mở rộng” ở trên hoặc nhập CSV'});
 };
 

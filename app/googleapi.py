@@ -18,7 +18,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-SCOPES = "https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/analytics.readonly"
+SCOPES = ("https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/analytics.readonly"
+          " https://www.googleapis.com/auth/drive.readonly")  # drive: đọc Google Sheet người dùng dán link
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 GSC_URL = "https://searchconsole.googleapis.com/webmasters/v3/sites/{site}/searchAnalytics/query"
 GA4_URL = "https://analyticsdata.googleapis.com/v1beta/properties/{prop}:runReport"

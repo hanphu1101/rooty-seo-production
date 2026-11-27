@@ -112,7 +112,9 @@ Biến môi trường khai trên Render (service `mkt-hub` → Environment):
 ## Nhiều website (ô chọn web trên đầu app)
 
 Web chính vẫn khai trong `.env` (`SITE_URL`, `SEO_LARK_BASE_TOKEN`/`LARK_BASE_TOKEN`, `GSC_SITE`, `GA4_PROPERTY`) và chạy như cũ.
-Web khác khai ở bảng **«Danh sách website»** trong Base chính (app tự tạo bảng): Tên · Website · Mã Base (link hoặc mã Base riêng của web đó) · GSC (`sc-domain:ten-mien` hoặc `https://ten-mien/`) · GA4 (mã thuộc tính) · Bật = Có.
+Web khác khai ở bảng **«Danh sách website»** trong Base chính (app tự tạo bảng): Tên · Website · Mã Base (link hoặc mã Base riêng của web đó) · GSC (`sc-domain:ten-mien` hoặc `https://ten-mien/`) · GA4 (mã thuộc tính) · Bật = Có. Thêm (không bắt buộc): **Bắt đầu dự án** (`YYYY-MM`, cho tab Kế hoạch) · **Loại web** (Tour / Khách sạn — chọn luật «Phân tích & gom nhóm» ở B2) · **Tên thương hiệu** (tên riêng của web, cách nhau dấu phẩy; web khách sạn: từ khoá tên khách sạn khác tự chuyển «Bỏ», trừ truy vấn có số Search Console).
+
+B2 · Từ khoá → «Nhập từ link Google Sheet»: dán link tab có danh sách từ khoá. Sheet phải chia sẻ quyền Xem cho email service account (`doc-search-console@rootytrip-seo.iam.gserviceaccount.com`) hoặc để «Bất kỳ ai có đường liên kết».
 
 - Mỗi web một Lark Base riêng (chia sẻ cho app Lark), chọn web rồi bấm «Khởi tạo bảng Lark» một lần.
 - Search Console + GA4 của web đó: thêm email service account của app (quyền Người xem).
