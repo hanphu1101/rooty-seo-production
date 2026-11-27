@@ -101,6 +101,7 @@ SCHEMA = {
         # GEO · AI Search
         ("Điểm GEO", 2, {"formatter": "0"}),
         ("Chấm GEO", 1, None),
+        ("Link bản nháp", 1, None),     # Google Docs viết bên ngoài, app chấm GEO trước khi đăng
     ],
     T_VIEC: [
         ("Công đoạn", 1, None),        # trường chính
@@ -1098,15 +1099,15 @@ def kw_group():
     return {"ok": True, "message": msg}
 
 
-def sheet_csv(body):
-    """Tải 1 tab Google Sheet dạng CSV từ link người dùng dán: dùng service account (sheet chia sẻ cho email SA),
-    không có thì thử tải công khai (sheet «Bất kỳ ai có đường liên kết»). Trang tự phân tích CSV như file tải lên."""
-    url = str((body or {}).get("url") or "")
-    m = re.search(r"/spreadsheets/d/([A-Za-z0-9_-]+)", url)
+def _google_export(url, kind):
+    """Tải file Google (sheet → CSV, doc → HTML) từ link người dùng dán: dùng service account (file chia sẻ cho email SA),
+    không được thì thử tải công khai (file «Bất kỳ ai có đường liên kết»)."""
+    path, fmt, ctype = {"sheet": ("spreadsheets", "csv", "text/csv"), "doc": ("document", "html", "text/html")}[kind]
+    m = re.search(rf"/{path}/d/([A-Za-z0-9_-]+)", str(url or ""))
     if not m:
-        raise StoreError("Link không phải Google Sheet (cần dạng docs.google.com/spreadsheets/d/…)")
-    g = re.search(r"[#&?]gid=(\d+)", url)
-    exp = f"https://docs.google.com/spreadsheets/d/{m.group(1)}/export?format=csv" + (f"&gid={g.group(1)}" if g else "")
+        raise StoreError(f"Link không phải Google {'Sheet' if kind == 'sheet' else 'Docs'} (cần dạng docs.google.com/{path}/d/…)")
+    g = re.search(r"[#&?]gid=(\d+)", url) if kind == "sheet" else None
+    exp = f"https://docs.google.com/{path}/d/{m.group(1)}/export?format={fmt}" + (f"&gid={g.group(1)}" if g else "")
     key, email, headers = ENV.get("GOOGLE_SA_JSON") or ENV.get("GOOGLE_SA_KEY"), "", {}
     if key:
         try:
@@ -1117,12 +1118,36 @@ def sheet_csv(body):
     for h in ([headers, {}] if headers else [{}]):
         try:
             with urllib.request.urlopen(urllib.request.Request(exp, headers=h), timeout=60) as r:
-                if "text/csv" in r.headers.get("content-type", ""):
-                    return {"text": r.read().decode("utf-8-sig"), "name": "Google Sheet"}
+                if ctype in r.headers.get("content-type", ""):
+                    return r.read().decode("utf-8-sig")
         except urllib.error.HTTPError:
             continue
     who = f"chia sẻ quyền Xem cho {email}" if email else "bật «Bất kỳ ai có đường liên kết đều xem được»"
-    raise StoreError(f"Không đọc được sheet — mở sheet → Chia sẻ → {who}, rồi thử lại")
+    raise StoreError(f"Không đọc được file — mở file → Chia sẻ → {who}, rồi thử lại")
+
+
+def sheet_csv(body):
+    """Tải 1 tab Google Sheet dạng CSV; trang tự phân tích CSV như file tải lên."""
+    return {"text": _google_export((body or {}).get("url"), "sheet"), "name": "Google Sheet"}
+
+
+def draft_check(body):
+    """Chấm GEO bản nháp viết trên Google Docs. Có record_id thì lưu điểm + link nháp vào bài đó."""
+    body = body or {}
+    url, rid = str(body.get("url") or "").strip(), body.get("record_id")
+    f = find_bai(rid)["fields"] if rid else {}
+    kw = str(body.get("kw") or f.get("Từ khoá") or "").strip()
+    url = url or f.get("Link bản nháp", "")
+    res = GEO.check_draft(_google_export(url, "doc"), kw, f.get("Ý định") or KW.guess_intent(kw))
+    if res.get("error"):
+        raise StoreError(res["error"])
+    text = GEO.render(res, kw)
+    if rid:
+        STORE.update(T_BAI, rid, {"Điểm GEO": res["score"], "Chấm GEO": f"{time.strftime('%d/%m/%Y')} · Bản nháp Google Docs · " + text,
+                                  "Link bản nháp": url, "Cập nhật lúc": now_ms()})
+        log(f"Chấm bản nháp GEO {res['score']}/100 · G3 {res['g3']}", f.get("Slug", ""), f.get("Trạm", ""))
+    return {"ok": True, "score": res["score"], "gate_ok": res["gate_ok"], "text": text,
+            "message": f"Điểm GEO bản nháp {res['score']}/100 · " + ("qua cửa chặn" if res["gate_ok"] else "CHƯA qua cửa chặn")}
 
 
 def kw_create_posts():
@@ -3556,6 +3581,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/sheet/csv":
             body = self._body()
             return self._guard(lambda: sheet_csv(body))
+        if path == "/api/draft/check":
+            body = self._body()
+            return self._guard(lambda: draft_check(body))
         if path == "/api/google/sync":
             body = self._body()
             return self._guard(lambda: google_sync(body))

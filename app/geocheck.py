@@ -303,11 +303,26 @@ def _c(no, name, ok, detail, gate=False, auto=True):
 
 
 def check(url: str, kw: str = "", intent: str = "", today: dt.date | None = None) -> dict:
-    today = today or dt.date.today()
     st, body, hd, _ = fetch(url)
     if st != 200:
         return {"error": f"Trang trả mã {st} — không chấm được", "checks": [], "score": 0}
-    html = decode(body, hd)
+    return check_html(decode(body, hd), kw, intent, today, url=url, size=len(body))
+
+
+def check_draft(html: str, kw: str = "", intent: str = "", today: dt.date | None = None) -> dict:
+    """Chấm bản nháp (HTML xuất từ Google Docs): bỏ tiêu chí chỉ có trên trang đã đăng (dung lượng, schema, ngày sửa, tác giả trong schema).
+    Docs để tiêu đề ở kiểu «Title» thì coi đó là H1; không có cả hai thì lấy từ khoá làm H1."""
+    if not re.search(r"<h1[\s>]", html, re.I):
+        html, n = re.subn(r'<p([^>]*class="[^"]*\btitle\b[^"]*"[^>]*)>(.*?)</p>', r"<h1\1>\2</h1>", html, count=1, flags=re.S)
+        if not n:
+            html = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + f"<h1>{kw}</h1>", html, count=1)
+    return check_html(html, kw, intent, today, url=None, size=len(html.encode()))
+
+
+def check_html(html: str, kw: str = "", intent: str = "", today: dt.date | None = None, url: str | None = None, size: int = 0) -> dict:
+    """url=None: bản nháp — tiêu chí cần trang thật chuyển sang «kiểm tay»."""
+    today = today or dt.date.today()
+    draft = url is None
     bp = BlockParser()
     mp = _Meta()
     try:
@@ -331,8 +346,9 @@ def check(url: str, kw: str = "", intent: str = "", today: dt.date | None = None
     raw = nfc(" ".join(bp.raw_after_h1))
     first400 = raw[:400]
     junk = [k for k in ("Tác giả", "Ngày đăng", "Cập nhật:", "Lượt xem", "Chia sẻ", "Share", "Đăng ký nhận") if k in first400[:200]]
-    size_mb = len(body) / 1048576
-    C.append(_c(8, "HTML ≤ 2MB", size_mb <= 2, f"{size_mb:.2f} MB"))
+    size_mb = size / 1048576
+    if not draft:
+        C.append(_c(8, "HTML ≤ 2MB", size_mb <= 2, f"{size_mb:.2f} MB"))
     C.append(_c(8, "~400 ký tự đầu sau H1 là một mạch liền (không chen khối tác giả/ngày/chia sẻ)", not junk,
                 ("chen giữa: " + ", ".join(junk) + " — đưa khối meta xuống dưới đoạn mở đầu") if junk else "sạch"))
     C.append(_c(8, "Nội dung chính không giấu trong tab/accordion", bp.hidden_blocks <= 2,
@@ -363,7 +379,9 @@ def check(url: str, kw: str = "", intent: str = "", today: dt.date | None = None
     n_sub = len(h2s) + sum(len(s["sub"]) for s in secs)
     qr = len(q) / max(len(h2s), 1)
     C.append(_c(15, "H2 là câu hỏi thật khách hỏi (≥ 60% H2)", qr >= 0.6 and len(h2s) >= 3,
-                f"{len(q)}/{len(h2s)} H2 dạng câu hỏi" + (" · chưa đủ 3 H2" if len(h2s) < 3 else ""), gate=True))
+                f"{len(q)}/{len(h2s)} H2 dạng câu hỏi" + (" · chưa đủ 3 H2" if len(h2s) < 3 else "")
+                + (" · Google Docs chưa có dòng nào dùng kiểu «Heading 2»: bôi đen tiêu đề mục → Định dạng → Kiểu đoạn văn → Heading 2 (chữ in đậm không tính là H2)"
+                   if draft and not h2s else ""), gate=True))
     C.append(_c(17, "Không có tiêu đề mục rỗng nghĩa («Tổng quan», «Kết luận», «Giới thiệu»…)", not empty,
                 ("rỗng nghĩa: " + " · ".join(empty[:4])) if empty else "không có"))
     C.append(_c(15, "Độ dài 500–2.000 từ, 7–20 tiêu đề phụ (rộng quá → tách trang)", 500 <= n_words <= 2000 and 7 <= n_sub <= 20,
@@ -412,7 +430,7 @@ def check(url: str, kw: str = "", intent: str = "", today: dt.date | None = None
                 f"{len(facts)} dữ kiện có số · {dens:.1f}/100 từ · {quotable}/{len(num_sents)} câu chứa số đủ chủ–vị (≥ 8 từ)"))
 
     # G3 #19 — quote + số liệu + nguồn
-    host = re.sub(r"^https?://(www\.)?", "", url).split("/")[0]
+    host = re.sub(r"^https?://(www\.)?", "", url or "").split("/")[0] or "docs.google.com/document"
     ext = [l for l in bp.ext_links if host not in l and not re.search(r"facebook|zalo|tiktok|youtube|instagram|google\.com/maps|twitter|x\.com|pinterest", l)]
     src = len(SOURCE_RE.findall(body_txt)) + len(ext)
     quotes = len(QUOTE_RE.findall(body_txt)) + sum(1 for k, _ in blocks if k == "q")
@@ -437,8 +455,12 @@ def check(url: str, kw: str = "", intent: str = "", today: dt.date | None = None
             break
     author = author or mp.meta.get("author", "")
     first_person = len(re.findall(r"\b(chúng tôi|mình|tôi|team|khi dẫn đoàn|dẫn khách)\b", body_txt.lower()))
-    C.append(_c(13, "Có tác giả thật (Person) và kinh nghiệm nằm trong nội dung, không chỉ ở box tác giả", bool(author) and first_person >= 2,
-                (f"tác giả: {author}" if author else "không thấy tác giả là người trong schema/meta") + f" · {first_person} câu kể ngôi thứ nhất/kinh nghiệm"))
+    if draft:
+        C.append(_c(13, "Kinh nghiệm thật nằm trong nội dung (≥ 2 câu kể ngôi thứ nhất/kinh nghiệm); tác giả Person kiểm khi đăng", first_person >= 2,
+                    f"{first_person} câu kể ngôi thứ nhất/kinh nghiệm"))
+    else:
+        C.append(_c(13, "Có tác giả thật (Person) và kinh nghiệm nằm trong nội dung, không chỉ ở box tác giả", bool(author) and first_person >= 2,
+                    (f"tác giả: {author}" if author else "không thấy tác giả là người trong schema/meta") + f" · {first_person} câu kể ngôi thứ nhất/kinh nghiệm"))
 
     # G3 #22 — độ mới thật
     mod = None
@@ -452,7 +474,12 @@ def check(url: str, kw: str = "", intent: str = "", today: dt.date | None = None
     limit = 30 if commercial else 365
     title_year = re.findall(r"\b(20\d{2})\b", mp.title + " " + bp.h1)
     spoof = bool(title_year) and age is not None and age > 60 and str(today.year) in title_year
-    C.append(_c(22, f"Độ mới thật: cập nhật ≤ {limit} ngày ({'trang giá/bán/so sánh' if commercial else 'bài thông tin'}), không chỉ đổi năm trên tiêu đề",
+    if draft:
+        pending = len(re.findall(r"\[\s*CẦN KIỂM CHỨNG\s*\]", body_txt, re.I))
+        C.append(_c(22, "Không còn dữ kiện chờ nguồn «[CẦN KIỂM CHỨNG]» (bản đăng phải bằng 0)", pending == 0,
+                    f"{pending} chỗ [CẦN KIỂM CHỨNG] — tìm nguồn hoặc bỏ câu đó trước khi đăng" if pending else "không còn"))
+    else:
+        C.append(_c(22, f"Độ mới thật: cập nhật ≤ {limit} ngày ({'trang giá/bán/so sánh' if commercial else 'bài thông tin'}), không chỉ đổi năm trên tiêu đề",
                 age is not None and age <= limit and not spoof,
                 (f"dateModified {mod:%d/%m/%Y} ({age} ngày trước)" if mod else "không thấy dateModified")
                 + (f" · tiêu đề ghi năm {title_year[0]} nhưng nội dung không cập nhật — dễ bị coi là đổi ngày giả" if spoof else "")))

@@ -75,8 +75,17 @@ Mẫu tham khảo: kế hoạch Routine `reports/routinehospitality/ke-hoach-seo
 | Cuối tháng | Nhập CSV GSC/GA4, so với số nền và tháng trước | B10 · Đánh giá |
 | Cuối quý | Đối chiếu KPI, quyết định ở các cửa ◇ | Tab Kế hoạch |
 
+## Viết bài ngoài app → app chấm (Google Docs)
+1. Viết trên **Google Docs**. Tiêu đề bài dùng kiểu **Title** hoặc **Heading 1**; mỗi mục dùng kiểu **Heading 2** (Định dạng → Kiểu đoạn văn). Chữ in đậm không tính là H2.
+2. Chia sẻ file: quyền Xem cho `doc-search-console@rootytrip-seo.iam.gserviceaccount.com`, hoặc «Bất kỳ ai có đường liên kết».
+3. Kiểm nhanh: tab **B6 · Content** → «Kiểm nhanh bài Google Docs» → dán link + từ khoá chính → đọc kết quả → sửa trên Docs → «Kiểm lại».
+4. Lưu điểm vào bài: mở thẻ bài → mục ④ → dán «Link bản nháp Google Docs» → «Chấm bản nháp Google Docs». Điểm và chi tiết lưu ở cột «Điểm GEO», «Chấm GEO».
+5. App chấm được: mở đầu trả lời thẳng, H2 dạng câu hỏi, câu đầu mỗi H2, H2 rỗng nghĩa, đoạn mở bằng «điều này», độ dài, mật độ dữ kiện có số, trích nguồn, dấu hiệu kinh nghiệm thật, còn «[CẦN KIỂM CHỨNG]». **Không** kiểm được dữ kiện đúng hay sai — người duyệt vẫn đối chiếu nguồn (cổng 3) trước khi đăng.
+
+**Xong khi:** 4 tiêu chí 🔒 đều ✅, không còn [CẦN KIỂM CHỨNG], người duyệt đã đối chiếu số liệu với nguồn.
+
 ## Phần không có Claude phải tự làm hoặc chậm hơn
-- **Viết bài**: dây chuyền 6 trạm (`ORCHESTRATOR.md`, `gates/`) làm tay hoặc thuê người viết; app vẫn chấm onpage (B7) và GEO.
+- **Viết bài**: viết tay hoặc thuê người viết trên Google Docs, app chấm theo mục trên; dây chuyền 6 trạm đầy đủ (`ORCHESTRATOR.md`, `gates/`) vẫn cần người làm từng cổng.
 - **Nhận xét báo cáo**: app có số; phần nhận xét tự viết theo cấu trúc `11-do-luong-bao-cao.md`.
 - **Đo hiện diện AI**: hỏi tay bộ câu hỏi cố định trên ChatGPT/Gemini/Perplexity, mỗi câu 3 lần, ghi vào tab GEO · AI Search.
 

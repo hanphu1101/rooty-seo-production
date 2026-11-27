@@ -1831,13 +1831,27 @@ let BAI = [], FILTER = null, CUR = null, GATE_TAB = null;
 const cls = s => 'st-' + String(s||'').replace(/\s+/g,'-');
 VIEWS.content = async v => {
   v.innerHTML = `<div class="stats" id="stats"></div>
-    <div class="tools"><input id="q" type="search" placeholder="Tìm theo từ khoá, slug, người phụ trách…" aria-label="Tìm bài"><button class="btn primary" id="btnNew">+ Bài mới</button></div>
+    <div class="tools"><input id="q" type="search" placeholder="Tìm theo từ khoá, slug, người phụ trách…" aria-label="Tìm bài"><button class="btn" id="btnDraft">Kiểm nhanh bài Google Docs</button><button class="btn primary" id="btnNew">+ Bài mới</button></div>
     <div class="board" id="board"></div><section class="logs"><h2>Nhật ký</h2><div class="loglist" id="logs"></div></section>`;
   $('#q').oninput = renderBoard;
   $('#btnNew').onclick = ()=>{ $('#newForm').reset(); $('#newDlg').showModal(); };
+  $('#btnDraft').onclick = quickDraft;
   BAI = await api('GET','/api/bai'); renderBoard();
   api('GET','/api/log').then(renderLogs).catch(()=>{});
 };
+/* chấm GEO một bài Google Docs không cần tạo thẻ bài (muốn lưu điểm thì mở bài → «Chấm bản nháp») */
+async function quickDraft(){
+  const url = prompt('Dán link Google Docs của bài:'); if(!url) return;
+  const kw = prompt('Từ khoá chính của bài (để trống thì lấy tiêu đề bài):') || '';
+  try{ toast('Đang đọc Google Docs…'); const r = await api('POST','/api/draft/check',{url, kw});
+    $('#dTitle').textContent = 'Kiểm bản nháp' + (kw?' · '+kw:'');
+    $('#dBody').innerHTML = `<p class="meta">${esc(url)}</p><pre class="cmd" style="white-space:pre-wrap;display:block">${esc(r.text)}</pre>
+      <p class="hint note">✅ đạt · ❌ chưa đạt · ✏️ kiểm tay · 🔒 cửa chặn phải đạt. Sửa trên Google Docs rồi bấm kiểm lại. Muốn lưu điểm vào bài: mở thẻ bài → dán link → «Chấm bản nháp Google Docs».</p>`;
+    $('#dFoot').innerHTML = '<span class="sp"></span><button class="btn primary" id="dAgain">Kiểm lại</button>';
+    $('#dAgain').onclick = async ()=>{ try{ const r2 = await api('POST','/api/draft/check',{url, kw}); $('#dBody pre').textContent = r2.text; toast(r2.message); }catch(e){ toast(e.message,true); } };
+    openDrawer(); toast(r.message); }
+  catch(e){ toast(e.message, true); }
+}
 function renderBoard(){
   if(!$('#board')) return;
   const counts = {}; CFG.statuses.forEach(s=>counts[s]=0);
@@ -1912,7 +1926,9 @@ function drawBai(){
 
     <h4>④ Chấm GEO (Checklist GEO của GTV — để AI trích dẫn) ${f['Điểm GEO']!=null?`<span class="chip ${f['Điểm GEO']>=80?'c-ok':f['Điểm GEO']>=60?'c-warn':'c-bad'}">${f['Điểm GEO']}/100</span>`:''}</h4>
     <p class="hint note" style="margin:0 0 6px">Mở đầu = câu trả lời · H2 = câu hỏi thật · câu đầu sau H2 trả lời 40–50 từ · đoạn tự đứng · dữ kiện có số & nguồn · thông tin chỉ Rooty có · tác giả thật · độ mới. 🔒 = cửa chặn phải đạt.</p>
-    <button class="btn sm" id="bGeo">Chấm GEO</button>
+    <label>Link bản nháp Google Docs (viết bên ngoài, chấm trước khi đăng — file chia sẻ quyền Xem cho email service account hoặc «Bất kỳ ai có đường liên kết»)
+      <input class="field" id="fDraft" placeholder="https://docs.google.com/document/d/…" value="${esc(f['Link bản nháp'])}"></label>
+    <div class="row" style="margin-top:6px"><button class="btn sm primary" id="bDraft">Chấm bản nháp Google Docs</button><button class="btn sm" id="bGeo">Chấm GEO bài đã đăng (Link bài)</button></div>
     ${f['Chấm GEO']?`<pre class="cmd" style="white-space:pre-wrap;margin-top:8px;display:block">${esc(f['Chấm GEO'])}</pre>`:''}
 
     <h4>Lệnh cho Claude Code</h4>
@@ -1946,6 +1962,9 @@ function drawBai(){
     catch(e){ toast(e.message,true); b.disabled=false; b.textContent=t; } };
   $('#bIntent').onclick = ()=>runBai('intent','#bIntent');
   $('#bGeo').onclick = ()=>runBai('geo','#bGeo');
+  $('#bDraft').onclick = async ()=>{ const b=$('#bDraft'), t=b.textContent; b.disabled=true; b.textContent='Đang đọc Google Docs…';
+    try{ const r=await api('POST','/api/draft/check',{record_id:CUR.record_id, url:$('#fDraft').value.trim()}); toast(r.message); BAI=await api('GET','/api/bai'); CUR=BAI.find(x=>x.record_id===CUR.record_id)||CUR; renderBoard(); drawBai(); }
+    catch(e){ toast(e.message,true); b.disabled=false; b.textContent=t; } };
   $('#bQs').onclick = ()=>runBai('questions','#bQs');
   $('#bCheck').onclick = ()=>runBai('check','#bCheck');
   const fields = ()=>({'Từ khoá': $('#fKw').value.trim(), 'Loại trang': $('#fType').value, 'Trạng thái': $('#fStatus').value,
