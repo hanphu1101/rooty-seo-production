@@ -500,7 +500,8 @@ SITE_FIELDS = [("Tên", 1, None), ("Website", 1, None), ("Mã Base", 1, None), (
                ("Bật", 3, {"options": [{"name": "Có"}, {"name": "Không"}]}), ("Ghi chú", 1, None),
                ("Bắt đầu dự án", 1, None),  # YYYY-MM; trống thì theo PROJECT_START của web chính
                ("Loại web", 3, {"options": [{"name": "Tour"}, {"name": "Khách sạn"}]}),  # chọn bộ luật gom nhóm từ khoá
-               ("Tên thương hiệu", 1, None)]  # tên riêng của web, cách nhau dấu phẩy: «Routine, PITO, Calista…»
+               ("Tên thương hiệu", 1, None),  # tên riêng của web, cách nhau dấu phẩy: «Routine, PITO, Calista…»
+               ("Sheet kế hoạch", 1, None)]  # link Google Sheet kế hoạch: tab Kế hoạch tự đọc mỗi lần mở
 MAIN_STORE = make_store()
 _SITE = threading.local()
 _SITES_CACHE = {"at": 0, "list": []}
@@ -538,6 +539,8 @@ def other_sites(fresh=False):
         url, base = str(f.get("Website") or "").strip(), str(f.get("Mã Base") or "").strip()
         m = re.search(r"/base/([A-Za-z0-9]+)", base)
         base = m.group(1) if m else base
+        if url and _host(url) == MAIN_SITE["name"]:  # web chính chỉ dùng dòng này để lưu link sheet kế hoạch
+            MAIN_SITE["plan_sheet"], MAIN_SITE["row_id"] = str(f.get("Sheet kế hoạch") or "").strip(), r["record_id"]
         if not url or not base or f.get("Bật") == "Không" or _host(url) == MAIN_SITE["name"]:
             continue
         sid = _host(url)
@@ -547,7 +550,8 @@ def other_sites(fresh=False):
         out.append({"id": sid, "name": str(f.get("Tên") or sid), "url": url.rstrip("/"), "gsc": str(f.get("GSC") or "").strip(),
                     "ga4": re.sub(r"\D", "", str(f.get("GA4") or "")), "store": store, "main": False,
                     "start": str(f.get("Bắt đầu dự án") or "").strip(), "kind": str(f.get("Loại web") or "Tour"),
-                    "brands": [b.strip() for b in str(f.get("Tên thương hiệu") or "").split(",") if b.strip()]})
+                    "brands": [b.strip() for b in str(f.get("Tên thương hiệu") or "").split(",") if b.strip()],
+                    "plan_sheet": str(f.get("Sheet kế hoạch") or "").strip(), "row_id": r["record_id"]})
     _SITES_CACHE.update(at=time.time(), list=out)
     return out
 
@@ -901,7 +905,7 @@ def _sheet_cell(kind, v):
     return v
 
 
-def _sheet_import(table, kinds, keys, url, fix=None):
+def _sheet_import(table, kinds, keys, url, fix=None, on_change=None):
     """kinds: {tên cột: num|dec|date|text}. Trả về thông báo số dòng thêm / cập nhật."""
     import csv
     import io
@@ -928,8 +932,12 @@ def _sheet_import(table, kinds, keys, url, fix=None):
         if old:
             ch = {k: v for k, v in f.items() if old["fields"].get(k) != v}
             if ch:
+                if on_change:
+                    on_change(old["fields"], ch)
                 ups[old["record_id"]] = ch
         else:
+            if on_change:
+                on_change(None, f)
             new.append(f)
             have[key_of(f)] = {"record_id": None, "fields": f}
     if new:
@@ -969,7 +977,59 @@ def viec_sheet(body):
             f.setdefault("Trạng thái", "Chưa làm")
             f["Cập nhật lúc"] = now_ms()
         return f
-    return _sheet_import(T_VIEC, kinds, ["Mã"], (body or {}).get("url"), fix)
+
+    def on_change(old, ch):
+        # mỗi việc đổi trạng thái từ sheet ghi 1 dòng Nhật ký → xem lại tiến độ theo thời gian
+        if old is None:
+            log(f"Việc SEO {ch.get('Mã')}: thêm từ sheet ({ch.get('Trạng thái', 'Chưa làm')})", "", ch.get("Mảng", ""), ch.get("Trạng thái", ""))
+        else:
+            ch["Cập nhật lúc"] = now_ms()
+            if "Trạng thái" in ch:
+                log(f"Việc SEO {old.get('Mã')}: {old.get('Trạng thái') or 'Chưa làm'} → {ch['Trạng thái']} (sheet)", "", old.get("Mảng", ""), ch["Trạng thái"])
+    return _sheet_import(T_VIEC, kinds, ["Mã"], (body or {}).get("url"), fix, on_change)
+
+
+_PLAN_SYNC = {}  # web → {"at": giây, "message": …}
+
+
+def viec_sync(body):
+    """Đọc lại sheet kế hoạch đã gắn (ô «Sheet kế hoạch»). force=False: bỏ qua nếu vừa đọc trong 60 giây."""
+    s = cur_site()
+    url = s.get("plan_sheet", "")
+    if not url:
+        return {"ok": True, "linked": False, "message": "Chưa gắn link sheet kế hoạch"}
+    last = _PLAN_SYNC.get(s["id"])
+    if last and not (body or {}).get("force") and time.time() - last["at"] < 60:
+        return {"ok": True, "linked": True, "url": url, **last}
+    try:
+        msg = viec_sheet({"url": url})["message"]
+    except StoreError as e:
+        msg = f"Lỗi đọc sheet: {e}"
+    _PLAN_SYNC[s["id"]] = {"at": time.time(), "message": msg}
+    return {"ok": True, "linked": True, "url": url, **_PLAN_SYNC[s["id"]]}
+
+
+def viec_sheet_link(body):
+    """Gắn / bỏ link sheet kế hoạch của web đang chọn (lưu ở bảng «Danh sách website» của Base chính)."""
+    url = str((body or {}).get("url") or "").strip()
+    if url and not re.search(r"/spreadsheets/d/", url):
+        raise StoreError("Link không phải Google Sheet")
+    if MAIN_STORE.mode != "lark":
+        raise StoreError("Cần chạy với Lark Base để lưu link")
+    s = cur_site()
+    tid = MAIN_STORE._table_id(T_SITES)
+    have = {x["field_name"] for x in MAIN_STORE._req("GET", f"/open-apis/bitable/v1/apps/{MAIN_STORE.base}/tables/{tid}/fields?page_size=100")["items"]}
+    for fd in SITE_FIELDS:
+        if fd[0] not in have:
+            MAIN_STORE._req("POST", f"/open-apis/bitable/v1/apps/{MAIN_STORE.base}/tables/{tid}/fields", MAIN_STORE._field_def(fd))
+    if s.get("row_id"):
+        MAIN_STORE.update(T_SITES, s["row_id"], {"Sheet kế hoạch": url})
+    else:  # web chính chưa có dòng: tạo dòng chỉ để lưu link (Bật = Không nên không thành web thứ hai)
+        r = MAIN_STORE.create(T_SITES, {"Tên": s["name"], "Website": s["url"], "Bật": "Không", "Sheet kế hoạch": url})
+        s["row_id"] = r["record_id"]
+    s["plan_sheet"] = url
+    _PLAN_SYNC.pop(s["id"], None)
+    return viec_sync({"force": True}) if url else {"ok": True, "linked": False, "message": "Đã bỏ link sheet kế hoạch"}
 
 
 def t_seed(key):
@@ -3780,6 +3840,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/viec/sheet":
             body = self._body()
             return self._guard(lambda: viec_sheet(body))
+        if path in ("/api/viec/sync", "/api/viec/sheet-link"):
+            body = self._body()
+            return self._guard(lambda: (viec_sync if path.endswith("sync") else viec_sheet_link)(body))
         m = re.match(r"^/api/t/(\w+)(/bulk|/seed|/sheet)?$", path)
         if m:
             key, act = m.group(1), m.group(2)

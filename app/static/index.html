@@ -2001,16 +2001,53 @@ $('#newDlg').addEventListener('close', async ()=>{
 let VIEC = [], OPEN = new Set();
 const vcls = s => 's-' + String(s||'').replace(/\s+/g,'-');
 VIEWS.kehoach = async v => {
-  v.innerHTML = `<div class="vhead" id="vhead"></div>
+  v.innerHTML = `<div class="vhead" id="vhead"></div><div class="vhead" id="vsync"></div><div id="vweek"></div>
     <div class="vtools"><select id="fMang"></select><select id="fVs"></select><label><input type="checkbox" id="fNow"> Chỉ việc tháng này + trễ</label></div>
     <div id="phases"></div>`;
   $('#fMang').innerHTML = '<option value="">Mọi mảng</option>' + Object.keys(CFG.mang).map(m=>`<option>${esc(m)}</option>`).join('');
   $('#fVs').innerHTML = '<option value="">Mọi trạng thái</option>' + CFG.viecStatus.map(m=>`<option>${esc(m)}</option>`).join('');
   ['#fMang','#fVs','#fNow'].forEach(s=>$(s).onchange=renderViec);
   VIEC = await api('GET','/api/viec'); renderViec();
+  planSync(false);
 };
+/* sheet kế hoạch đã gắn: mỗi lần mở tab tự đọc lại; thấy thay đổi thì tải lại danh sách việc */
+let VSYNC = null;
+async function planSync(force){
+  if($('#vsync')) $('#vsync').innerHTML = '<span class="meta">Đang kiểm sheet kế hoạch…</span>';
+  try{ VSYNC = await api('POST','/api/viec/sync',{force}); }catch(e){ VSYNC = {linked:false, message:e.message}; }
+  if(VSYNC.linked && /(thêm|cập nhật) [1-9]/.test(VSYNC.message||'')) VIEC = await api('GET','/api/viec');
+  if($('#vsync')) renderViec();
+}
+function vSyncHtml(){
+  const s = VSYNC; if(!s) return '';
+  const when = s.at ? new Date(s.at*1000).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) + ' ' + new Date(s.at*1000).toLocaleDateString('vi-VN') : '';
+  return s.linked
+    ? `<div style="flex:1 1 320px"><b>Sheet kế hoạch</b> <a href="${esc(s.url)}" target="_blank" rel="noopener">mở sheet ↗</a><div class="meta">Đồng bộ lúc ${esc(when)} · ${esc(s.message||'')}</div></div>
+       <button class="btn" id="vSyncNow">Đồng bộ ngay</button><button class="btn ghost" id="vLink">Đổi link</button>`
+    : `<div style="flex:1 1 320px"><b>Làm kế hoạch ở Google Sheet?</b> <span class="meta">Gắn link một lần — mỗi lần mở tab này app tự đọc sheet, ghi Nhật ký từng việc đổi trạng thái.</span></div>
+       <button class="btn" id="vLink">Gắn link sheet kế hoạch</button>`;
+}
+async function planLink(){
+  const url = prompt('Dán link Google Sheet kế hoạch (đúng tab). Cột: Mã · Công đoạn · Mảng · Pha · Từ tháng · Đến tháng · Trạng thái · Người phụ trách · Hạn · Đầu ra · Xong khi …\nĐể trống rồi OK để bỏ link.', (VSYNC&&VSYNC.url)||'');
+  if(url===null) return;
+  try{ toast('Đang lưu & đọc sheet…'); VSYNC = await api('POST','/api/viec/sheet-link',{url}); toast(VSYNC.message); VIEC = await api('GET','/api/viec'); renderViec(); }
+  catch(e){ toast(e.message, true); }
+}
+/* khung «Tuần này»: vừa xong 7 ngày · đang trễ · đến hạn 7 ngày tới */
+function vWeekHtml(){
+  const now = Date.now(), d7 = 7*864e5, t0 = new Date(); t0.setHours(0,0,0,0);
+  const item = r => `<li><span class="code">${esc(r.fields['Mã'])}</span> ${esc(r.fields['Công đoạn'])}${r.fields['Người phụ trách']?` <span class="meta">· ${esc(r.fields['Người phụ trách'])}</span>`:''}${r.fields['Hạn']?` <span class="meta">· hạn ${fmtDate(r.fields['Hạn'])}</span>`:''}</li>`;
+  const done = VIEC.filter(r=>r.fields['Trạng thái']==='Xong' && r.fields['Xong lúc'] && now - r.fields['Xong lúc'] <= d7);
+  const late = VIEC.filter(r=>vState(r.fields).late);
+  const soon = VIEC.filter(r=>!vState(r.fields).done && r.fields['Hạn'] && r.fields['Hạn'] >= t0.getTime() && r.fields['Hạn'] < t0.getTime() + d7);
+  const box = (t, list, color) => `<div class="kcard" style="cursor:default;flex:1 1 260px"><b style="${color?`color:var(${color})`:''}">${t} · ${list.length}</b>
+    ${list.length?`<ul style="margin:6px 0 0;padding-left:18px">${list.slice(0,8).map(item).join('')}${list.length>8?`<li class="meta">… và ${list.length-8} việc nữa</li>`:''}</ul>`:'<span class="meta">Không có</span>'}</div>`;
+  return `<div class="sec"><h2>Tuần này</h2></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">${box('Vừa xong (7 ngày)', done, '--ok')}${box('Đang trễ', late, '--bad')}${box('Đến hạn 7 ngày tới', soon)}</div>`;
+}
 function vState(f){ const cur=CFG.currentMonth, done=['Xong','Không áp dụng'].includes(f['Trạng thái']), den=Number(f['Đến tháng'])||0, tu=Number(f['Từ tháng'])||0;
-  return { done, late: !done && den && den < cur, now: !done && tu<=cur && cur<=den, check: vMoc(f).some(m=>!m.ok && m.due<=Date.now()) }; }
+  const t0=new Date(); t0.setHours(0,0,0,0);
+  // trễ: qua tháng kết thúc, hoặc qua ngày «Hạn»
+  return { done, late: !done && ((den && den < cur) || (f['Hạn'] && f['Hạn'] < t0.getTime())), now: !done && tu<=cur && cur<=den, check: vMoc(f).some(m=>!m.ok && m.due<=Date.now()) }; }
 // mốc kiểm lại sau khi «Xong»: tuần N tính từ «Xong lúc»; mốc đã ghi «Tuần N» trong ô Kiểm lại thì coi như đã kiểm
 function vMoc(f){ const w=f['Kiểm lại sau tuần']||[], x=f['Xong lúc'], done=String(f['Kiểm lại']||'');
   if(f['Trạng thái']!=='Xong' || !x || !w.length) return [];
@@ -2031,6 +2068,9 @@ function renderViec(){
     : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button><a class="btn ghost" href="docs/12-tu-lap-ke-hoach.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Tự lập kế hoạch (không cần Claude)</a><button class="btn" id="btnVSheet">Nhập kế hoạch từ Google Sheet</button>`;
   const VCOLS = ['Mã','Công đoạn','Mảng','Pha','Từ tháng','Đến tháng','Cửa chặn','Trạng thái','Người phụ trách','Hạn','Đầu ra','Xong khi','Kết quả / link','Ghi chú'];
   $('#btnVSheet').onclick = ()=>sheetImport('/api/viec/sheet', VCOLS, async()=>{ VIEC=await api('GET','/api/viec'); renderViec(); });
+  if($('#vsync')){ $('#vsync').innerHTML = vSyncHtml(); $('#vsync').style.display = VSYNC ? '' : 'none';
+    $('#vSyncNow')?.addEventListener('click', ()=>planSync(true)); $('#vLink')?.addEventListener('click', planLink); }
+  if($('#vweek')) $('#vweek').innerHTML = total ? vWeekHtml() : '';
   if($('#btnVCsv')) $('#btnVCsv').onclick = ()=>{ const q=v=>{ const t=v==null?'':String(v); return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; };
     const lines=[VCOLS.join(',')].concat(VIEC.map(r=>VCOLS.map(c=>q(c==='Hạn'&&r.fields[c]?toDateInput(r.fields[c]):r.fields[c])).join(',')));
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'})); a.download='ke-hoach-seo.csv'; a.click(); };

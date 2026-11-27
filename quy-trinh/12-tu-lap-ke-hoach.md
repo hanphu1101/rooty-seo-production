@@ -83,6 +83,13 @@ Bảng nào trong app cũng có nút **«Nhập từ Google Sheet»** (cạnh ô
 4. App so theo **cột khoá**: Kế hoạch = «Mã»; Liên kết = «Từ URL» + «Đến URL» + «Anchor»; bảng khác = cột đầu tiên (VD Từ khoá, URL). Dòng đã có → cập nhật ô sheet có giá trị; dòng chưa có → thêm. **Ô trống không xoá dữ liệu** trong app.
 5. Kế hoạch: «Pha» ghi `Pha 2` hoặc `2` là được; «Trạng thái» phải là Chưa làm / Đang làm / Xong / Bị chặn / Không áp dụng. Chuyển «Xong» trên sheet thì app bắt đầu đếm mốc kiểm lại từ lúc nhập.
 
+### Theo dõi kế hoạch làm ở Google Sheet (tự đồng bộ)
+1. Tab **Kế hoạch** → **«Gắn link sheet kế hoạch»** → dán link đúng tab (cột như trên, bắt buộc có «Mã»). Link lưu ở ô «Sheet kế hoạch» trong bảng Danh sách website.
+2. Từ đó **mỗi lần mở tab Kế hoạch app tự đọc sheet** (cách nhau tối thiểu 1 phút); bấm «Đồng bộ ngay» khi cần. Dòng trên cùng ghi giờ đồng bộ và số dòng thêm/cập nhật, hoặc lỗi đọc sheet.
+3. Mỗi việc đổi trạng thái trên sheet được ghi 1 dòng vào **Nhật ký** (VD «Việc SEO RH07: Chưa làm → Xong (sheet)»).
+4. Khung **«Tuần này»**: việc vừa xong 7 ngày · việc đang trễ (qua tháng kết thúc hoặc qua ngày «Hạn») · việc đến hạn 7 ngày tới.
+5. App chỉ đọc sheet, không ghi ngược. Sửa trên app thì sửa luôn trên sheet, nếu không lần đồng bộ sau sheet sẽ ghi đè ô đó.
+
 ### App kiểm lại việc làm ở nơi khác
 - **Liên kết nội bộ / backlink**: nhập bảng link (Loại = Nội bộ, Trạng thái = Kế hoạch hoặc Đã gắn) → tab **B9 · Link building** → «Kiểm link còn sống». App mở trang nguồn: thấy link tới **đúng trang đích** → «Đang live» (báo cả khi anchor khác kế hoạch); dòng «Đã gắn» mà không thấy → «Mất link»; dòng «Kế hoạch» chưa thấy → giữ nguyên.
 - **Sửa trên web (onpage, kỹ thuật, nội dung)**: nhập bảng **Nhật ký thay đổi** với cột «Phép kiểm» (`CÓ: …` / `KHÔNG: …`) → bấm «Thanh tra».
