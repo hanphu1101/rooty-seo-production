@@ -90,6 +90,19 @@ Bảng nào trong app cũng có nút **«Nhập từ Google Sheet»** (cạnh ô
 4. Khung **«Tuần này»**: việc vừa xong 7 ngày · việc đang trễ (qua tháng kết thúc hoặc qua ngày «Hạn») · việc đến hạn 7 ngày tới.
 5. App chỉ đọc sheet, không ghi ngược. Sửa trên app thì sửa luôn trên sheet, nếu không lần đồng bộ sau sheet sẽ ghi đè ô đó.
 
+### Sheet kế hoạch theo mẫu riêng (nhiều bảng trong một tab)
+App đọc được sheet kế hoạch tự soạn, không cần cột «Mã», nếu mỗi bảng có dòng tiêu đề với các cột sau:
+
+| Bảng | Cột app nhận | App đưa vào | App tự đo |
+|---|---|---|---|
+| Lộ trình | Giai đoạn · Thời gian («Tháng 1 - 2») · Hạng mục công việc · Chi tiết thực thi · Bộ phận phụ trách · Kết quả đầu ra / Mục tiêu | Việc trong tab Kế hoạch | Không (người duyệt đối chiếu «Xong khi») |
+| KPI | Nhóm chỉ số · Mục tiêu cam kết · Công cụ đo lường | Việc «KPI · …» | «Top N cho … (từ khoá A; từ khoá B)» → vị trí từng từ khoá trên GSC 28 ngày, đếm số từ khoá đạt top N · chỉ số về chuyển đổi → GA4 |
+| Nội dung theo tuần | Tuần · Loại trang · Tiêu đề bài viết / Trang · Đường dẫn (URL) · Từ khóa chính · Từ khóa phụ & Dài · Link nội bộ bắt buộc · Trạng thái | Việc cho từng trang, hạn theo tuần | Trang đã lên (200), có đủ link nội bộ bắt buộc, title đúng dàn ý |
+| Sitemap & keyword mapping | Cấp độ · Tên trang / Danh mục · Đường dẫn (URL) · Từ khóa chính · Từ khóa phụ & Dài · Ghi chú triển khai | Bảng Từ khoá (gán trang đích) | — |
+| Dàn ý | Bài viết · Thẻ Title SEO · … | «Title dự kiến» của bài cùng tên | Kiểm khi bài lên |
+
+Kết quả từng lần đo ở dòng «Chỉ số theo dõi» của việc và khung «Tuần này» → «Chỉ số theo mục tiêu». Bấm «Đo chỉ số» để đo ngay (tự đo mỗi lần đồng bộ, tối thiểu 30 phút/lần).
+
 ### App kiểm lại việc làm ở nơi khác
 - **Liên kết nội bộ / backlink**: nhập bảng link (Loại = Nội bộ, Trạng thái = Kế hoạch hoặc Đã gắn) → tab **B9 · Link building** → «Kiểm link còn sống». App mở trang nguồn: thấy link tới **đúng trang đích** → «Đang live» (báo cả khi anchor khác kế hoạch); dòng «Đã gắn» mà không thấy → «Mất link»; dòng «Kế hoạch» chưa thấy → giữ nguyên.
 - **Sửa trên web (onpage, kỹ thuật, nội dung)**: nhập bảng **Nhật ký thay đổi** với cột «Phép kiểm» (`CÓ: …` / `KHÔNG: …`) → bấm «Thanh tra».

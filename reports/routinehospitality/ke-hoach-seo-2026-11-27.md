@@ -39,7 +39,7 @@ Người lập: Claude (em), theo yêu cầu chị Hân. Khung: `quy-trinh/00-to
 | Cẩm nang | `/cam-nang/cap-treo-hon-thom` (~1.500 chữ, H2 dạng câu hỏi, có FAQPage), `/diem-den/hon-thom-santo-port` | Tốt; FAQPage Google hầu như không còn hiển thị → không ưu tiên |
 | Tour/combo | 6 trang tour + 2 combo, có schema `Product` | Là mảng phụ; không để ăn thịt từ khoá khách sạn |
 | Nội dung tạm | «Ưu đãi mẫu · Chờ Routine xác nhận», ảnh `/home/hotel-sample.jpg`, Calista «Ảnh đang cập nhật» | Phải thay trước khi đẩy SEO |
-| Đo lường | GSC có dữ liệu (app đọc được). GA4 property 560433112 **chưa cấp quyền** cho tài khoản dịch vụ (memory 17/11/2026). Sự kiện chuyển đổi (Zalo, gọi, đặt phòng) **[CẦN KIỂM CHỨNG]** | Việc số 1 của tháng 1 |
+| Đo lường | GSC có dữ liệu (app đọc được). GA4 property 560433112: app đọc được (kiểm 27/11/2026: 99 phiên organic trong 28 ngày). Sự kiện chuyển đổi (Zalo, gọi, đặt phòng) **[CẦN KIỂM CHỨNG]** | Việc số 1 của tháng 1 |
 | Blog | `/blog` trả 404; cẩm nang nằm ở `/cam-nang/` và `/diem-den/` | Giữ 2 thư mục này, không tạo `/blog` song song |
 
 ---
@@ -108,7 +108,7 @@ T1 = tháng 12/2026 → T10 = tháng 9/2027. Tháng 1–3 chia theo tuần, từ
 | T1·W1 | **Họp khởi động** (12): chốt người làm, quan hệ với Wyndham, hạng sao từng khách sạn, ai trả lời đánh giá | Chị Hân | Biên bản có tên người phụ trách + hạn cho Dev, QL KS, CSKH; 3 điểm [CẦN KIỂM CHỨNG] ở mục 2 đã có câu trả lời |
 | T1·W2 (8–14/12) | **Rà soát toàn site** (05): `python -X utf8 scripts/crawl_site.py https://routinehospitality.vn --max-pages 300` + `scripts/geo_audit.py` | AI | Có `reports/web/routinehospitality.vn/crawl-<ngày>.csv` + báo cáo geo-audit; lỗi nạp vào B5 (chọn web Routine) |
 | T1·W2 | **Đối thủ theo loại trang** (02): top 10 Google cho «khách sạn nam đảo phú quốc», «khách sạn an thới phú quốc», «khách sạn địa trung hải phú quốc», «praha hotel phú quốc», «cảng an thới» | AI | Báo cáo ≥ 5 đối thủ, mỗi loại trang (khu vực, khách sạn, cẩm nang) ≥ 1 đối thủ + danh sách khoảng trống |
-| T1·W2–W3 | **Sửa lỗi kỹ thuật** (R1), thứ tự: (1) gỡ nội dung tạm «Ưu đãi mẫu», ảnh `hotel-sample.jpg`; (2) H1 trang khách sạn = «<Tên> – khách sạn <loại> tại <khu vực>, Phú Quốc»; (3) alt cho ảnh nội dung; (4) `lastmod` cho mọi URL trong sitemap; (5) JSON-LD trang chủ: `Organization` (hoặc `LodgingBusiness` cấp chuỗi) có tên, logo, địa chỉ, điện thoại, `sameAs` | Dev (AI soạn đặc tả) | Nhật ký thay đổi B11 mỗi dòng có «Phép kiểm», ví dụ: `KHÔNG: Ưu đãi mẫu` (trang chủ) · `KHÔNG: Chào mừng quý khách đến với` (trang khách sạn) · `CÓ: application/ld+json` (trang chủ); nút «Thanh tra» chấm Đạt hết; validator.schema.org không lỗi |
+| T1·W2–W3 | **Sửa lỗi kỹ thuật** (R1), thứ tự: (1) gỡ nội dung tạm «Ưu đãi mẫu», ảnh `hotel-sample.jpg`; (2) H1 trang khách sạn = «<Tên> – khách sạn <loại> tại <khu vực>, Phú Quốc»; (3) alt cho ảnh nội dung; (4) `lastmod` cho mọi URL trong sitemap; (5) JSON-LD trang chủ: `Organization` (hoặc `LodgingBusiness` cấp chuỗi) có tên, logo, địa chỉ, điện thoại, `sameAs` | Dev (AI soạn đặc tả) | Nhật ký thay đổi (tab B10) mỗi dòng có «Phép kiểm», ví dụ: `KHÔNG: Ưu đãi mẫu` (trang chủ) · `KHÔNG: Chào mừng quý khách đến với` (trang khách sạn) · `CÓ: application/ld+json` (trang chủ); nút «Thanh tra» chấm Đạt hết; validator.schema.org không lỗi |
 | T1·W3 (15–21/12) | **Gom từ khoá → trang đích** (04): từ file phân cụm, gán đúng 1 URL cho mỗi cụm, tạo `nghien-cuu/routinehospitality/tu-khoa-chu-de.csv` | AI, chị Hân duyệt | 100% từ khoá ngoài nhóm «đối thủ» có cụm + URL đích; không 2 URL cùng nhắm 1 từ khoá chính |
 | T1·W3 | **GBP từng khách sạn** (R3) — kiểm kê: khách sạn nào đã có hồ sơ, ai là chủ sở hữu, NAP có khớp trang `/hotel/<slug>` không | QL KS + AI | Bảng `nghien-cuu/routinehospitality/ho-so-thuong-hieu.csv` có 12 dòng: url GBP, chủ sở hữu, tên/địa chỉ/điện thoại, số đánh giá, điểm, ngày kiểm |
 | T1·W3 | **Calista khai trương 20/12/2026**: ảnh thật, giá thật lên trang `/hotel/calista`; tạo/nhận GBP | QL KS Calista + Dev | Trang không còn «Ảnh đang cập nhật»; GBP Calista đã gửi xác minh |
@@ -130,7 +130,7 @@ T1 = tháng 12/2026 → T10 = tháng 9/2027. Tháng 1–3 chia theo tuần, từ
 
 | Tuần | Việc | Người | Xong khi |
 |---|---|---|---|
-| T3·W1–W2 | **Trang khách sạn đợt 1** (15): Praha (có lượng tìm thật), PITO, Routine Hotel, Calista, Times Corner ×2 — mỗi trang ≥ 600 chữ, có hạng phòng, giá từ theo hệ thống đặt phòng, ảnh thật có alt | AI + QL KS | 6 trang đăng lại; Phép kiểm B11 `CÓ: <tên khách sạn>` trong H1; quét giá cũ = 0 |
+| T3·W1–W2 | **Trang khách sạn đợt 1** (15): Praha (có lượng tìm thật), PITO, Routine Hotel, Calista, Times Corner ×2 — mỗi trang ≥ 600 chữ, có hạng phòng, giá từ theo hệ thống đặt phòng, ảnh thật có alt | AI + QL KS | 6 trang đăng lại; Phép kiểm (Nhật ký thay đổi) `CÓ: <tên khách sạn>` trong H1; quét giá cũ = 0 |
 | T3·W1–W2 | **Trang khu vực đợt 2**: Trung tâm/Dương Đông, Bắc đảo | AI | 2 trang qua cổng 4 và đăng |
 | T3·W3–W4 | **Onpage trang đích** (R2) — 10–15 ngày sau khi đăng: title ≤ 60 ký tự bắt đầu bằng từ khoá chính, meta 140–160 ký tự, alt, schema `Hotel` đủ `address`, `telephone`, `priceRange`, `image` (không `aggregateRating` tự chấm) | AI + Dev | Checklist SOP 06 PASS 100% cho mọi trang đích; validator.schema.org không lỗi |
 | T3·W3–W4 | **Trang khách sạn đợt 2**: Lyn Hotel 2, Casepia, Duo, Daystar, Wyndham ×2 (tuỳ kết luận họp khởi động) | AI + QL KS | 6 trang đăng lại |
@@ -148,7 +148,7 @@ T1 = tháng 12/2026 → T10 = tháng 9/2027. Tháng 1–3 chia theo tuần, từ
 | T5 · 4/2027 | Nền offsite (20): Facebook/Instagram/TikTok/YouTube Routine, citation danh bạ; `sameAs` trong schema trang chủ | Chị Hân + AI | Danh sách hồ sơ + citation, mỗi dòng có link kiểm được |
 | T5 · 4/2027 | GEO đợt 1 (21): chấm 10 trang traffic cao nhất theo cổng 2; đo lại bộ câu hỏi | AI | Báo cáo có số so với số nền tháng 12/2026 |
 | T6 · 5/2027 | ◇22 Thứ hạng ban đầu: so vị trí trang khu vực/khách sạn với dự kiến | Chị Hân | Có quyết định điều chỉnh ghi lại, dựa trên số GSC |
-| T6 · 5/2027 | Điều chỉnh bài top 10–30 (23) | AI | Mỗi trang top 10–30 có quyết định giữ/sửa/viết lại; bài sửa có dòng B11 |
+| T6 · 5/2027 | Điều chỉnh bài top 10–30 (23) | AI | Mỗi trang top 10–30 có quyết định giữ/sửa/viết lại; bài sửa có dòng trong Nhật ký thay đổi |
 | T7 · 6/2027 | ◇25 Cửa offsite — có cần đầu tư link? PR với báo du lịch/địa phương (khai trương, Santo Port…) chỉ khi qua cửa | Chị Hân | Quyết định có/không + ngân sách được duyệt |
 | T7 · 6/2027 | Đo GEO giữa kỳ (24) — đúng bộ câu hỏi tháng 12 | AI | Bảng so sánh với số nền |
 | T7–T8 · 6–7/2027 | Đọc log Cloudflare/Render (27) + kỹ thuật nâng cao (29): độ sâu click, tốc độ (LCP < 2,5 s, INP < 200 ms, CLS < 0,1 trên di động) | Dev + AI | Googlebot và bot AI vào được trang chính; lỗi Cao = 0 |

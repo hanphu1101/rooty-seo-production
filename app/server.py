@@ -68,6 +68,11 @@ except (OSError, json.JSONDecodeError):
 MANG = list(QT["mang"].keys())
 PHA = QT["pha"]
 VIEC_STATUS = ["Chưa làm", "Đang làm", "Xong", "Bị chặn", "Không áp dụng"]
+# chỉ số app tự đo được cho việc trong kế hoạch (cột «Chỉ số» + «Mục tiêu» → app điền «Hiện tại»)
+METRICS = ["GSC lượt nhấp 28 ngày", "GSC lượt hiển thị 28 ngày", "Số từ khoá top 10 (GSC)", "Số từ khoá top 3 (GSC)",
+           "Phiên organic 28 ngày (GA4)", "Chuyển đổi organic 28 ngày (GA4)", "Số bài đã đăng", "Số link nội bộ đang live",
+           "Số backlink đang live", "Số đánh giá Google", "Số trang đích đạt onpage", "Số trang qua cửa chặn GEO",
+           "Từ khoá trong top (GSC)", "Trang đạt kiểm (đăng + link nội bộ)"]  # 2 chỉ số cuối đo theo từng việc
 
 # Kiểu trường Lark Base: 1 văn bản · 3 chọn một · 5 ngày
 def _sel(opts):
@@ -121,6 +126,16 @@ SCHEMA = {
         ("Xong lúc", 5, {"date_formatter": "yyyy/MM/dd"}),
         ("Kiểm lại", 1, None),          # kết quả từng mốc kiểm lại: «Tuần 2 · 07/12: …»
         ("Xong khi", 1, None),          # web khác có kế hoạch riêng; trống thì lấy từ cong-doan.json
+        ("Chỉ số", 3, _sel(METRICS)),   # app tự đo → «Hiện tại»
+        ("Mục tiêu", 2, {"formatter": "0"}),
+        ("Hiện tại", 2, {"formatter": "0"}),
+        ("Đo lúc", 5, {"date_formatter": "yyyy/MM/dd HH:mm"}),
+        ("Kết quả đo", 1, None),        # chi tiết lần đo: từ khoá nào ở vị trí mấy, thiếu link nào…
+        ("Từ khoá theo dõi", 1, None),  # «Từ khoá trong top»: danh sách cách nhau «;»
+        ("Top", 2, {"formatter": "0"}),  # vị trí cần đạt (VD 3 = top 3)
+        ("URL", 1, None),               # «Trang đạt kiểm»: đường dẫn trang trong kế hoạch
+        ("Link nội bộ bắt buộc", 1, None),
+        ("Title dự kiến", 1, None),
     ],
     T_LOG: [
         ("Nội dung", 1, None),
@@ -501,7 +516,8 @@ SITE_FIELDS = [("Tên", 1, None), ("Website", 1, None), ("Mã Base", 1, None), (
                ("Bắt đầu dự án", 1, None),  # YYYY-MM; trống thì theo PROJECT_START của web chính
                ("Loại web", 3, {"options": [{"name": "Tour"}, {"name": "Khách sạn"}]}),  # chọn bộ luật gom nhóm từ khoá
                ("Tên thương hiệu", 1, None),  # tên riêng của web, cách nhau dấu phẩy: «Routine, PITO, Calista…»
-               ("Sheet kế hoạch", 1, None)]  # link Google Sheet kế hoạch: tab Kế hoạch tự đọc mỗi lần mở
+               ("Sheet kế hoạch", 1, None),  # link Google Sheet kế hoạch: tab Kế hoạch tự đọc mỗi lần mở
+               ("Tài liệu kế hoạch", 1, None)]  # link Google Docs kế hoạch riêng của web (nút ở tab Kế hoạch)
 MAIN_STORE = make_store()
 _SITE = threading.local()
 _SITES_CACHE = {"at": 0, "list": []}
@@ -541,6 +557,7 @@ def other_sites(fresh=False):
         base = m.group(1) if m else base
         if url and _host(url) == MAIN_SITE["name"]:  # web chính chỉ dùng dòng này để lưu link sheet kế hoạch
             MAIN_SITE["plan_sheet"], MAIN_SITE["row_id"] = str(f.get("Sheet kế hoạch") or "").strip(), r["record_id"]
+            MAIN_SITE["plan_doc"] = str(f.get("Tài liệu kế hoạch") or "").strip()
         if not url or not base or f.get("Bật") == "Không" or _host(url) == MAIN_SITE["name"]:
             continue
         sid = _host(url)
@@ -551,7 +568,8 @@ def other_sites(fresh=False):
                     "ga4": re.sub(r"\D", "", str(f.get("GA4") or "")), "store": store, "main": False,
                     "start": str(f.get("Bắt đầu dự án") or "").strip(), "kind": str(f.get("Loại web") or "Tour"),
                     "brands": [b.strip() for b in str(f.get("Tên thương hiệu") or "").split(",") if b.strip()],
-                    "plan_sheet": str(f.get("Sheet kế hoạch") or "").strip(), "row_id": r["record_id"]})
+                    "plan_sheet": str(f.get("Sheet kế hoạch") or "").strip(), "row_id": r["record_id"],
+                    "plan_doc": str(f.get("Tài liệu kế hoạch") or "").strip()})
     _SITES_CACHE.update(at=time.time(), list=out)
     return out
 
@@ -716,6 +734,174 @@ th,td{{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-al
 blockquote{{margin:12px 0;padding:8px 14px;border-left:3px solid var(--brand);background:var(--soft);border-radius:0 8px 8px 0}}
 li{{margin:3px 0}} hr{{border:0;border-top:1px solid var(--line);margin:24px 0}} .raw{{float:right;font-size:13px;color:var(--mute)}}
 </style></head><body><main><a class="raw" href="?raw=1">Xem chữ gốc</a>{md_html(text)}</main></body></html>"""
+
+
+ROOTY_PLAN_DOC = "https://docs.google.com/document/d/1MoGEnXKAtEL5EzOIEifK0vl_8JvkX4MSi_9ebosk1t0/edit"
+
+
+def plan_docs():
+    """Tài liệu kế hoạch của web đang chọn: mỗi web một kế hoạch, không hiện quy trình của Rooty ở web khác."""
+    s = cur_site()
+    if s.get("main"):
+        return [{"label": "Quy trình tổng quan", "url": "docs/00-tong-quan.md"},
+                {"label": "Bản Google Docs", "url": s.get("plan_doc") or ROOTY_PLAN_DOC}]
+    return [{"label": "Kế hoạch SEO của web (Google Docs)", "url": s["plan_doc"]}] if s.get("plan_doc") else []
+
+
+# ------------------------------------------------------------------ đọc sheet kế hoạch nhiều phần (mẫu của chị Hân)
+# Một tab có nhiều bảng nối nhau, mỗi bảng có dòng tiêu đề riêng: lộ trình theo giai đoạn · KPI · kế hoạch nội dung theo tuần ·
+# sitemap & keyword mapping · dàn ý bài. App nhận từng bảng theo tên cột, đổi thành việc trong tab Kế hoạch (có chỉ số tự đo)
+# và từ khoá trong bảng Từ khoá.
+
+def _slug(s, n=28):
+    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", _norm_spaced(s))).strip("-")[:n]
+
+
+def _norm_spaced(s):
+    import unicodedata
+    s = unicodedata.normalize("NFD", str(s or "").lower().replace("đ", "d"))
+    return " ".join("".join(c for c in s if unicodedata.category(c) != "Mn").split())
+
+
+def _months(txt):
+    nums = [int(x) for x in re.findall(r"\d+", str(txt or ""))]
+    return (nums[0], nums[-1]) if nums else (None, None)
+
+
+def _paths(txt):
+    return [p.strip().split(" ")[0] for p in re.findall(r"(/[\w\-/.]*)", str(txt or "")) if p.strip() not in ("/",)]
+
+
+def parse_plan_rows(rows):
+    """→ (việc, từ khoá, các phần nhận được). Trả None nếu không nhận ra bảng nào."""
+    H = lambda r: [_norm_h(c) for c in r]
+    kinds = {
+        "lotrinh": {"hangmuccongviec"}, "kpi": {"nhomchiso"}, "noidung": {"tieudebaiviettrang", "duongdanurl"},
+        "mapping": {"capdo", "duongdanurl", "tukhoachinh"}, "outline": {"baiviet", "thetitleseo"},
+    }
+    viec, kw, seen, outline = [], [], [], {}
+    sec, cols, month = None, {}, 1
+    start = project_start()
+    y0, m0 = map(int, start.split("-"))
+    for r in rows:
+        h = H(r)
+        cells = [c.strip() for c in r]
+        if not any(cells):
+            continue
+        hit = next((k for k, need in kinds.items() if need <= set(h)), None)
+        if hit:
+            sec, cols = hit, {x: i for i, x in enumerate(h) if x}
+            seen.append(hit)
+            continue
+        if len([c for c in cells if c]) == 1:  # dòng tiêu đề phần, VD «KẾ HOẠCH SEO & CONTENT THÁNG 1»
+            m = re.search(r"thang\s*(\d+)", _norm_spaced(cells[0]))
+            month = int(m.group(1)) if m else month
+            sec = None if not m else sec
+            continue
+        g = lambda key: cells[cols[key]] if key in cols and cols[key] < len(cells) else ""
+        gs = lambda pre: next((cells[i] for k, i in cols.items() if k.startswith(pre) and i < len(cells)), "")
+        if sec == "lotrinh":
+            ten = g("hangmuccongviec")
+            if not ten:
+                continue
+            tu, den = _months(g("thoigian"))
+            gd = re.search(r"\d", g("giaidoan"))
+            viec.append({"Mã": "LT-" + _slug(ten), "Công đoạn": ten, "Pha": f"Pha {gd.group()}" if gd else "",
+                         "Từ tháng": tu, "Đến tháng": den, "Người phụ trách": g("bophanphutrach"),
+                         "Đầu ra": g("chitietthucthi"), "Xong khi": gs("ketqua")})
+        elif sec == "kpi":
+            nhom, muc = g("nhomchiso"), g("muctieucamket")
+            if not nhom:
+                continue
+            f = {"Mã": "KPI-" + _slug(nhom), "Công đoạn": f"KPI · {nhom}", "Mảng": "Đo lường & báo cáo", "Pha": "",
+                 "Từ tháng": 1, "Đến tháng": 6, "Xong khi": muc, "Đầu ra": "Đo bằng: " + g("congcudoluong")}
+            top = re.search(r"top\s*(\d+)(?:\s*-\s*(\d+))?", _norm_spaced(muc))
+            inner = re.search(r"\(([^)]+)\)", muc)
+            if top and inner:  # «Top 1 - 3 cho … (từ khoá A; từ khoá B; …)» → app đo vị trí từng từ khoá trên GSC
+                keys = [k.strip(" .…") for k in inner.group(1).split(";") if k.strip(" .…")]
+                f.update({"Chỉ số": "Từ khoá trong top (GSC)", "Top": int(top.group(2) or top.group(1)),
+                          "Từ khoá theo dõi": "; ".join(keys), "Mục tiêu": len(keys)})
+            elif re.search(r"ga4|chuyen doi", _norm_spaced(nhom + " " + g("congcudoluong"))):
+                f["Chỉ số"] = "Chuyển đổi organic 28 ngày (GA4)"
+            viec.append(f)
+        elif sec == "noidung":
+            url, ten = g("duongdanurl"), g("tieudebaiviettrang")
+            if not (url or ten):
+                continue
+            wk = re.search(r"\d+", g("tuan"))
+            due = None
+            if wk:
+                mm = m0 + month - 1
+                yy, mm = y0 + (mm - 1) // 12, (mm - 1) % 12 + 1
+                due = int(time.mktime((yy, mm, min(int(wk.group()) * 7, 28), 12, 0, 0, 0, 0, -1)) * 1000)
+            links = gs("linknoibo")
+            st = _norm_h(g("trangthai"))
+            viec.append({"Mã": "ND-" + _slug(url or ten), "Công đoạn": ten, "Mảng": "Nội dung", "Pha": "",
+                         "Từ tháng": month, "Đến tháng": month, "Hạn": due, "Người phụ trách": "",
+                         "Đầu ra": f"{g('loaitrang')} · từ khoá chính «{g('tukhoachinh')}» · phụ: {g('tukhoaphudai')}".strip(" ·"),
+                         "Xong khi": f"Trang {url} đã đăng (200) và có link nội bộ tới: {links}" if links else f"Trang {url} đã đăng (200)",
+                         "Trạng thái": "Xong" if st in ("xong", "dadang", "hoanthanh") else ("Đang làm" if "dang" in st else ""),
+                         "Chỉ số": "Trang đạt kiểm (đăng + link nội bộ)", "URL": url, "Link nội bộ bắt buộc": "; ".join(_paths(links)),
+                         "Từ khoá theo dõi": g("tukhoachinh")})
+        elif sec == "mapping":
+            k, url = g("tukhoachinh"), g("duongdanurl")
+            if not k:
+                continue
+            site = cur_site()["url"].rstrip("/")
+            kw.append({"Từ khoá": k, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá chính",
+                       "Cụm chủ đề": g("tentrangdanhmuc"), "Trạng thái": "Đã gán trang",
+                       "Ghi chú": f"Theo sheet kế hoạch · {g('capdo')} · {g('ghichutrienkhai')}".strip(" ·")})
+            for p in [x.strip() for x in g("tukhoaphudai").split(";") if x.strip()]:
+                kw.append({"Từ khoá": p, "Trang đích": site + url if url.startswith("/") else url, "Vai trò": "Từ khoá phụ",
+                           "Cụm chủ đề": g("tentrangdanhmuc"), "Trạng thái": "Đã gán trang", "Ghi chú": "Theo sheet kế hoạch"})
+        elif sec == "outline":
+            if g("baiviet"):
+                outline[_norm_spaced(g("baiviet"))] = g("thetitleseo")
+    uniq = {}
+    for k in kw:  # một từ khoá xuất hiện ở 2 trang (chính ở trang này, phụ ở trang kia) → giữ dòng «chính»
+        key = _norm_h(k["Từ khoá"])
+        if key not in uniq or (uniq[key]["Vai trò"] == "Từ khoá phụ" and k["Vai trò"] == "Từ khoá chính"):
+            uniq[key] = k
+    kw = list(uniq.values())
+    for f in viec:  # dàn ý → title dự kiến của bài cùng tên (app kiểm <title> khi bài lên)
+        if f["Mã"].startswith("ND-"):
+            t = next((v for k, v in outline.items() if k and (k in _norm_spaced(f["Công đoạn"]) or _norm_spaced(f["Công đoạn"]) in k)), "")
+            if t:
+                f["Title dự kiến"] = t
+    for f in viec:
+        for k in [k for k, v in f.items() if v in ("", None)]:
+            del f[k]
+    return (viec, kw, seen) if seen else None
+
+
+def _plan_page_check(f, html_cache):
+    """Trang trong kế hoạch: đã đăng (200), có đủ link nội bộ bắt buộc, title đúng dự kiến → (số mục đạt, tổng, ghi chú)."""
+    url = f.get("URL", "")
+    full = cur_site()["url"].rstrip("/") + url if url.startswith("/") else url
+    need = [p for p in str(f.get("Link nội bộ bắt buộc") or "").split(";") if p.strip()]
+    total = 1 + len(need) + (1 if f.get("Title dự kiến") else 0)
+    if full not in html_cache:
+        try:
+            st, body, hd, _ = KW.fetch(full)
+            html_cache[full] = (st, KW.decode(body, hd) if st == 200 else "")
+        except Exception as e:
+            html_cache[full] = (0, str(e))
+    st, h = html_cache[full]
+    if st != 200:
+        return 0, total, f"Trang chưa lên (mã {st or 'lỗi'})"
+    have = {urllib.parse.urlsplit(urllib.parse.urljoin(full, x)).path.rstrip("/") for x in re.findall(r'href="([^"#]+)', h)}
+    miss = [p.strip() for p in need if p.strip().rstrip("/") not in have]
+    ok = 1 + len(need) - len(miss)
+    note = ["đã đăng"] + ([f"thiếu link: {', '.join(miss)}"] if miss else ([f"đủ {len(need)} link"] if need else []))
+    if f.get("Title dự kiến"):
+        t = re.search(r"<title[^>]*>(.*?)</title>", h, re.S | re.I)
+        tt = html.unescape(t.group(1)) if t else ""
+        if _norm_h(f["Title dự kiến"]) in _norm_h(tt):
+            ok += 1
+            note.append("title đúng dự kiến")
+        else:
+            note.append(f"title đang là «{tt.strip()[:70]}»")
+    return ok, total, " · ".join(note)
 
 
 def project_start() -> str:
@@ -1011,25 +1197,20 @@ def _sheet_cell(kind, v):
     return v
 
 
-def _sheet_import(table, kinds, keys, url, fix=None, on_change=None):
-    """kinds: {tên cột: num|dec|date|text}. Trả về thông báo số dòng thêm / cập nhật."""
+def _sheet_rows(url):
     import csv
     import io
-    rows = list(csv.reader(io.StringIO(_google_export(url, "sheet"))))
-    want = {_norm_h(k): k for k in kinds}
-    hi = next((i for i, r in enumerate(rows[:10]) if sum(1 for c in r if _norm_h(c) in want) >= min(2, len(want))), None)
-    if hi is None:
-        raise StoreError("Không thấy dòng tiêu đề khớp tên cột của bảng. Cột cần có, VD: " + " · ".join(list(kinds)[:8]))
-    cols = {i: want[_norm_h(c)] for i, c in enumerate(rows[hi]) if _norm_h(c) in want}
-    if not any(k in cols.values() for k in keys):
-        raise StoreError("Sheet thiếu cột khoá «" + " / ".join(keys) + "» để biết dòng nào là dòng nào")
+    return list(csv.reader(io.StringIO(_google_export(url, "sheet"))))
+
+
+def _upsert(table, recs, keys, fix=None, on_change=None):
+    """Dòng đã có (theo khoá) → cập nhật ô có giá trị; chưa có → thêm. Trả về (số thêm, số cập nhật)."""
     key_of = lambda f: tuple(_norm_h(f.get(k)) for k in keys)
     have = {}
     for r in STORE.list(table):
         have.setdefault(key_of(r["fields"]), r)
     new, ups = [], {}
-    for r in rows[hi + 1:]:
-        f = {cols[i]: v for i, c in enumerate(r) if i in cols for v in [_sheet_cell(kinds[cols[i]], c)] if v is not None}
+    for f in recs:
         if not any(f.get(k) for k in keys):
             continue
         old = have.get(key_of(f))
@@ -1050,7 +1231,22 @@ def _sheet_import(table, kinds, keys, url, fix=None, on_change=None):
         STORE.create_many(table, new)
     if ups:
         STORE.update_many(table, ups)
-    msg = f"Từ Google Sheet: thêm {len(new)} dòng, cập nhật {len(ups)} dòng ({len(cols)} cột khớp: {', '.join(cols.values())})"
+    return len(new), len(ups)
+
+
+def _sheet_import(table, kinds, keys, url, fix=None, on_change=None, rows=None):
+    """kinds: {tên cột: num|dec|date|text}. Trả về thông báo số dòng thêm / cập nhật."""
+    rows = rows if rows is not None else _sheet_rows(url)
+    want = {_norm_h(k): k for k in kinds}
+    hi = next((i for i, r in enumerate(rows[:10]) if sum(1 for c in r if _norm_h(c) in want) >= min(2, len(want))), None)
+    if hi is None:
+        raise StoreError("Không thấy dòng tiêu đề khớp tên cột của bảng. Cột cần có, VD: " + " · ".join(list(kinds)[:8]))
+    cols = {i: want[_norm_h(c)] for i, c in enumerate(rows[hi]) if _norm_h(c) in want}
+    if not any(k in cols.values() for k in keys):
+        raise StoreError("Sheet thiếu cột khoá «" + " / ".join(keys) + "» để biết dòng nào là dòng nào")
+    recs = [{cols[i]: v for i, c in enumerate(r) if i in cols for v in [_sheet_cell(kinds[cols[i]], c)] if v is not None} for r in rows[hi + 1:]]
+    n_new, n_up = _upsert(table, recs, keys, fix, on_change)
+    msg = f"Từ Google Sheet: thêm {n_new} dòng, cập nhật {n_up} dòng ({len(cols)} cột khớp: {', '.join(cols.values())})"
     log(f"{table} · {msg}")
     return {"ok": True, "message": msg}
 
@@ -1062,7 +1258,7 @@ def t_sheet(key, body):
 
 
 def viec_sheet(body):
-    kinds = {n: {2: "num", 5: "date"}.get(t, "text") for n, t, _ in SCHEMA[T_VIEC] if n not in ("Cập nhật lúc", "Xong lúc")}
+    kinds = {n: {2: "num", 5: "date"}.get(t, "text") for n, t, _ in SCHEMA[T_VIEC] if n not in ("Cập nhật lúc", "Xong lúc", "Hiện tại", "Đo lúc", "Kết quả đo")}
 
     def fix(f, old):
         # Pha/Mảng/Trạng thái phải đúng tên có sẵn, sai thì tab Kế hoạch không hiện dòng đó
@@ -1075,6 +1271,8 @@ def viec_sheet(body):
             f["Pha"] = PHA[0] if tu <= 1 else PHA[1] if tu <= 3 else PHA[2] if tu <= 6 else PHA[3] if tu <= 9 else PHA[4]
         if f.get("Mảng") and f["Mảng"] not in MANG:
             f["Mảng"] = next((x for x in MANG if _norm_h(f["Mảng"]) in _norm_h(x) or _norm_h(x) in _norm_h(f["Mảng"])), f["Mảng"])
+        if f.get("Chỉ số") and f["Chỉ số"] not in METRICS:
+            f["Chỉ số"] = next((x for x in METRICS if _norm_h(f["Chỉ số"]) in _norm_h(x)), f["Chỉ số"])
         if f.get("Trạng thái") and f["Trạng thái"] not in VIEC_STATUS:
             f["Trạng thái"] = next((x for x in VIEC_STATUS if _norm_h(x) == _norm_h(f["Trạng thái"])), "Chưa làm")
         if f.get("Trạng thái") == "Xong" and (old or {}).get("Trạng thái") != "Xong":
@@ -1092,10 +1290,167 @@ def viec_sheet(body):
             ch["Cập nhật lúc"] = now_ms()
             if "Trạng thái" in ch:
                 log(f"Việc SEO {old.get('Mã')}: {old.get('Trạng thái') or 'Chưa làm'} → {ch['Trạng thái']} (sheet)", "", old.get("Mảng", ""), ch["Trạng thái"])
-    return _sheet_import(T_VIEC, kinds, ["Mã"], (body or {}).get("url"), fix, on_change)
+    rows = _sheet_rows((body or {}).get("url"))
+    if any("ma" in [_norm_h(c) for c in r] for r in rows[:10]):  # mẫu cột của app (có cột «Mã»)
+        return _sheet_import(T_VIEC, kinds, ["Mã"], None, fix, on_change, rows=rows)
+    plan = parse_plan_rows(rows)
+    if not plan:
+        raise StoreError("Không nhận ra bảng kế hoạch: cần cột «Mã» (mẫu của app) hoặc các bảng «Hạng mục công việc», «Nhóm chỉ số», "
+                         "«Tiêu đề bài viết / Trang» + «Đường dẫn (URL)», «Cấp độ» + «Từ khóa chính»")
+    viec, kw, seen = plan
+    for f in viec:
+        f.setdefault("Mảng", _guess_mang(f["Công đoạn"] + " " + f.get("Đầu ra", "")))
+    a, b = _upsert(T_VIEC, viec, ["Mã"], fix, on_change)
+    c, d = _upsert(_tname("tukhoa"), kw, ["Từ khoá"]) if kw else (0, 0)
+    names = {"lotrinh": "lộ trình", "kpi": "KPI", "noidung": "nội dung theo tuần", "mapping": "keyword mapping", "outline": "dàn ý"}
+    msg = (f"Từ sheet kế hoạch ({', '.join(names[x] for x in dict.fromkeys(seen))}): việc thêm {a}, cập nhật {b}"
+           + (f"; từ khoá thêm {c}, cập nhật {d}" if kw else ""))
+    log(msg)
+    return {"ok": True, "message": msg}
+
+
+def _guess_mang(t):
+    t = _norm_spaced(t)
+    for pat, m in [(r"technical|ky thuat|schema|toc do|core web|pagespeed|sitemap|canonical", "Kỹ thuật"),
+                   (r"backlink|pr|koc|blogger|bao chi|offsite", "Offsite & PR"),
+                   (r"google business|maps|danh gia|review|local", "Local SEO & đánh giá"),
+                   (r"do luong|ga4|search console|chuyen doi|cro|kpi", "Đo lường & báo cáo"),
+                   (r"day top|tu khoa tiem nang|on-?page", "Onpage"),
+                   (r"noi dung|bai|cam nang|content|trang dich", "Nội dung"),
+                   (r"link noi bo|internal", "Liên kết nội bộ")]:
+        if re.search(pat, t):
+            return m
+    return ""
+
+
+def _sa_key():
+    key = ENV.get("GOOGLE_SA_JSON") or ENV.get("GOOGLE_SA_KEY") or ""
+    return key if not key or key.lstrip().startswith("{") or os.path.isabs(key) else str(ROOT / key)
+
+
+def _metric_values(names):
+    """Đo các chỉ số trong METRICS cho web đang chọn → {tên: (giá trị hoặc None, lý do không đo được)}."""
+    out, need = {}, set(names)
+    count = lambda key, fn: sum(1 for r in STORE.list(_tname(key)) if fn(r["fields"]))
+    local = {
+        "Số bài đã đăng": lambda: sum(1 for r in STORE.list(T_BAI) if r["fields"].get("Trạng thái") == "Đã đăng"),
+        "Số link nội bộ đang live": lambda: count("lienket", lambda f: f.get("Loại") == "Nội bộ" and f.get("Trạng thái") == "Đang live"),
+        "Số backlink đang live": lambda: count("lienket", lambda f: f.get("Loại") != "Nội bộ" and f.get("Trạng thái") == "Đang live"),
+        "Số đánh giá Google": lambda: sum(int(r["fields"].get("Số đánh giá") or 0) for r in STORE.list(_tname("hoso"))
+                                          if re.search(r"google|gbp", _norm_h(r["fields"].get("Nền tảng")))),
+        "Số trang đích đạt onpage": lambda: count("trang", lambda f: (f.get("Điểm onpage") or 0) >= 80),
+        "Số trang qua cửa chặn GEO": lambda: count("trang", lambda f: f.get("Qua cửa chặn GEO") == "Đạt"),
+    }
+    for n in need & set(local):
+        try:
+            out[n] = (local[n](), "")
+        except Exception as e:
+            out[n] = (None, str(e))
+    gsc_need = need & {"GSC lượt nhấp 28 ngày", "GSC lượt hiển thị 28 ngày", "Số từ khoá top 10 (GSC)", "Số từ khoá top 3 (GSC)"}
+    ga4_need = need & {"Phiên organic 28 ngày (GA4)", "Chuyển đổi organic 28 ngày (GA4)"}
+    if gsc_need or ga4_need:
+        token = None
+        try:
+            token, _ = GAPI.access_token(_sa_key())
+        except Exception as e:
+            for n in gsc_need | ga4_need:
+                out[n] = (None, f"chưa đăng nhập Google được: {e}")
+        if token and gsc_need:
+            site = cur_site().get("gsc")
+            try:
+                if not site:
+                    raise StoreError("web chưa khai GSC")
+                s_, e_ = GAPI._range(28, None, None, 3, None)
+                tot = (GAPI._gsc(token, site, s_.isoformat(), e_.isoformat(), []) or [{}])[0]
+                qs = GAPI._gsc(token, site, s_.isoformat(), e_.isoformat(), ["query"]) if need & {"Số từ khoá top 10 (GSC)", "Số từ khoá top 3 (GSC)"} else []
+                vals = {"GSC lượt nhấp 28 ngày": int(tot.get("clicks", 0)), "GSC lượt hiển thị 28 ngày": int(tot.get("impressions", 0)),
+                        "Số từ khoá top 10 (GSC)": sum(1 for q in qs if q["position"] <= 10),
+                        "Số từ khoá top 3 (GSC)": sum(1 for q in qs if q["position"] <= 3)}
+                for n in gsc_need:
+                    out[n] = (vals[n], "")
+            except Exception as e:
+                for n in gsc_need:
+                    out[n] = (None, f"GSC: {e}")
+        if token and ga4_need:
+            try:
+                if not cur_site().get("ga4"):
+                    raise StoreError("web chưa khai GA4")
+                _, rows = GAPI.ga4_pages(token, cur_site()["ga4"], 28)
+                ses = sum(float(r[1] or 0) for r in rows[1:])
+                conv = sum(float(r[3] or 0) for r in rows[1:])
+                for n in ga4_need:
+                    out[n] = (int(ses if "Phiên" in n else conv), "")
+            except Exception as e:
+                for n in ga4_need:
+                    out[n] = (None, f"GA4: {e}")
+    return out
+
+
+_MEASURE = {}  # web → giây lần đo gần nhất
+
+
+def _gsc_positions():
+    """{truy vấn (bỏ dấu, thường): vị trí TB 28 ngày} của web đang chọn; lỗi → chuỗi lý do."""
+    try:
+        site = cur_site().get("gsc")
+        if not site:
+            return "web chưa khai GSC"
+        token, _ = GAPI.access_token(_sa_key())
+        s_, e_ = GAPI._range(28, None, None, 3, None)
+        return {_norm_spaced(q["keys"][0]): q["position"] for q in GAPI._gsc(token, site, s_.isoformat(), e_.isoformat(), ["query"])}
+    except Exception as e:
+        return f"GSC: {e}"
+
+
+def viec_measure(body):
+    """Đo «Hiện tại» cho mọi việc có «Chỉ số». Tự động: cách nhau ≥ 30 phút; bấm «Đo chỉ số» thì đo ngay."""
+    sid = cur_site()["id"]
+    if not (body or {}).get("force") and time.time() - _MEASURE.get(sid, 0) < 1800:
+        return {"ok": True, "measured": False, "message": "Đã đo trong 30 phút gần đây"}
+    rows = [r for r in STORE.list(T_VIEC) if r["fields"].get("Chỉ số")]
+    if not rows:
+        return {"ok": True, "measured": False, "message": "Chưa có việc nào khai «Chỉ số» + «Mục tiêu»"}
+    PER_ROW = {"Từ khoá trong top (GSC)", "Trang đạt kiểm (đăng + link nội bộ)"}
+    vals = _metric_values({r["fields"]["Chỉ số"] for r in rows} - PER_ROW)
+    qpos = _gsc_positions() if any(r["fields"]["Chỉ số"] == "Từ khoá trong top (GSC)" for r in rows) else {}
+    pages = {}
+    ups, reached, errs = {}, 0, set()
+    for r in rows:
+        f = r["fields"]
+        note = ""
+        if f["Chỉ số"] == "Từ khoá trong top (GSC)":
+            if isinstance(qpos, str):
+                v, err = None, qpos
+            else:
+                top, keys = int(f.get("Top") or 10), [k.strip() for k in str(f.get("Từ khoá theo dõi") or "").split(";") if k.strip()]
+                pos = {k: qpos.get(_norm_spaced(k)) for k in keys}
+                v, err = sum(1 for p in pos.values() if p and p <= top), ""
+                note = " · ".join(f"{k}: {('%.1f' % p) if p else 'chưa có hiển thị'}" for k, p in pos.items())
+        elif f["Chỉ số"] == "Trang đạt kiểm (đăng + link nội bộ)":
+            ok, total, note = _plan_page_check(f, pages)
+            v, err = ok, ""
+            if not f.get("Mục tiêu") or f["Mục tiêu"] != total:
+                f["Mục tiêu"] = total
+                ups.setdefault(r["record_id"], {})["Mục tiêu"] = total
+        else:
+            v, err = vals.get(f["Chỉ số"], (None, "app chưa đo được chỉ số này"))
+        if v is None:
+            errs.add(f"{f['Chỉ số']} ({err})")
+            continue
+        ups.setdefault(r["record_id"], {}).update({"Hiện tại": v, "Đo lúc": now_ms(), **({"Kết quả đo": note} if note else {})})
+        goal = f.get("Mục tiêu")
+        if goal and v >= goal and (f.get("Hiện tại") or 0) < goal:
+            reached += 1
+            log(f"Việc SEO {f.get('Mã')}: đạt mục tiêu «{f['Chỉ số']}» {v}/{goal}", "", f.get("Mảng", ""), "Đạt mục tiêu")
+    if ups:
+        STORE.update_many(T_VIEC, ups)
+    _MEASURE[sid] = time.time()
+    msg = f"Đo {len(ups)} việc có chỉ số" + (f", {reached} việc vừa đạt mục tiêu" if reached else "") + (" · chưa đo được: " + "; ".join(sorted(errs)) if errs else "")
+    return {"ok": True, "measured": True, "message": msg}
 
 
 _PLAN_SYNC = {}  # web → {"at": giây, "message": …}
+_PLAN_LOCK = threading.Lock()  # hai lần đồng bộ cùng lúc (mở tab + bấm nút) sẽ thêm trùng việc
 
 
 def viec_sync(body):
@@ -1104,14 +1459,18 @@ def viec_sync(body):
     url = s.get("plan_sheet", "")
     if not url:
         return {"ok": True, "linked": False, "message": "Chưa gắn link sheet kế hoạch"}
-    last = _PLAN_SYNC.get(s["id"])
-    if last and not (body or {}).get("force") and time.time() - last["at"] < 60:
-        return {"ok": True, "linked": True, "url": url, **last}
-    try:
-        msg = viec_sheet({"url": url})["message"]
-    except StoreError as e:
-        msg = f"Lỗi đọc sheet: {e}"
-    _PLAN_SYNC[s["id"]] = {"at": time.time(), "message": msg}
+    with _PLAN_LOCK:
+        last = _PLAN_SYNC.get(s["id"])
+        if last and not (body or {}).get("force") and time.time() - last["at"] < 60:
+            return {"ok": True, "linked": True, "url": url, **last}
+        try:
+            msg = viec_sheet({"url": url})["message"]
+        except StoreError as e:
+            msg = f"Lỗi đọc sheet: {e}"
+        m = viec_measure({"force": bool((body or {}).get("force"))})  # đo lại chỉ số theo kế hoạch vừa đọc
+        if m.get("measured"):
+            msg += " · " + m["message"]
+        _PLAN_SYNC[s["id"]] = {"at": time.time(), "message": msg}
     return {"ok": True, "linked": True, "url": url, **_PLAN_SYNC[s["id"]]}
 
 
@@ -1382,7 +1741,7 @@ def _google_export(url, kind):
         raise StoreError(f"Link không phải Google {'Sheet' if kind == 'sheet' else 'Docs'} (cần dạng docs.google.com/{path}/d/…)")
     g = re.search(r"[#&?]gid=(\d+)", url) if kind == "sheet" else None
     exp = f"https://docs.google.com/{path}/d/{m.group(1)}/export?format={fmt}" + (f"&gid={g.group(1)}" if g else "")
-    key, email, headers = ENV.get("GOOGLE_SA_JSON") or ENV.get("GOOGLE_SA_KEY"), "", {}
+    key, email, headers = _sa_key(), "", {}
     if key:
         try:
             token, email = GAPI.access_token(key)
@@ -3765,7 +4124,7 @@ class Handler(BaseHTTPRequestHandler):
                                "pageTypes": PAGE_TYPES, "gates": GATES, "gateToLeave": GATE_TO_LEAVE,
                                "intents": INTENTS, "intentFormats": INTENT_FORMATS, "serpFeatures": SERP_FEATURES, "site": site_url(),
                                "mang": QT["mang"], "pha": PHA, "viecStatus": VIEC_STATUS,
-                               "projectStart": project_start(), "currentMonth": current_month_index(),
+                               "projectStart": project_start(), "currentMonth": current_month_index(), "planDocs": plan_docs(),
                                "google": dict(zip(("gsc", "ga4"), google_ready())),
                                "tables": t_meta()})
         m = re.match(r"^/api/t/(\w+)$", path)
@@ -3951,6 +4310,9 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/api/viec/sync", "/api/viec/sheet-link"):
             body = self._body()
             return self._guard(lambda: (viec_sync if path.endswith("sync") else viec_sheet_link)(body))
+        if path == "/api/viec/measure":
+            body = self._body()
+            return self._guard(lambda: viec_measure(body))
         m = re.match(r"^/api/t/(\w+)(/bulk|/seed|/sheet)?$", path)
         if m:
             key, act = m.group(1), m.group(2)

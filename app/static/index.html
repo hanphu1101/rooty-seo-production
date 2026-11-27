@@ -2015,7 +2015,8 @@ let VSYNC = null;
 async function planSync(force){
   if($('#vsync')) $('#vsync').innerHTML = '<span class="meta">Đang kiểm sheet kế hoạch…</span>';
   try{ VSYNC = await api('POST','/api/viec/sync',{force}); }catch(e){ VSYNC = {linked:false, message:e.message}; }
-  if(VSYNC.linked && /(thêm|cập nhật) [1-9]/.test(VSYNC.message||'')) VIEC = await api('GET','/api/viec');
+  if(!VSYNC.linked){ try{ const m = await api('POST','/api/viec/measure',{}); if(m.measured) VSYNC.measure = m.message; }catch(e){} }
+  if(VSYNC.measure || /(thêm|cập nhật) [1-9]|Đo [1-9]/.test(VSYNC.message||'')) VIEC = await api('GET','/api/viec');
   if($('#vsync')) renderViec();
 }
 function vSyncHtml(){
@@ -2023,9 +2024,10 @@ function vSyncHtml(){
   const when = s.at ? new Date(s.at*1000).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) + ' ' + new Date(s.at*1000).toLocaleDateString('vi-VN') : '';
   return s.linked
     ? `<div style="flex:1 1 320px"><b>Sheet kế hoạch</b> <a href="${esc(s.url)}" target="_blank" rel="noopener">mở sheet ↗</a><div class="meta">Đồng bộ lúc ${esc(when)} · ${esc(s.message||'')}</div></div>
-       <button class="btn" id="vSyncNow">Đồng bộ ngay</button><button class="btn ghost" id="vLink">Đổi link</button>`
+       <button class="btn" id="vSyncNow">Đồng bộ ngay</button><button class="btn" id="vMeasure">Đo chỉ số</button><button class="btn ghost" id="vLink">Đổi link</button>`
     : `<div style="flex:1 1 320px"><b>Làm kế hoạch ở Google Sheet?</b> <span class="meta">Gắn link một lần — mỗi lần mở tab này app tự đọc sheet, ghi Nhật ký từng việc đổi trạng thái.</span></div>
-       <button class="btn" id="vLink">Gắn link sheet kế hoạch</button>`;
+       <button class="btn" id="vLink">Gắn link sheet kế hoạch</button><button class="btn" id="vMeasure">Đo chỉ số</button>`
+    + (s.measure ? `<div class="meta" style="flex-basis:100%">${esc(s.measure)}</div>` : '');
 }
 async function planLink(){
   const url = prompt('Dán link Google Sheet kế hoạch (đúng tab). Cột: Mã · Công đoạn · Mảng · Pha · Từ tháng · Đến tháng · Trạng thái · Người phụ trách · Hạn · Đầu ra · Xong khi …\nĐể trống rồi OK để bỏ link.', (VSYNC&&VSYNC.url)||'');
@@ -2042,7 +2044,19 @@ function vWeekHtml(){
   const soon = VIEC.filter(r=>!vState(r.fields).done && r.fields['Hạn'] && r.fields['Hạn'] >= t0.getTime() && r.fields['Hạn'] < t0.getTime() + d7);
   const box = (t, list, color) => `<div class="kcard" style="cursor:default;flex:1 1 260px"><b style="${color?`color:var(${color})`:''}">${t} · ${list.length}</b>
     ${list.length?`<ul style="margin:6px 0 0;padding-left:18px">${list.slice(0,8).map(item).join('')}${list.length>8?`<li class="meta">… và ${list.length-8} việc nữa</li>`:''}</ul>`:'<span class="meta">Không có</span>'}</div>`;
-  return `<div class="sec"><h2>Tuần này</h2></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">${box('Vừa xong (7 ngày)', done, '--ok')}${box('Đang trễ', late, '--bad')}${box('Đến hạn 7 ngày tới', soon)}</div>`;
+  const goals = VIEC.filter(r=>r.fields['Chỉ số'] && r.fields['Mục tiêu']);
+  const gbox = goals.length ? `<div class="kcard" style="cursor:default;flex:1 1 100%"><b>Chỉ số theo mục tiêu · ${goals.filter(r=>(r.fields['Hiện tại']||0)>=r.fields['Mục tiêu']).length}/${goals.length} đạt</b>
+    <ul style="margin:6px 0 0;padding-left:18px">${goals.map(r=>`<li>${esc(r.fields['Công đoạn'])}: ${vMetric(r.fields, true)}${r.fields['Kết quả đo']?` <span class="meta">· ${esc(r.fields['Kết quả đo'])}</span>`:''}</li>`).join('')}</ul></div>` : '';
+  return `<div class="sec"><h2>Tuần này</h2></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">${box('Vừa xong (7 ngày)', done, '--ok')}${box('Đang trễ', late, '--bad')}${box('Đến hạn 7 ngày tới', soon)}${gbox}</div>`;
+}
+/* hiện tại / mục tiêu của một việc có «Chỉ số» */
+function vMetric(f, inline){
+  if(!f['Chỉ số']) return '';
+  const cur = f['Hiện tại'], goal = f['Mục tiêu'], n = v => Number(v).toLocaleString('vi-VN');
+  const txt = cur==null ? 'chưa đo' : goal ? `${n(cur)}/${n(goal)} (${Math.round(cur/goal*100)}%)` : n(cur);
+  const ok = goal && cur!=null && cur>=goal;
+  const chip = `<span class="chip" style="${ok?'background:var(--ok-soft);color:var(--ok)':''}">${ok?'✓ ':''}${esc(txt)}</span>`;
+  return inline ? chip : `<div class="who">${esc(f['Chỉ số'])}: ${chip}</div>`;
 }
 function vState(f){ const cur=CFG.currentMonth, done=['Xong','Không áp dụng'].includes(f['Trạng thái']), den=Number(f['Đến tháng'])||0, tu=Number(f['Từ tháng'])||0;
   const t0=new Date(); t0.setHours(0,0,0,0);
@@ -2062,13 +2076,14 @@ function renderViec(){
   $('#vhead').innerHTML = total ? `<div><div class="meta">Dự án bắt đầu ${m}/${y}</div><div class="big">Đang ở tháng T${CFG.currentMonth}</div></div>
     <div class="bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div><b>${done}/${total}</b> <span class="meta">xong</span></div>
     <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>${chk?`<div><b style="color:var(--bad)">${chk}</b> <span class="meta">đến hạn kiểm lại</span></div>`:''}
-    <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a><a class="btn ghost" href="https://docs.google.com/document/d/1MoGEnXKAtEL5EzOIEifK0vl_8JvkX4MSi_9ebosk1t0/edit" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" title="Bản sao 27/11/2026 để chia sẻ; bản mới nhất là «Quy trình tổng quan»">Bản Google Docs</a>
+    ${(CFG.planDocs||[]).map(d=>`<a class="btn ghost" href="${esc(d.url)}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">${esc(d.label)}</a>`).join('')}
     <button class="btn" id="btnVSheet">Nhập kế hoạch từ Google Sheet</button><button class="btn" id="btnVCsv">Tải kế hoạch (CSV)</button>`
     : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button><button class="btn" id="btnVSheet">Nhập kế hoạch từ Google Sheet</button>`;
-  const VCOLS = ['Mã','Công đoạn','Mảng','Pha','Từ tháng','Đến tháng','Cửa chặn','Trạng thái','Người phụ trách','Hạn','Đầu ra','Xong khi','Kết quả / link','Ghi chú'];
+  const VCOLS = ['Mã','Công đoạn','Mảng','Pha','Từ tháng','Đến tháng','Cửa chặn','Trạng thái','Người phụ trách','Hạn','Đầu ra','Xong khi','Chỉ số','Mục tiêu','Hiện tại','Kết quả / link','Ghi chú'];
   $('#btnVSheet').onclick = ()=>sheetImport('/api/viec/sheet', VCOLS, async()=>{ VIEC=await api('GET','/api/viec'); renderViec(); });
   if($('#vsync')){ $('#vsync').innerHTML = vSyncHtml(); $('#vsync').style.display = VSYNC ? '' : 'none';
-    $('#vSyncNow')?.addEventListener('click', ()=>planSync(true)); $('#vLink')?.addEventListener('click', planLink); }
+    $('#vSyncNow')?.addEventListener('click', ()=>planSync(true)); $('#vLink')?.addEventListener('click', planLink);
+    $('#vMeasure')?.addEventListener('click', async()=>{ try{ toast('Đang đo chỉ số…'); const m = await api('POST','/api/viec/measure',{force:true}); VSYNC.measure = m.message; toast(m.message); VIEC = await api('GET','/api/viec'); renderViec(); }catch(e){ toast(e.message,true); } }); }
   if($('#vweek')) $('#vweek').innerHTML = total ? vWeekHtml() : '';
   if($('#btnVCsv')) $('#btnVCsv').onclick = ()=>{ const q=v=>{ const t=v==null?'':String(v); return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; };
     const lines=[VCOLS.join(',')].concat(VIEC.map(r=>VCOLS.map(c=>q(c==='Hạn'&&r.fields[c]?toDateInput(r.fields[c]):r.fields[c])).join(',')));
@@ -2098,11 +2113,12 @@ function vRow(r){
   return `<div class="vrow ${s.late?'late':s.now?'now':''} ${OPEN.has(r.record_id)?'open':''}" data-id="${r.record_id}">
     <div class="vmain"><span class="code">${esc(f['Mã'])}</span>
       <div class="vname">${f['Cửa chặn']==='Có'?'<span class="gate">◇ CỬA</span>':''}${esc(f['Công đoạn'])}${s.late?'<span class="latetag">TRỄ</span>':''}${s.check?'<span class="latetag">KIỂM LẠI</span>':''}
-        ${f['Người phụ trách']?`<div class="who">${esc(f['Người phụ trách'])}${f['Hạn']?' · hạn '+fmtDate(f['Hạn']):''}</div>`:''}</div>
+        ${f['Người phụ trách']?`<div class="who">${esc(f['Người phụ trách'])}${f['Hạn']?' · hạn '+fmtDate(f['Hạn']):''}</div>`:''}${vMetric(f)}</div>
       <span class="c-mang"><span class="chip">${esc(f['Mảng'])}</span></span><span class="c-thang">T${tu}${den!=tu?'–T'+den:''}</span>
       <select class="vs ${vcls(f['Trạng thái'])}" aria-label="Trạng thái">${CFG.viecStatus.map(o=>`<option ${o===f['Trạng thái']?'selected':''}>${o}</option>`).join('')}</select></div>
     <div class="vdetail"><div class="meta">Đầu ra cần có: <b style="color:var(--ink)">${esc(f['Đầu ra']||'—')}</b></div>
       ${f['Xong khi']?`<div class="meta" style="margin-top:4px">Xong khi: <b style="color:var(--ink)">${esc(f['Xong khi'])}</b></div>`:''}
+      ${f['Chỉ số']?`<div class="meta" style="margin-top:4px">Chỉ số theo dõi: <b style="color:var(--ink)">${esc(f['Chỉ số'])}</b> · hiện tại <b style="color:var(--ink)">${f['Hiện tại']!=null?Number(f['Hiện tại']).toLocaleString('vi-VN'):'chưa đo'}</b>${f['Mục tiêu']?` / mục tiêu ${Number(f['Mục tiêu']).toLocaleString('vi-VN')}`:' · chưa đặt mục tiêu'}${f['Đo lúc']?` · đo ${fmtDate(f['Đo lúc'])}`:''}${f['Kết quả đo']?`<br>${esc(f['Kết quả đo'])}`:''}${f['URL']?`<br>Trang: <a href="${esc(CFG.site.replace(/\/$/,'')+f['URL'])}" target="_blank" rel="noopener">${esc(f['URL'])}</a>`:''}</div>`:''}
       ${f['Chỉ số đo']&&f['Chỉ số đo']!=='—'?`<div class="meta" style="margin-top:4px">Chỉ số đo: ${esc(f['Chỉ số đo'])}</div>`:''}
       ${vMocHtml(f)}
       <div class="grid2" style="margin-top:6px"><label>Người phụ trách<input class="field vWho" value="${esc(f['Người phụ trách'])}"></label>
