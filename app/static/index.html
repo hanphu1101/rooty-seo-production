@@ -1999,8 +1999,9 @@ function renderViec(){
   $('#vhead').innerHTML = total ? `<div><div class="meta">Dự án bắt đầu ${m}/${y}</div><div class="big">Đang ở tháng T${CFG.currentMonth}</div></div>
     <div class="bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div><b>${done}/${total}</b> <span class="meta">xong</span></div>
     <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>${chk?`<div><b style="color:var(--bad)">${chk}</b> <span class="meta">đến hạn kiểm lại</span></div>`:''}
-    <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>`
-    : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button>`;
+    <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>
+    <a class="btn ghost" href="docs/12-tu-lap-ke-hoach.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Tự lập kế hoạch (không cần Claude)</a>`
+    : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button><a class="btn ghost" href="docs/12-tu-lap-ke-hoach.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Tự lập kế hoạch (không cần Claude)</a>`;
   if(!total){ $('#btnSeed').onclick = async()=>{ try{ const r=await api('POST','/api/viec/seed'); toast(r.message); VIEC=await api('GET','/api/viec'); renderViec(); }catch(e){ toast(e.message,true);} }; $('#phases').innerHTML=''; return; }
   const fm=$('#fMang').value, fs=$('#fVs').value, fn=$('#fNow').checked;
   const list = VIEC.filter(r=>{ const f=r.fields, s=vState(f); return (!fm||f['Mảng']===fm) && (!fs||f['Trạng thái']===fs) && (!fn||s.now||s.late); })
