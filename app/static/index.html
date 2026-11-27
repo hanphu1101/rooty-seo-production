@@ -2062,7 +2062,7 @@ function renderViec(){
   $('#vhead').innerHTML = total ? `<div><div class="meta">Dự án bắt đầu ${m}/${y}</div><div class="big">Đang ở tháng T${CFG.currentMonth}</div></div>
     <div class="bar"><i style="width:${Math.round(done/total*100)}%"></i></div><div><b>${done}/${total}</b> <span class="meta">xong</span></div>
     <div><b>${now}</b> <span class="meta">trong hạn tháng này</span></div><div><b style="color:var(--bad)">${late}</b> <span class="meta">trễ</span></div>${chk?`<div><b style="color:var(--bad)">${chk}</b> <span class="meta">đến hạn kiểm lại</span></div>`:''}
-    <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a>
+    <a class="btn ghost" href="docs/00-tong-quan.md" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">Quy trình tổng quan</a><a class="btn ghost" href="https://docs.google.com/document/d/1MoGEnXKAtEL5EzOIEifK0vl_8JvkX4MSi_9ebosk1t0/edit" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)" title="Bản sao 27/11/2026 để chia sẻ; bản mới nhất là «Quy trình tổng quan»">Bản Google Docs</a>
     <button class="btn" id="btnVSheet">Nhập kế hoạch từ Google Sheet</button><button class="btn" id="btnVCsv">Tải kế hoạch (CSV)</button>`
     : `<div><b>Chưa có công đoạn nào.</b> <span class="meta">Nạp 37 công đoạn của quy trình SEO 10 tháng.</span></div><span class="sp"></span><button class="btn primary" id="btnSeed">Nạp công đoạn</button><button class="btn" id="btnVSheet">Nhập kế hoạch từ Google Sheet</button>`;
   const VCOLS = ['Mã','Công đoạn','Mảng','Pha','Từ tháng','Đến tháng','Cửa chặn','Trạng thái','Người phụ trách','Hạn','Đầu ra','Xong khi','Kết quả / link','Ghi chú'];
