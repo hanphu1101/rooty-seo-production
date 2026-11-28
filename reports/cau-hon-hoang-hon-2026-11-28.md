@@ -53,3 +53,21 @@ Vé thường vào Cầu Hôn 07:00–17:30 hoặc sau 20:15, bị mời ra lúc
 | /en/phu-quoc-map/ | 1 | Suggested itinerary based on the Map Day 1: North Phu Quoc Morning: VinWonders theme park (full day if you have kids) Ev |
 | /phu-quoc-mien-visa-co-gi-hot/ | 1 | Buổi chiều, hãy cùng người mình thương lên Cầu Hôn – cây cầu “không chạm” độc nhất vô nhị trên thế giới được CNN ca ngợi |
 | /phu-quoc-diem-du-lich-phat-trien-nhanh-nhat-dong-nam-a/ | 1 | Ngoài ra, cầu Hôn, cây cầu có thiết kế “không chạm” độc đáo, là điểm ngắm hoàng hôn lý tưởng dành cho những du khách yêu |
+
+## Kết quả rà sửa 28/11/2026 (thanh tra Đạt 26/26)
+
+Đã đọc 90 câu trong 49 bài. **Đã sửa 26 trang**: 24 trang qua REST, 2 trang Elementor (review tour 1 ngày VI/EN). Mỗi trang có một dòng trong Nhật ký thay đổi kèm phép kiểm.
+
+- **Sửa:**
+  - các câu khuyên lên cầu xem mặt trời lặn: «thời điểm lý tưởng nhất là lúc hoàng hôn», «Sunset: Kiss Bridge photo session», «17:30 đến nơi, ngắm hoàng hôn trên cầu», «黃昏到親吻橋看日落», «Мост Поцелуя на закате»;
+  - viết lại thành: lên cầu 16:00–17:30 (vé thường bị mời ra lúc 17:30), hoàng hôn ngắm từ bờ biển Thị trấn Hoàng Hôn;
+  - bỏ «Kiss Bridge sunset ticket/package» và «sunset proposal package» (bài cầu hôn EN), vì không có sản phẩm này.
+- **Bài ngọc trai tiếng Hàn (/ko/phu-quoc-pearl-farm/):** ngoài câu hoàng hôn, bài còn cùng kiểu lỗi như 7 bài KO hôm nay, đã dọn luôn:
+  - bỏ tour/gói bịa và lời khách «정 모씨»;
+  - bỏ «8 năm», KakaoTalk, «đối tác chính thức – giảm giá cho khách Hàn», «HDV tiếng Hàn của Rooty»;
+  - sửa TripAdvisor 610 và ghi HDV tiếng Hàn là thuê ngoài.
+- **Giữ nguyên:** 23 bài còn lại chỉ nói Cầu Hôn nằm ở khu ngắm hoàng hôn, hoặc có lịch trình «Cầu Hôn → ngắm hoàng hôn» vẫn đúng.
+
+### Thấy khi rà, chưa sửa
+- /dia-trung-hai-phu-quoc/: hộp tour «Tour Cầu Hôn – Sunset Town: Symphony of The Sea 1,150,000đ», trong khi giá web hiện tại là 1.310.000đ (giá cũ).
+- /ru/sunset-town/: ghi «сопровождение на русском» (có HDV tiếng Nga), cần chị xác nhận như trường hợp HDV tiếng Hàn.
