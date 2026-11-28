@@ -79,3 +79,22 @@
 ---
 
 Sau khi có câu trả lời, em viết vào bài theo luật «tên + 10 năm dẫn tour giới thiệu một lần, các đoạn sau viết liền mạch». Đồng thời em sửa các chỗ «Sửa luôn khi viết», ghi Nhật ký thay đổi kèm **Phép kiểm**, rồi cập nhật dòng B5 «Thiếu trải nghiệm».
+
+---
+
+## Kết quả 28/11/2026: đã viết vào bài (thanh tra Đạt 10/10)
+
+Câu trả lời của anh Nguyên và phòng sale lưu nguyên văn ở [dot-4-tra-loi-2026-11-28.md](dot-4-tra-loi-2026-11-28.md). Mỗi bài giới thiệu «Lâm Thành Nguyên … 10 năm» một lần, các đoạn sau gọi «anh Nguyên». Nhật ký thay đổi có 10 dòng kèm phép kiểm.
+
+| Bài | Đã thêm / sửa | B5 «Thiếu trải nghiệm» |
+|---|---|---|
+| Bản đồ du lịch | chia 3 khu, ở một chỗ (Dương Đông/Bãi Trường); Gành Dầu 35 km = 45–50 phút; đường đất Bãi Sao; mẹo ghim «Cầu Rạch Vẹm»; H2 → «Bản đồ du lịch Phú Quốc chia làm mấy khu vực chính?» | Đã sửa |
+| Quán ốc | Ốc 343, Ốc Bùng Binh, Nghêu Sò Ốc Hến, Ốc Vui; H2 mới «Ăn ốc ở Phú Quốc nên gọi món gì, hết bao nhiêu tiền?» (2 người 300–500 nghìn, 11/2026) | Đã sửa |
+| Siêu thị | 17 chỗ vẫn mở (11/2026); nhà thùng Phụng Hưng/Khai Hoàn, KingKong Mart; lưu ý ký gửi nước mắm | Đã sửa |
+| Thổ Châu | **không viết trải nghiệm** (Rooty chưa dẫn đoàn); thêm bảng lịch tàu 11/2026 + giấy tờ Biên phòng (tỉnh An Giang) | Vẫn Mới: còn thiếu trải nghiệm thật |
+| Hillside | giá sale 1,1–1,3 triệu/đêm (11/2026); khen/chê của khách; điểm đón xe; H2 → câu hỏi | Đã sửa |
+| Sunset Sanato (Elementor) | giờ đẹp 16h30–17h30; góc Cổng Trời/đàn voi; trang phục; bảng giá vẫn đúng | Đã sửa |
+| Dinh Cậu | hoàng hôn 17h–18h; tích anh hay kể; trang phục, 1 nén nhang, gửi xe miễn phí | Đã sửa |
+| Phà đêm | thay mục «lịch trình thử nghiệm» bằng giờ chạy 11/2026; 90% khách đi tàu, khi nào nên đi phà; Bãi Vòng → Dương Đông 20–25 phút, ~250.000đ; xoá H2 rỗng | Đã sửa |
+| Đi tàu | Phú Quốc Express/Superdong; tuyến Hà Tiên êm hơn; mùa sóng 6–9; mẹo chống say; giá vé vẫn đúng | Đã sửa |
+| 14 trò chơi VinWonders | 14 trò vẫn chạy; giới hạn chiều cao 1m30–1m40; trò cho bé; mẹo né đông (Zeus, Mãng Xà); «năm 2024» → «năm 2026»; «Từ ngày 19/02/2020» → «Từ tháng 2/2020» (nguồn chỉ xác nhận tháng 2/2020: VnExpress, Diễn đàn Doanh nghiệp, VinWonders) | Đã sửa |
